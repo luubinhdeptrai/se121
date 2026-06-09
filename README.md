@@ -10,12 +10,18 @@ Kho mã nguồn này triển khai một kiến trúc Late Fusion Multimodal bằ
   - Điểm tổng quan (Overall Score từ 0-10)
   - Điểm thành phần (Food Quality, Price, Atmosphere)
 
-## Chiến lược Huấn luyện (3 Giai đoạn)
-Kho mã nguồn này sử dụng chiến lược huấn luyện từng bước để tránh hiện tượng một phương thức (như text) lấn át phương thức còn lại:
-1. **Giai đoạn 1 (Train Text Model):** Huấn luyện độc lập nhánh Text Encoder.
-2. **Giai đoạn 2 (Train Image Model):** Huấn luyện độc lập nhánh Image Encoder.
-3. **Giai đoạn 3 (Train Fusion Model):** Tải lại trọng số đã được train tốt nhất từ Giai đoạn 1 & 2, đóng băng (freeze) các encoders này lại, và chỉ huấn luyện lớp Fusion và các nhánh Prediction cuối cùng.
+## 🎯 Quyết định Thiết kế (Design Choices) & Best Practices
+Để mô hình đạt hiệu năng ổn định nhất với dữ liệu thực tế, repo này áp dụng 3 quy chuẩn (industry standards) trong Machine Learning:
 
+1. **Phương pháp kết hợp Late Fusion (Concatenation)**:
+   Thay vì dùng Cross-Attention đắt đỏ và dễ lỗi gradient vanishing, mô hình trích xuất đặc trưng của Text và Image độc lập rồi mới nối (concat) lại ở lớp cuối. Đây là Strong Baseline cực kỳ ổn định, ít tốn RAM GPU và thường được sử dụng rộng rãi trong các hệ thống gợi ý thực tế.
+2. **Chiến lược Huấn luyện 3 Giai đoạn (Modality Warming)**:
+   Huấn luyện End-to-end ngay từ đầu thường dẫn đến hiện tượng **"Modality Collapse"** (mô hình chỉ lười biếng nhìn vào Text mà bỏ qua Image). Do đó, repo này áp dụng chiến thuật:
+   - **Giai đoạn 1 (Train Text):** Ép mô hình chỉ học từ chữ.
+   - **Giai đoạn 2 (Train Image):** Ép mô hình chỉ học từ ảnh.
+   - **Giai đoạn 3 (Train Fusion):** Đóng băng cả hai, chỉ train lớp nối ghép cuối cùng. Cách này đảm bảo cả hai phương thức đều phát huy tối đa 100% năng lực.
+3. **Bài toán Hồi quy (Regression) thay vì Phân loại (Classification)**:
+   Điểm số (ví dụ: Food Score 1-10) là dữ liệu có tính thứ tự liên tục (Ordinal). Việc dự đoán sai 8 thành 7 ít nghiêm trọng hơn 8 thành 1. Do đó, mô hình sử dụng hàm mất mát **MSELoss** (Mean Squared Error) để hiểu khoảng cách toán học của điểm số, thay vì biến chúng thành các nhãn phân loại rời rạc cứng nhắc.
 ## Hướng dẫn chạy trên Kaggle / Máy cá nhân (Local)
 
 Dù bạn chạy trên Kaggle hay trên máy cá nhân, quy trình chạy đều y hệt nhau vì mã nguồn sử dụng đường dẫn tương đối (`./data/...`). Trên Kaggle, bạn nên bật **Accelerator là GPU T4 x2**.
