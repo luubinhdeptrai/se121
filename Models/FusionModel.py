@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class FusionModel(nn.Module):
-    def __init__(self, text_model, image_model, text_hidden_size=768, image_hidden_size=1024, num_factors=3):
+    def __init__(self, text_model, image_model, num_factors=3):
         super(FusionModel, self).__init__()
         # Các mô hình nhánh đã được train
         self.text_model = text_model
@@ -14,6 +14,10 @@ class FusionModel(nn.Module):
         for param in self.image_model.parameters():
             param.requires_grad = False
             
+        # Tự động lấy kích thước feature từ các encoder
+        text_hidden_size = self.text_model.encoder.config.hidden_size
+        image_hidden_size = self.image_model.encoder.num_features
+        
         fusion_size = text_hidden_size + image_hidden_size
         self.fusion_fc = nn.Sequential(
             nn.Linear(fusion_size, 512),

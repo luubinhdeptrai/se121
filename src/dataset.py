@@ -18,8 +18,10 @@ class MultimodalDataset(Dataset):
         return len(self.df)
 
     def _load_image(self, url, idx):
+        import hashlib
+        url_hash = hashlib.md5(url.encode('utf-8')).hexdigest()
         # Đường dẫn ảnh local 
-        local_path = os.path.join(self.image_dir, f"{idx}.jpg")
+        local_path = os.path.join(self.image_dir, f"{url_hash}.jpg")
         if os.path.exists(local_path):
             return Image.open(local_path).convert("RGB")
             

@@ -37,11 +37,12 @@ def main():
     df = pd.concat(dfs, ignore_index=True)
     print(f"Bắt đầu tải {len(df)} ảnh...")
     
-    # Tạo danh sách arguments cho multi-threading
-    # Sử dụng index của dataframe làm tên file ảnh để dễ map lại
+    import hashlib
     download_args = []
-    for idx, row in df.iterrows():
-        download_args.append((row['image_url'], idx, save_folder))
+    for _, row in df.iterrows():
+        url = row['image_url']
+        url_hash = hashlib.md5(url.encode('utf-8')).hexdigest()
+        download_args.append((url, url_hash, save_folder))
         
     # Tải song song cho nhanh (ví dụ dùng 20 luồng)
     with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
