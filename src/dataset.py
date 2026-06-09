@@ -7,18 +7,19 @@ from PIL import Image
 from io import BytesIO
 
 class MultimodalDataset(Dataset):
-    def __init__(self, csv_file, text_tokenizer, image_processor, max_length=128):
+    def __init__(self, csv_file, text_tokenizer, image_processor, max_length=128, image_dir='./data/images'):
         self.df = pd.read_csv(csv_file)
         self.tokenizer = text_tokenizer
         self.image_processor = image_processor
         self.max_length = max_length
+        self.image_dir = image_dir
 
     def __len__(self):
         return len(self.df)
 
     def _load_image(self, url, idx):
-        # Đường dẫn ảnh local (nếu bạn đã tải về)
-        local_path = f"./data/images/{idx}.jpg"
+        # Đường dẫn ảnh local 
+        local_path = os.path.join(self.image_dir, f"{idx}.jpg")
         if os.path.exists(local_path):
             return Image.open(local_path).convert("RGB")
             

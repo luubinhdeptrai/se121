@@ -20,7 +20,7 @@ def test():
     image_processor = AutoImageProcessor.from_pretrained('facebook/convnext-base-224-22k')
 
     print("Loading Test Dataset...")
-    test_dataset = MultimodalDataset(args.test_path, tokenizer, image_processor, args.max_length)
+    test_dataset = MultimodalDataset(args.test_path, tokenizer, image_processor, args.max_length, args.image_dir)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
     print(f"Đã nạp {len(test_dataset)} mẫu Test")
 
