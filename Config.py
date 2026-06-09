@@ -9,7 +9,8 @@ def get_args():
                         help="Chọn chế độ train: text, image, hoặc fusion")
     
     # File paths
-    parser.add_argument('--data_path', type=str, default='./data/processed_reviews.csv', help='Đường dẫn file CSV dữ liệu')
+    parser.add_argument('--train_path', type=str, default='./data/train.csv', help='Đường dẫn file CSV train')
+    parser.add_argument('--val_path', type=str, default='./data/val.csv', help='Đường dẫn file CSV val')
     parser.add_argument('--save_path', type=str, default='./checkpoints', help='Thư mục lưu model')
     
     # Model configuration
