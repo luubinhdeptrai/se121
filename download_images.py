@@ -21,11 +21,20 @@ def download_image(args):
         pass # Bỏ qua nếu lỗi
 
 def main():
-    csv_file = '/Users/abc/Documents/SE/data/processed_reviews.csv'
-    save_folder = '/Users/abc/Documents/SE/data/images'
+    save_folder = './data/images'
     os.makedirs(save_folder, exist_ok=True)
     
-    df = pd.read_csv(csv_file)
+    # Gom cả 3 file train, val, test để tải ảnh
+    dfs = []
+    for f in ['./data/train.csv', './data/val.csv', './data/test.csv']:
+        if os.path.exists(f):
+            dfs.append(pd.read_csv(f))
+    
+    if not dfs:
+        print("Lỗi: Không tìm thấy các file CSV!")
+        return
+        
+    df = pd.concat(dfs, ignore_index=True)
     print(f"Bắt đầu tải {len(df)} ảnh...")
     
     # Tạo danh sách arguments cho multi-threading
