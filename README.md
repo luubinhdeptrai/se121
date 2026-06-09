@@ -35,21 +35,27 @@ python download_images.py
 ```
 
 ### Bước 3: Chạy Train các mô hình
-Lần lượt chạy các lệnh sau (mọi đường dẫn `--train_path`, `--image_dir`... đã được thiết lập mặc định trong `Config.py` nên không cần gõ dài):
+Bạn hoàn toàn có thể tuỳ chỉnh siêu tham số (hyperparameters) bằng cách truyền argument vào lệnh chạy (giống repo gốc). Dưới đây là các tham số bạn có thể điều chỉnh:
+- `--epochs`: Số vòng lặp huấn luyện (Mặc định: 5)
+- `--batch_size`: Kích thước batch (Mặc định: 16)
+- `--lr`: Learning rate (Mặc định: 2e-5)
+- `--alpha`: Trọng số loss (Mặc định: 0.5)
+
+Lần lượt chạy các lệnh sau:
 
 **Giai đoạn 1: Train Text**
 ```bash
-python main.py --mode train_text
+python main.py --mode train_text --epochs 5 --batch_size 16 --lr 2e-5
 ```
 
 **Giai đoạn 2: Train Image**
 ```bash
-python main.py --mode train_image
+python main.py --mode train_image --epochs 5 --batch_size 16 --lr 2e-5
 ```
 
 **Giai đoạn 3: Train Fusion**
 ```bash
-python main.py --mode train_fusion
+python main.py --mode train_fusion --epochs 10 --batch_size 16 --lr 1e-4
 ```
 
 ### Bước 4: Test Báo Cáo Kết Quả
