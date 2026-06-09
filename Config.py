@@ -25,6 +25,7 @@ def get_args():
     parser.add_argument('--batch_size', type=int, default=16, help='Batch size')
     parser.add_argument('--epochs', type=int, default=5, help='Số epochs')
     parser.add_argument('--lr', type=float, default=2e-5, help='Learning rate')
+    parser.add_argument('--weight_decay', type=float, default=1e-2, help='Weight decay cho AdamW')
     parser.add_argument('--alpha', type=float, default=0.5, help='Trọng số loss giữa Overall (alpha) và Factors (1-alpha)')
     
     args = parser.parse_args()

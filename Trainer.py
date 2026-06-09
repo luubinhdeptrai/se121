@@ -12,7 +12,7 @@ class Trainer:
         self.args = args
         
         self.criterion = nn.MSELoss()
-        self.optimizer = torch.optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr)
+        self.optimizer = torch.optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr, weight_decay=args.weight_decay)
         self.alpha = args.alpha
 
     def train_epoch(self, epoch):

@@ -18,7 +18,10 @@ def main():
 
     # Processors
     tokenizer = AutoTokenizer.from_pretrained(args.text_model_name)
-    image_processor = AutoImageProcessor.from_pretrained('facebook/convnext-base-224-22k')
+    try:
+        image_processor = AutoImageProcessor.from_pretrained(args.image_model_name)
+    except:
+        image_processor = AutoImageProcessor.from_pretrained('facebook/convnext-base-224-22k')
 
     # Data
     print("Loading Dataset...")

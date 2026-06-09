@@ -17,7 +17,10 @@ def test():
     print(f"====== TESTING MODE: {args.mode.upper()} ======")
     
     tokenizer = AutoTokenizer.from_pretrained(args.text_model_name)
-    image_processor = AutoImageProcessor.from_pretrained('facebook/convnext-base-224-22k')
+    try:
+        image_processor = AutoImageProcessor.from_pretrained(args.image_model_name)
+    except:
+        image_processor = AutoImageProcessor.from_pretrained('facebook/convnext-base-224-22k')
 
     print("Loading Test Dataset...")
     test_dataset = MultimodalDataset(args.test_path, tokenizer, image_processor, args.max_length, args.image_dir)
