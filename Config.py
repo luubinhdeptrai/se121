@@ -11,6 +11,7 @@ def get_args():
     # File paths
     parser.add_argument('--train_path', type=str, default='./data/train.csv', help='Đường dẫn file CSV train')
     parser.add_argument('--val_path', type=str, default='./data/val.csv', help='Đường dẫn file CSV val')
+    parser.add_argument('--test_path', type=str, default='./data/test.csv', help='Đường dẫn file CSV test')
     parser.add_argument('--save_path', type=str, default='./checkpoints', help='Thư mục lưu model')
     
     # Model configuration
