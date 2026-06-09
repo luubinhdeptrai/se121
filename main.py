@@ -24,9 +24,24 @@ def main():
     print("Loading Dataset...")
     dataset = MultimodalDataset(args.data_path, tokenizer, image_processor, args.max_length)
     
-    train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+    # Chia tập Train/Val theo review_id (Ngăn chặn Data Leakage)
+    import numpy as np
+    from torch.utils.data import Subset
+    
+    unique_reviews = dataset.df['review_id'].unique()
+    np.random.seed(42)
+    np.random.shuffle(unique_reviews)
+    
+    train_review_count = int(0.8 * len(unique_reviews))
+    train_reviews = set(unique_reviews[:train_review_count])
+    
+    train_indices = dataset.df[dataset.df['review_id'].isin(train_reviews)].index.tolist()
+    val_indices = dataset.df[~dataset.df['review_id'].isin(train_reviews)].index.tolist()
+    
+    train_dataset = Subset(dataset, train_indices)
+    val_dataset = Subset(dataset, val_indices)
+    
+    print(f"Đã chia {len(train_indices)} ảnh cho Train và {len(val_indices)} ảnh cho Val (Không trùng lặp Review)")
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
