@@ -1,0 +1,57 @@
+{
+  "generated_at": "2026-06-07T23:19:07.376423+00:00",
+  "input_dir": "/content/drive/MyDrive/Crawl_data/Foody/checkpoints",
+  "output_dir": "/content/drive/MyDrive/Crawl_data/Foody/checkpoints_clean",
+  "task_type": "regression",
+  "target_column": "avg_rating",
+  "raw_counts": {
+    "restaurants": 300,
+    "reviews": 11111,
+    "review_images": 24599
+  },
+  "after_technical_cleaning": {
+    "restaurants": 300,
+    "reviews": 11111,
+    "review_images": 24599
+  },
+  "after_content_cleaning": {
+    "reviews": 11111,
+    "flagged_ad_or_spam": 535,
+    "flagged_too_short": 630,
+    "flagged_emoji_only": 20,
+    "flagged_valid_content": 9946
+  },
+  "after_ml_filtering": {
+    "valid_reviews": 9946,
+    "valid_review_images": 22150,
+    "multimodal_pairs": 22150,
+    "text_only_reviews": 9946,
+    "invalid_or_out_of_range_ratings": 0
+  },
+  "removed": {
+    "duplicate_restaurants": 0,
+    "duplicate_reviews": 0,
+    "duplicate_images": 0,
+    "reviews_no_review_id": 0,
+    "images_empty_url": 0
+  },
+  "rating_distribution": {
+    "mean": 6.754413834707421,
+    "median": 7.2,
+    "std": 2.4137883464095484,
+    "min": 0.0,
+    "max": 10.0,
+    "buckets": {
+      "0-2": 718,
+      "2-4": 795,
+      "4-6": 1549,
+      "6-8": 3947,
+      "8-10": 2937
+    }
+  },
+  "image_coverage": {
+    "reviews_with_images": 6082,
+    "total_valid_reviews": 9946,
+    "coverage_pct": 61.15
+  }
+}

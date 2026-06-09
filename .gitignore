@@ -1,0 +1,9 @@
+
+checkpoints/
+__pycache__/
+*.pyc
+
+# Mac OS
+.DS_Store
+.DS_Store
+*.zip
