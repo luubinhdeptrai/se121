@@ -8,38 +8,70 @@ Kho mã nguồn này triển khai một kiến trúc Late Fusion Multimodal bằ
 - **Fusion Module (Mô-đun kết hợp):** Concatenation (Nối vector) + Dense Layers (Các lớp kết nối đầy đủ)
 - **Prediction Heads (Các nhánh dự đoán):** 
   - Điểm tổng quan (Overall Score từ 0-10)
-  - Điểm thành phần (Food Quality - Chất lượng món ăn, Price - Giá cả, Atmosphere - Không gian)
+  - Điểm thành phần (Food Quality, Price, Atmosphere)
 
 ## Chiến lược Huấn luyện (3 Giai đoạn)
 Kho mã nguồn này sử dụng chiến lược huấn luyện từng bước để tránh hiện tượng một phương thức (như text) lấn át phương thức còn lại:
-
 1. **Giai đoạn 1 (Train Text Model):** Huấn luyện độc lập nhánh Text Encoder.
 2. **Giai đoạn 2 (Train Image Model):** Huấn luyện độc lập nhánh Image Encoder.
 3. **Giai đoạn 3 (Train Fusion Model):** Tải lại trọng số đã được train tốt nhất từ Giai đoạn 1 & 2, đóng băng (freeze) các encoders này lại, và chỉ huấn luyện lớp Fusion và các nhánh Prediction cuối cùng.
 
-## Cài đặt Môi trường
-Cài đặt các thư viện cần thiết bằng lệnh:
+## Hướng dẫn chạy trên Kaggle (GPU)
+
+Do model xử lý hình ảnh ConvNeXt khá nặng, khuyến nghị chạy trên Kaggle GPU (T4 x2) thay vì máy cá nhân.
+
+### Bước 1: Chuẩn bị Data trên Kaggle
+1. Tạo một Kaggle Dataset mới, tải file `data.zip` chứa ảnh và file csv lên. Đặt tên Dataset ví dụ là `food-review-data`.
+2. Trong Kaggle Notebook, bật **Accelerator là GPU T4 x2**.
+3. Bấm Add Data và thêm dataset vừa tạo vào Notebook. (Đường dẫn data trên Kaggle lúc này sẽ là `/kaggle/input/food-review-data/data/...`)
+
+### Bước 2: Clone Code từ Github
+Tạo một block Code (Cell) và chạy lệnh sau để kéo code về:
 ```bash
-pip install torch transformers timm pandas pillow requests tqdm
+!git clone https://github.com/lechihoang/SE365.git
+%cd SE365
+!pip install transformers timm
 ```
 
-## Hướng dẫn Chạy
+### Bước 3: Chạy Train các mô hình
+Lần lượt chạy từng Cell để train (Lưu ý đường dẫn dữ liệu `--train_path`, `--val_path` và `--image_dir` phải trỏ đúng vào Kaggle Dataset của bạn):
 
-**1. Chuẩn bị Dữ liệu**
-Hãy chắc chắn rằng tập dữ liệu đã qua xử lý của bạn nằm ở thư mục `data/processed_reviews.csv` (chứa các cột `comment_clean`, `image_url`, `avg_rating`, `food_score`, `price_score`, `atmosphere_score`).
-
-**2. Giai đoạn 1: Chỉ Train nhánh Text**
+**Giai đoạn 1: Train Text**
 ```bash
-python main.py --mode train_text --epochs 5 --lr 2e-5
+!python main.py --mode train_text \
+  --train_path /kaggle/input/food-review-data/data/train.csv \
+  --val_path /kaggle/input/food-review-data/data/val.csv \
+  --image_dir /kaggle/input/food-review-data/data/images
 ```
 
-**3. Giai đoạn 2: Chỉ Train nhánh Image**
+**Giai đoạn 2: Train Image**
 ```bash
-python main.py --mode train_image --epochs 5 --lr 2e-5
+!python main.py --mode train_image \
+  --train_path /kaggle/input/food-review-data/data/train.csv \
+  --val_path /kaggle/input/food-review-data/data/val.csv \
+  --image_dir /kaggle/input/food-review-data/data/images
 ```
 
-**4. Giai đoạn 3: Train nhánh Fusion**
-*(Hãy đảm bảo rằng Giai đoạn 1 & 2 đã chạy xong để các file `checkpoints/best_model_train_text.pth` và `checkpoints/best_model_train_image.pth` tồn tại)*
+**Giai đoạn 3: Train Fusion**
 ```bash
-python main.py --mode train_fusion --epochs 10 --lr 1e-4
+!python main.py --mode train_fusion \
+  --train_path /kaggle/input/food-review-data/data/train.csv \
+  --val_path /kaggle/input/food-review-data/data/val.csv \
+  --image_dir /kaggle/input/food-review-data/data/images
 ```
+
+### Bước 4: Test Báo Cáo Kết Quả
+Sau khi train xong, dùng tập `test.csv` để chạy báo cáo kết quả cuối cùng:
+```bash
+!python test.py --mode train_fusion \
+  --test_path /kaggle/input/food-review-data/data/test.csv \
+  --image_dir /kaggle/input/food-review-data/data/images
+```
+
+## Chạy Local (Máy tính cá nhân)
+Nếu muốn chạy test nhanh trên local, chỉ cần chạy các lệnh mặc định:
+```bash
+pip install -r requirements.txt
+python main.py --mode train_text
+```
+(Các đường dẫn mặc định trong `Config.py` đã trỏ sẵn vào thư mục `./data/` ở local)
