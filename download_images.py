@@ -21,17 +21,19 @@ def download_image(args):
         pass # Bỏ qua nếu lỗi
 
 def main():
-    save_folder = './data/images'
+    # Thư mục lưu ảnh
+    save_folder = './data/image'
     os.makedirs(save_folder, exist_ok=True)
     
-    # Gom cả 3 file train, val, test để tải ảnh
+    # Đọc tất cả các file data
+    files = ['./data/text/train.csv', './data/text/val.csv', './data/text/test.csv']
     dfs = []
-    for f in ['./data/train.csv', './data/val.csv', './data/test.csv']:
+    for f in files:
         if os.path.exists(f):
             dfs.append(pd.read_csv(f))
-    
+            
     if not dfs:
-        print("Lỗi: Không tìm thấy các file CSV!")
+        print("Không tìm thấy các file CSV trong thư mục ./data/text/")
         return
         
     df = pd.concat(dfs, ignore_index=True)

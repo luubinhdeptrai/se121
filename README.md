@@ -34,11 +34,27 @@ cd SE365
 pip install -r requirements.txt
 ```
 
-### Bước 2: Tải Dữ liệu Hình ảnh
-Chạy script để tự động tải toàn bộ hình ảnh dựa vào các URL trong file CSV. Kaggle có tốc độ mạng cực nhanh nên việc này chỉ tốn vài giây:
-```bash
-python download_images.py
+### Bước 2: Tải & Nạp Dữ Liệu (Chuẩn Data Engineer)
+Kho lưu trữ này không chứa dữ liệu (Chỉ chứa Code) để đảm bảo tốc độ clone và sự chuyên nghiệp. Cấu trúc dữ liệu yêu cầu như sau:
+```text
+data/
+├── text/
+│   ├── train.csv
+│   ├── val.csv
+│   └── test.csv
+└── image/
+    └── (5000 file .jpg)
 ```
+
+**Cách đưa Data lên Kaggle cực nhanh (Không cần tải lại ảnh):**
+1. Chạy lệnh `python download_images.py` sẵn trên máy cá nhân để tải ảnh vào `data/image`.
+2. Nén **toàn bộ thư mục `data`** thành `data.zip` và Upload lên Kaggle thành một **Kaggle Dataset** (Ví dụ tên là `food-review-dataset`).
+3. Mở Kaggle Notebook, chọn **Add Input** -> Chọn Dataset vừa tạo.
+4. Tạo lối tắt (Symlink) nối Kaggle Dataset thẳng vào thư mục code bằng lệnh sau trong Notebook:
+```bash
+!ln -s /kaggle/input/food-review-dataset ./data
+```
+Lúc này, toàn bộ Code sẽ tự động nhìn thấy cả Text và Image mà không cần chỉnh sửa bất kỳ tham số đường dẫn nào!
 
 ### Bước 3: Chạy Train các mô hình
 Bạn hoàn toàn có thể tuỳ chỉnh siêu tham số (hyperparameters) bằng cách truyền argument vào lệnh chạy (giống repo gốc). Dưới đây là các tham số bạn có thể điều chỉnh:
