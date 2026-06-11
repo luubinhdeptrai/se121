@@ -8,6 +8,7 @@ Kho mã nguồn này triển khai một kiến trúc Late Fusion Multimodal bằ
 - 🧠 **Cần tìm hiểu về Kiến trúc Mô hình (Late Fusion, XLM-RoBERTa, ConvNeXt) & Các Quyết định Thiết kế (Joint MSE Loss):** Hãy đọc file [`doc/ARCHITECTURE_AND_METRICS.md`](./doc/ARCHITECTURE_AND_METRICS.md)
 - 🚀 **Cần Hướng dẫn Train/Test trực tiếp trên Google Colab siêu tốc độ (Tích hợp Google Drive):** Hãy đọc file [`doc/COLAB_GUIDE.md`](./doc/COLAB_GUIDE.md)
 - 📊 **Cần tìm hiểu cách xử lý, làm sạch và nạp dữ liệu từ Raw Data (Foody/ShopeeFood):** Hãy đọc file [`doc/DATA_SETUP.md`](./doc/DATA_SETUP.md)
+- 📓 **Mì ăn liền (Chạy ngay và luôn):** Bấm thẳng vào Notebook [👉 `notebook/colab.ipynb`](./notebook/colab.ipynb) hoặc 
 ## Hướng dẫn chạy & Cài đặt (Setup Guide)
 
 Quy trình chạy và huấn luyện mô hình được thiết kế để hoạt động ổn định trên mọi môi trường (Máy cá nhân, Server, Cloud) nhờ việc sử dụng đường dẫn tương đối (`./data/...`). Để huấn luyện hiệu quả, bạn nên sử dụng máy có GPU (khuyên dùng GPU có VRAM từ 16GB trở lên).
@@ -86,7 +87,7 @@ python test.py --mode train_fusion
 ```
 
 ## Kết Quả Thử Nghiệm (Benchmark)
-Mô hình đã được chạy thử nghiệm trên tập dữ liệu 5000 mẫu với Notebook tham khảo tại: `notebook/baseline.ipynb`. Dưới đây là kết quả của các cấu hình mô hình (Architecture) và hàm mất mát (Loss) khác nhau trên tập Test độc lập, được phân chia theo từng loại độ đo:
+Mô hình đã được chạy thử nghiệm trên tập dữ liệu 5000 mẫu với Notebook tham khảo tại: [`notebook/baseline.ipynb`](./notebook/baseline.ipynb). Dưới đây là kết quả của các cấu hình mô hình (Architecture) và hàm mất mát (Loss) khác nhau trên tập Test độc lập, được phân chia theo từng loại độ đo:
 
 ### 1. Bảng sai số tuyệt đối trung bình (MAE)
 *Độ đo thực tế và dễ hiểu nhất, cho biết trung bình máy đoán lệch bao nhiêu điểm (trên thang 1-10).*
