@@ -2,8 +2,12 @@
 
 Kho mã nguồn này triển khai một kiến trúc Late Fusion Multimodal bằng PyTorch để dự đoán điểm đánh giá đồ ăn (Điểm tổng quan - Overall và các Yếu tố cụ thể - Factors) dựa trên bình luận của người dùng và hình ảnh đi kèm.
 
-## Tài liệu & Kiến trúc Mô hình
-Chi tiết về Kiến trúc Mô hình (XLM-RoBERTa + ConvNeXt), các Quyết định Thiết kế (Late Fusion, Joint MSE) và Hướng dẫn chạy trên Google Colab đã được chuyển sang thư mục [`doc/`](./doc/). Vui lòng tham khảo các tài liệu trong đó để hiểu rõ cách thức hoạt động của mô hình.
+## 📚 Hệ thống Tài liệu (Documentation)
+Để giữ cho file README này ngắn gọn, toàn bộ các chi tiết kỹ thuật sâu hơn và hướng dẫn chạy thực tế đã được phân tách rõ ràng vào thư mục [`doc/`](./doc/). Tuỳ theo nhu cầu của bạn, hãy đọc các file sau:
+
+- 🧠 **Cần tìm hiểu về Kiến trúc Mô hình (Late Fusion, XLM-RoBERTa, ConvNeXt) & Các Quyết định Thiết kế (Joint MSE Loss):** Hãy đọc file [`doc/ARCHITECTURE_AND_METRICS.md`](./doc/ARCHITECTURE_AND_METRICS.md)
+- 🚀 **Cần Hướng dẫn Train/Test trực tiếp trên Google Colab siêu tốc độ (Tích hợp Google Drive):** Hãy đọc file [`doc/COLAB_GUIDE.md`](./doc/COLAB_GUIDE.md)
+- 📊 **Cần tìm hiểu cách xử lý, làm sạch và nạp dữ liệu từ Raw Data (Foody/ShopeeFood):** Hãy đọc file [`doc/DATA_SETUP.md`](./doc/DATA_SETUP.md)
 ## Hướng dẫn chạy & Cài đặt (Setup Guide)
 
 Quy trình chạy và huấn luyện mô hình được thiết kế để hoạt động ổn định trên mọi môi trường (Máy cá nhân, Server, Cloud) nhờ việc sử dụng đường dẫn tương đối (`./data/...`). Để huấn luyện hiệu quả, bạn nên sử dụng máy có GPU (khuyên dùng GPU có VRAM từ 16GB trở lên).
@@ -16,7 +20,7 @@ cd SE365
 pip install -r requirements.txt
 ```
 
-### Bước 2: Tải & Nạp Dữ Liệu (Chuẩn Data Engineer)
+### Bước 2: Tải & Nạp Dữ Liệu 
 Kho lưu trữ này không chứa dữ liệu (Chỉ chứa Code) để đảm bảo tốc độ clone và sự chuyên nghiệp. Cấu trúc dữ liệu yêu cầu như sau:
 ```text
 data/
@@ -34,29 +38,22 @@ Nếu bạn có thư mục `data_raw/` chứa các file cào về từ Foody/Sho
 2. Chạy lệnh `python download_images.py` để tự động tải tất cả hình ảnh từ các link có trong CSV về thư mục `data/image/`.
 
 **Cách cấu hình đường dẫn Data (Cho mọi môi trường):**
-Mặc định, mã nguồn sẽ tự động đọc dữ liệu từ thư mục `./data/` (ví dụ: `./data/text/train.csv` và `./data/image/`). Nếu dữ liệu của bạn nằm ở một thư mục khác, bạn có hai cách để thiết lập:
+Mặc định, mã nguồn sẽ tự động đọc dữ liệu từ thư mục `./data/` (ví dụ: `./data/text/train.csv` và `./data/image/`). Nếu dữ liệu của bạn nằm ở một thư mục khác, thiết lập như sau:
 
-1. **Cách 1 (Khuyên dùng - Dùng Symlink):** 
-   Tạo một lối tắt ảo nối thư mục dữ liệu thật của bạn vào thư mục code. Cách này giúp bạn gõ lệnh ngắn gọn hơn và không cần nhớ cấu trúc đường dẫn dài dòng:
-   ```bash
-   ln -s /đường/dẫn/thực/tế/đến/thư/mục/data ./data
-   ```
+Khai báo trực tiếp đường dẫn của từng file thông qua các tham số của `main.py`:
+- `--train_path`: Đường dẫn đến file train.csv
+- `--val_path`: Đường dẫn đến file val.csv
+- `--test_path`: Đường dẫn đến file test.csv
+- `--image_dir`: Đường dẫn đến thư mục chứa 5000 file ảnh
 
-2. **Cách 2 (Sử dụng tham số khi chạy lệnh):** 
-   Bạn có thể khai báo trực tiếp đường dẫn của từng file thông qua các tham số của `main.py`:
-   - `--train_path`: Đường dẫn đến file train.csv
-   - `--val_path`: Đường dẫn đến file val.csv
-   - `--test_path`: Đường dẫn đến file test.csv
-   - `--image_dir`: Đường dẫn đến thư mục chứa 5000 file ảnh
-
-   *Ví dụ chạy lệnh với data nằm ở ổ cứng ngoài:*
-   ```bash
-   python main.py --mode train_text \
-       --train_path /Volumes/External/data/text/train.csv \
-       --val_path /Volumes/External/data/text/val.csv \
-       --test_path /Volumes/External/data/text/test.csv \
-       --image_dir /Volumes/External/data/image
-   ```
+*Ví dụ chạy lệnh với data nằm ở ổ cứng ngoài:*
+```bash
+python main.py --mode train_text \
+    --train_path /Volumes/External/data/text/train.csv \
+    --val_path /Volumes/External/data/text/val.csv \
+    --test_path /Volumes/External/data/text/test.csv \
+    --image_dir /Volumes/External/data/image
+```
 
 ### Bước 3: Chạy Train các mô hình
 Bạn hoàn toàn có thể tuỳ chỉnh siêu tham số (hyperparameters) bằng cách truyền argument vào lệnh chạy (giống repo gốc). Dưới đây là các tham số bạn có thể điều chỉnh:
