@@ -6,9 +6,9 @@ Tài liệu này hướng dẫn chi tiết cách chạy rèn luyện (Train) và
 
 ## BƯỚC 1: Chuẩn bị Dữ liệu trên Google Drive
 
-1. Tải thư mục `data` (bao gồm `data/text` chứa các file CSV và `data/image` chứa toàn bộ 5000+ ảnh) lên Google Drive của bạn.
-2. Ghi nhớ tên thư mục gốc trên Drive. Ví dụ: `MyDrive/SE365_Data`.
-3. Bạn **không cần nén** thư mục này thành `.zip`. Cứ để nguyên các thư mục con để có thể xem trực quan (Visual) ngay trên Drive.
+1. Nén toàn bộ thư mục `data` thành file `data.zip` (để tối ưu hóa tốc độ truyền tải trên Colab).
+2. Tải file `data.zip` lên Google Drive của bạn, hoặc bạn có thể sử dụng link Drive được share sẵn của nhóm: [Link Drive Share](https://drive.google.com/drive/folders/1uwKnhb2d3lOLlMIpRU-qnW67ar4LQWk2?usp=sharing).
+3. Nếu dùng link share, hãy chuột phải vào file `data.zip` bên trong thư mục đó -> Chọn **Thêm lối tắt vào Drive (Add shortcut to Drive)** -> Lưu vào thư mục gốc `MyDrive` của bạn.
 
 ---
 
@@ -45,13 +45,19 @@ Thêm một cell khác:
 !pip install -r requirements.txt
 ```
 
-**3. Tải Dữ liệu từ Google Drive vào Máy ảo (Tăng tốc tối đa)**
-Thay vì trỏ Symlink, ta sẽ copy toàn bộ thư mục `data` từ Drive vào thẳng ổ cứng của Colab để tốc độ huấn luyện đạt mức tối đa (nhanh như Kaggle):
+**3. Tải và Giải nén File Dữ liệu (Phương pháp Gold Standard)**
+Thay vì copy từng file nhỏ, ta sẽ copy thẳng file `data.zip` từ Drive xuống ổ cứng cục bộ và giải nén. Tốc độ sẽ tăng từ vài phút xuống còn chưa tới 30 giây:
 ```bash
 !rm -rf ./data
-!cp -r /content/drive/MyDrive/SE365/data ./data
+# Nếu bạn tự up file data.zip lên Drive của mình (ví dụ thư mục SE365)
+!cp /content/drive/MyDrive/SE365/data.zip ./data.zip
+
+# Nếu bạn dùng Lối tắt (Shortcut) từ link Drive Share ở Bước 1
+# !cp /content/drive/MyDrive/data.zip ./data.zip
+
+!unzip -q ./data.zip -d ./
 ```
-*(Thay thế `SE365/data` bằng đúng đường dẫn đến thư mục `data` trên Drive của bạn)*
+*(Bạn hãy chỉnh sửa tham số đường dẫn `/content/drive/MyDrive/...` ở trên sao cho trỏ đúng tới vị trí file `data.zip` hoặc Lối tắt trong Drive của bạn)*
 
 **4. Khởi tạo Thư mục Lưu trữ cho Phiên chạy**
 Để đảm bảo tất cả các mô hình (Text, Image, Fusion) trong cùng một lần chạy được lưu chung vào một thư mục, hãy khởi tạo một biến môi trường:
