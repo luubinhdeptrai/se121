@@ -1,0 +1,72 @@
+# Cấu trúc và Thiết lập Dữ liệu (Data Setup Guide)
+
+Trong bài toán Multimodal (Text + Image), việc quản lý dữ liệu hiệu quả là yếu tố sống còn. Tài liệu này sẽ hướng dẫn bạn cách thiết lập dữ liệu chuẩn nhất trên các môi trường khác nhau.
+
+## 1. Cấu trúc Dữ liệu Chuẩn
+Mã nguồn mong đợi một cấu trúc dữ liệu như sau:
+```text
+data/
+├── text/
+│   ├── train.csv (Tập huấn luyện)
+│   ├── val.csv   (Tập kiểm thử trong quá trình train)
+│   └── test.csv  (Tập đánh giá độc lập cuối cùng)
+└── image/
+    ├── img_0001.jpg
+    ├── img_0002.jpg
+    └── ... (5000+ files ảnh)
+```
+
+**Tại sao lại gộp chung ảnh vào một thư mục `image/`?**
+Khác với các bài toán Image Classification cơ bản chia ảnh ra thư mục `train/`, `val/`, bài toán Multimodal sử dụng file `.csv` làm hệ thống Mục lục (Index). 
+Trong file CSV sẽ ghi rõ `image_id` khớp với dòng Text nào và thuộc tập rèn luyện nào. Việc gộp chung ảnh giúp bạn dễ dàng thay đổi tỷ lệ Train/Val/Test (bằng cách chạy lại tập lệnh chia CSV) mà không phải mất thời gian Copy/Move hàng ngàn file ảnh vật lý trên ổ cứng.
+
+---
+
+## 2. Hướng dẫn thiết lập trên Google Colab
+
+Đừng nén toàn bộ ảnh thành file `.zip` nếu không cần thiết. Cách tốt nhất là để thư mục data trực tiếp trên Google Drive và sử dụng **Symlink**.
+
+1. Mở Google Colab, dán đoạn code sau vào Cell đầu tiên để kết nối với Google Drive:
+   ```python
+   from google.colab import drive
+   drive.mount('/content/drive')
+   ```
+
+2. Clone mã nguồn về máy ảo Colab:
+   ```bash
+   !git clone https://github.com/lechihoang/SE365.git
+   %cd SE365
+   !pip install -r requirements.txt
+   ```
+
+3. Tạo cầu nối (Symlink) từ Google Drive sang mã nguồn:
+   ```bash
+   !ln -s /content/drive/MyDrive/Đường_dẫn_đến_thư_mục_Data ./data
+   ```
+   *Lệnh này sẽ đánh lừa mã nguồn rằng thư mục `./data` nằm ngay trong code, nhưng thực chất nó đang đọc dữ liệu trực tiếp từ Drive.*
+
+4. Chạy huấn luyện bình thường:
+   ```bash
+   !python main.py --mode train_fusion --epochs 15
+   ```
+
+---
+
+## 3. Hướng dẫn thiết lập trên Local (Máy tính cá nhân/Server)
+
+Nếu bạn tải dữ liệu về máy, bạn có hai cách để cấu hình:
+
+**Cách 1: Sử dụng Symlink (Khuyên dùng trên Linux/Mac)**
+```bash
+ln -s /đường/dẫn/thực/tế/đến/thư/mục/data ./data
+```
+
+**Cách 2: Ghi đè tham số dòng lệnh**
+Nếu bạn dùng Windows hoặc không thích Symlink, hãy truyền đường dẫn thẳng vào lệnh chạy:
+```bash
+python main.py --mode train_text \
+   --train_path "D:/AI_Data/SE365/text/train.csv" \
+   --val_path "D:/AI_Data/SE365/text/val.csv" \
+   --test_path "D:/AI_Data/SE365/text/test.csv" \
+   --image_dir "D:/AI_Data/SE365/image"
+```
