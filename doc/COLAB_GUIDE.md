@@ -46,12 +46,12 @@ Thêm một cell khác:
 ```
 
 **3. Kết nối Dữ liệu bằng Symlink (Quan Trọng Nhất)**
-Sử dụng lệnh `ln -s` để trỏ vào thư mục chứa data của bạn trên Drive:
+Sử dụng lệnh `ln -s` để trỏ vào thư mục `data` nằm bên trong thư mục gốc của bạn trên Drive:
 ```bash
 !rm -rf ./data
-!ln -s /content/drive/MyDrive/SE365_Data ./data
+!ln -s /content/drive/MyDrive/SE365_Data/data ./data
 ```
-*(Thay thế `SE365_Data` bằng đúng đường dẫn trên Drive của bạn)*
+*(Thay thế `SE365_Data/data` bằng đúng đường dẫn đến thư mục `data` trên Drive của bạn)*
 
 **4. Chạy Training và Đánh Giá**
 ```bash
@@ -68,4 +68,12 @@ Sử dụng lệnh `ln -s` để trỏ vào thư mục chứa data của bạn t
 !python test.py --mode train_fusion
 ```
 
-Lúc này, toàn bộ quá trình sẽ diễn ra hoàn toàn tự động! Mọi checkpoint (trọng số) tốt nhất sẽ tự động được lưu vào thư mục `./checkpoints` (trong Colab). Bạn có thể tải thư mục `checkpoints` về máy khi train xong.
+**5. Sao lưu Mô hình về Google Drive (Tránh mất dữ liệu)**
+Sau khi huấn luyện xong, Colab có thể bị ngắt và mất dữ liệu. Bạn hãy copy toàn bộ trọng số (checkpoints) sang Drive để lưu lại vĩnh viễn (lệnh `mkdir` sẽ tự tạo thư mục nếu chưa có):
+```bash
+!mkdir -p /content/drive/MyDrive/SE365_Data/checkpoints
+!cp -r ./checkpoints/* /content/drive/MyDrive/SE365_Data/checkpoints/
+```
+*(Thay thế `SE365_Data` bằng tên thư mục gốc trên Drive của bạn)*
+
+Lúc này, toàn bộ quá trình sẽ diễn ra hoàn toàn tự động từ A tới Z!
