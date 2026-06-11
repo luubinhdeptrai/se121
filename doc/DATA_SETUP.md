@@ -24,31 +24,9 @@ Trong file CSV sẽ ghi rõ `image_id` khớp với dòng Text nào và thuộc 
 
 ## 2. Hướng dẫn thiết lập trên Google Colab
 
-Đừng nén toàn bộ ảnh thành file `.zip` nếu không cần thiết. Cách tốt nhất là để thư mục data trực tiếp trên Google Drive và sử dụng **Symlink**.
+Quy trình chạy và kết nối dữ liệu trên Google Colab (sử dụng Google Drive và Symlink) đã được tách riêng thành một tài liệu chi tiết. 
 
-1. Mở Google Colab, dán đoạn code sau vào Cell đầu tiên để kết nối với Google Drive:
-   ```python
-   from google.colab import drive
-   drive.mount('/content/drive')
-   ```
-
-2. Clone mã nguồn về máy ảo Colab:
-   ```bash
-   !git clone https://github.com/lechihoang/SE365.git
-   %cd SE365
-   !pip install -r requirements.txt
-   ```
-
-3. Tạo cầu nối (Symlink) từ Google Drive sang mã nguồn:
-   ```bash
-   !ln -s /content/drive/MyDrive/Đường_dẫn_đến_thư_mục_Data ./data
-   ```
-   *Lệnh này sẽ đánh lừa mã nguồn rằng thư mục `./data` nằm ngay trong code, nhưng thực chất nó đang đọc dữ liệu trực tiếp từ Drive.*
-
-4. Chạy huấn luyện bình thường:
-   ```bash
-   !python main.py --mode train_fusion --epochs 15
-   ```
+👉 **Vui lòng xem tại: [Hướng dẫn Google Colab (COLAB_GUIDE.md)](./COLAB_GUIDE.md)**
 
 ---
 
