@@ -49,9 +49,9 @@ Thêm một cell khác:
 Sử dụng lệnh `ln -s` để trỏ vào thư mục `data` nằm bên trong thư mục gốc của bạn trên Drive:
 ```bash
 !rm -rf ./data
-!ln -s /content/drive/MyDrive/SE365_Data/data ./data
+!ln -s /content/drive/MyDrive/SE365/data ./data
 ```
-*(Thay thế `SE365_Data/data` bằng đúng đường dẫn đến thư mục `data` trên Drive của bạn)*
+*(Thay thế `SE365/data` bằng đúng đường dẫn đến thư mục `data` trên Drive của bạn)*
 
 **4. Khởi tạo Thư mục Lưu trữ cho Phiên chạy**
 Để đảm bảo tất cả các mô hình (Text, Image, Fusion) trong cùng một lần chạy được lưu chung vào một thư mục, hãy khởi tạo một biến môi trường:
@@ -60,10 +60,11 @@ import os
 import datetime
 
 run_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-drive_ckpt_path = f'/content/drive/MyDrive/SE365_Data/checkpoints/{run_id}'
+drive_ckpt_path = f'/content/drive/MyDrive/SE365/checkpoints/{run_id}'
 os.environ['DRIVE_CKPT'] = drive_ckpt_path
 
-!mkdir -p $DRIVE_CKPT
+# Tạo thư mục con checkpoints và thư mục run_id bằng os.makedirs
+os.makedirs(drive_ckpt_path, exist_ok=True)
 print(f'Mọi checkpoint trong phiên này sẽ được lưu chung vào: {drive_ckpt_path}')
 ```
 
