@@ -15,9 +15,9 @@ Nhóm đã chuẩn bị sẵn toàn bộ dữ liệu trên Google Drive. Bạn k
 
 ## BƯỚC 2: Chạy trực tiếp từ Notebook có sẵn
 
-Trong mã nguồn, mình đã chuẩn bị sẵn một file Notebook chuyên dụng dành cho môi trường Colab: `notebook/colab.ipynb`.
+Trong mã nguồn, mình đã chuẩn bị sẵn một file Notebook chuyên dụng dành cho môi trường Colab: [`notebook/colab.ipynb`](../notebook/colab.ipynb).
 
-Bạn chỉ cần mở file `notebook/colab.ipynb` trên Google Colab và chạy lần lượt các Cell từ trên xuống dưới. Notebook đã tự động hóa mọi thứ từ việc kết nối Drive, copy dữ liệu đến việc Train các mô hình và Đánh giá (Test).
+Bạn chỉ cần mở file [`notebook/colab.ipynb`](../notebook/colab.ipynb) trên Google Colab và chạy lần lượt các Cell từ trên xuống dưới. Notebook đã tự động hóa mọi thứ từ việc kết nối Drive, copy dữ liệu đến việc Train các mô hình và Đánh giá (Test).
 
 ---
 
