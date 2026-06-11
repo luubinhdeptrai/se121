@@ -74,15 +74,15 @@ Lưu ý: Sau mỗi bước Training, trọng số sẽ tự động được cop
 ```bash
 # 5.1. Huấn luyện mô hình Text
 !python main.py --mode train_text --epochs 5
-!cp ./checkpoints/* $DRIVE_CKPT/
+!cp ./checkpoints/best_model_train_text.pth $DRIVE_CKPT/
 
 # 5.2. Huấn luyện mô hình Image
 !python main.py --mode train_image --epochs 10
-!cp ./checkpoints/* $DRIVE_CKPT/
+!cp ./checkpoints/best_model_train_image.pth $DRIVE_CKPT/
 
 # 5.3. Huấn luyện mô hình Fusion kết hợp
 !python main.py --mode train_fusion --epochs 15
-!cp ./checkpoints/* $DRIVE_CKPT/
+!cp ./checkpoints/best_model_train_fusion.pth $DRIVE_CKPT/
 
 # 5.4. Đánh giá kiểm thử (Test) trên mô hình tốt nhất
 !python test.py --mode train_fusion
