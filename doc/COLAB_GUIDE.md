@@ -54,26 +54,23 @@ Sử dụng lệnh `ln -s` để trỏ vào thư mục `data` nằm bên trong t
 *(Thay thế `SE365_Data/data` bằng đúng đường dẫn đến thư mục `data` trên Drive của bạn)*
 
 **4. Chạy Training và Đánh Giá**
+Lưu ý: Sau mỗi bước Training, code sẽ tự động tạo một thư mục con chứa thời gian (Ví dụ: `checkpoints/20260611_150000`) trên Google Drive và lưu trọng số vào đó ngay lập tức để tránh mất mát dữ liệu nếu Colab bị ngắt.
+
 ```bash
 # 4.1. Huấn luyện mô hình Text
 !python main.py --mode train_text --epochs 5
+!now=$(date +"%Y%m%d_%H%M%S") && mkdir -p /content/drive/MyDrive/SE365_Data/checkpoints/$now && cp ./checkpoints/* /content/drive/MyDrive/SE365_Data/checkpoints/$now/
 
 # 4.2. Huấn luyện mô hình Image
 !python main.py --mode train_image --epochs 10
+!now=$(date +"%Y%m%d_%H%M%S") && mkdir -p /content/drive/MyDrive/SE365_Data/checkpoints/$now && cp ./checkpoints/* /content/drive/MyDrive/SE365_Data/checkpoints/$now/
 
 # 4.3. Huấn luyện mô hình Fusion kết hợp
 !python main.py --mode train_fusion --epochs 15
+!now=$(date +"%Y%m%d_%H%M%S") && mkdir -p /content/drive/MyDrive/SE365_Data/checkpoints/$now && cp ./checkpoints/* /content/drive/MyDrive/SE365_Data/checkpoints/$now/
 
 # 4.4. Đánh giá kiểm thử (Test) trên mô hình tốt nhất
 !python test.py --mode train_fusion
 ```
-
-**5. Sao lưu Mô hình về Google Drive (Tránh mất dữ liệu)**
-Sau khi huấn luyện xong, Colab có thể bị ngắt và mất dữ liệu. Bạn hãy copy toàn bộ trọng số (checkpoints) sang Drive để lưu lại vĩnh viễn (lệnh `mkdir` sẽ tự tạo thư mục nếu chưa có):
-```bash
-!mkdir -p /content/drive/MyDrive/SE365_Data/checkpoints
-!cp -r ./checkpoints/* /content/drive/MyDrive/SE365_Data/checkpoints/
-```
-*(Thay thế `SE365_Data` bằng tên thư mục gốc trên Drive của bạn)*
 
 Lúc này, toàn bộ quá trình sẽ diễn ra hoàn toàn tự động từ A tới Z!
