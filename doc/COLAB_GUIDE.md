@@ -18,13 +18,7 @@ Nhóm đã chuẩn bị sẵn toàn bộ dữ liệu trên Google Drive. Bạn k
 
 Trong mã nguồn, mình đã chuẩn bị sẵn một file Notebook chuyên dụng dành cho môi trường Colab: `notebook/colab.ipynb`.
 
-1. Bạn lên Github, mở file `notebook/colab.ipynb`.
-2. Tải file này về máy tính và đưa lên Google Colab (vào File > Upload notebook).
-3. Chạy lần lượt các Cell từ trên xuống dưới. Notebook đã tự động hóa mọi thứ bao gồm:
-   - Kết nối vào Google Drive của bạn.
-   - Kéo (Clone) mã nguồn mới nhất từ Github.
-   - Copy dữ liệu từ Lối tắt vào máy ảo Colab.
-   - Train các mô hình và Đánh giá (Test).
+Bạn chỉ cần mở file `notebook/colab.ipynb` trên Google Colab và chạy lần lượt các Cell từ trên xuống dưới. Notebook đã tự động hóa mọi thứ từ việc kết nối Drive, copy dữ liệu đến việc Train các mô hình và Đánh giá (Test).
 
 ---
 
@@ -71,23 +65,30 @@ print(f'Mọi checkpoint trong phiên này sẽ được lưu chung vào: {drive
 ```
 
 **5. Chạy Training và Đánh Giá**
+
+Nếu dữ liệu của bạn không nằm ở thư mục `./data` mặc định, bạn hoàn toàn có thể khai báo trực tiếp đường dẫn của từng file thông qua các tham số của `main.py`:
+- `--train_path`: Đường dẫn đến file train.csv
+- `--val_path`: Đường dẫn đến file val.csv
+- `--test_path`: Đường dẫn đến file test.csv
+- `--image_dir`: Đường dẫn đến thư mục chứa 5000 file ảnh
+
 Lưu ý: Sau mỗi bước Training, trọng số sẽ tự động được copy ngay lập tức vào chung thư mục `$DRIVE_CKPT` trên Google Drive.
 
 ```bash
 # 5.1. Huấn luyện mô hình Text
-!python main.py --mode train_text --epochs 5
+!python main.py --mode train_text --epochs 5 --train_path ./data/text/train.csv --val_path ./data/text/val.csv --test_path ./data/text/test.csv
 !cp ./checkpoints/best_model_train_text.pth $DRIVE_CKPT/
 
 # 5.2. Huấn luyện mô hình Image
-!python main.py --mode train_image --epochs 10
+!python main.py --mode train_image --epochs 10 --train_path ./data/text/train.csv --val_path ./data/text/val.csv --test_path ./data/text/test.csv --image_dir ./data/image
 !cp ./checkpoints/best_model_train_image.pth $DRIVE_CKPT/
 
 # 5.3. Huấn luyện mô hình Fusion kết hợp
-!python main.py --mode train_fusion --epochs 15
+!python main.py --mode train_fusion --epochs 15 --train_path ./data/text/train.csv --val_path ./data/text/val.csv --test_path ./data/text/test.csv --image_dir ./data/image
 !cp ./checkpoints/best_model_train_fusion.pth $DRIVE_CKPT/
 
 # 5.4. Đánh giá kiểm thử (Test) trên mô hình tốt nhất
-!python test.py --mode train_fusion
+!python test.py --mode train_fusion --test_path ./data/text/test.csv --image_dir ./data/image
 ```
 
 Lúc này, toàn bộ quá trình sẽ diễn ra hoàn toàn tự động từ A tới Z!
