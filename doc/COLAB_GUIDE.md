@@ -53,23 +53,37 @@ Sử dụng lệnh `ln -s` để trỏ vào thư mục `data` nằm bên trong t
 ```
 *(Thay thế `SE365_Data/data` bằng đúng đường dẫn đến thư mục `data` trên Drive của bạn)*
 
-**4. Chạy Training và Đánh Giá**
-Lưu ý: Sau mỗi bước Training, code sẽ tự động tạo một thư mục con chứa thời gian (Ví dụ: `checkpoints/20260611_150000`) trên Google Drive và lưu trọng số vào đó ngay lập tức để tránh mất mát dữ liệu nếu Colab bị ngắt.
+**4. Khởi tạo Thư mục Lưu trữ cho Phiên chạy**
+Để đảm bảo tất cả các mô hình (Text, Image, Fusion) trong cùng một lần chạy được lưu chung vào một thư mục, hãy khởi tạo một biến môi trường:
+```python
+import os
+import datetime
+
+run_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+drive_ckpt_path = f'/content/drive/MyDrive/SE365_Data/checkpoints/{run_id}'
+os.environ['DRIVE_CKPT'] = drive_ckpt_path
+
+!mkdir -p $DRIVE_CKPT
+print(f'Mọi checkpoint trong phiên này sẽ được lưu chung vào: {drive_ckpt_path}')
+```
+
+**5. Chạy Training và Đánh Giá**
+Lưu ý: Sau mỗi bước Training, trọng số sẽ tự động được copy ngay lập tức vào chung thư mục `$DRIVE_CKPT` trên Google Drive.
 
 ```bash
-# 4.1. Huấn luyện mô hình Text
+# 5.1. Huấn luyện mô hình Text
 !python main.py --mode train_text --epochs 5
-!now=$(date +"%Y%m%d_%H%M%S") && mkdir -p /content/drive/MyDrive/SE365_Data/checkpoints/$now && cp ./checkpoints/* /content/drive/MyDrive/SE365_Data/checkpoints/$now/
+!cp ./checkpoints/* $DRIVE_CKPT/
 
-# 4.2. Huấn luyện mô hình Image
+# 5.2. Huấn luyện mô hình Image
 !python main.py --mode train_image --epochs 10
-!now=$(date +"%Y%m%d_%H%M%S") && mkdir -p /content/drive/MyDrive/SE365_Data/checkpoints/$now && cp ./checkpoints/* /content/drive/MyDrive/SE365_Data/checkpoints/$now/
+!cp ./checkpoints/* $DRIVE_CKPT/
 
-# 4.3. Huấn luyện mô hình Fusion kết hợp
+# 5.3. Huấn luyện mô hình Fusion kết hợp
 !python main.py --mode train_fusion --epochs 15
-!now=$(date +"%Y%m%d_%H%M%S") && mkdir -p /content/drive/MyDrive/SE365_Data/checkpoints/$now && cp ./checkpoints/* /content/drive/MyDrive/SE365_Data/checkpoints/$now/
+!cp ./checkpoints/* $DRIVE_CKPT/
 
-# 4.4. Đánh giá kiểm thử (Test) trên mô hình tốt nhất
+# 5.4. Đánh giá kiểm thử (Test) trên mô hình tốt nhất
 !python test.py --mode train_fusion
 ```
 
