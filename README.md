@@ -2,36 +2,8 @@
 
 Kho mã nguồn này triển khai một kiến trúc Late Fusion Multimodal bằng PyTorch để dự đoán điểm đánh giá đồ ăn (Điểm tổng quan - Overall và các Yếu tố cụ thể - Factors) dựa trên bình luận của người dùng và hình ảnh đi kèm.
 
-## Kiến trúc Mô hình
-- **Text Encoder (Xử lý văn bản):** XLM-RoBERTa (`xlm-roberta-base`)
-- **Image Encoder (Xử lý hình ảnh):** ConvNeXt (`convnext_base`)
-- **Fusion Module (Mô-đun kết hợp):** Concatenation (Nối vector) + Dense Layers (Các lớp kết nối đầy đủ)
-- **Prediction Heads (Các nhánh dự đoán):** 
-  - Điểm tổng quan (Overall Score từ 0-10)
-  - Điểm thành phần (Food Quality, Price, Atmosphere)
-
-## 🎯 Quyết định Thiết kế (Design Choices) & Best Practices
-Để mô hình đạt hiệu năng ổn định nhất và dễ hiểu cho người mới bắt đầu, repo này sử dụng một kiến trúc **Baseline (Nền tảng cơ sở)** cực kỳ tường minh cùng với các chuẩn mực thực tế (industry standards) sau:
-
-### 1. Kiến trúc Baseline: Sự kết hợp muộn (Late Fusion)
-Thay vì dùng các cấu trúc phức tạp như Cross-Attention (dễ gây lỗi và quá tải phần cứng), chúng tôi chọn phương pháp **Late Fusion**:
-- **Chuyên gia Văn bản (Text Encoder - XLM-RoBERTa):** Đóng vai trò đọc hiểu câu chữ. XLM-RoBERTa được chọn vì nó hỗ trợ tiếng Việt cực tốt, hiểu được các từ lóng ẩm thực.
-- **Chuyên gia Hình ảnh (Image Encoder - ConvNeXt):** Đóng vai trò "nhìn" các bức ảnh món ăn, không gian quán. ConvNeXt là thế hệ mạng CNN hiện đại nhất, nhẹ và bén hơn ResNet truyền thống.
-- **Tổ trưởng Tổng hợp (Fusion Module):** Hai chuyên gia trên làm việc hoàn toàn độc lập để rút ra nhận xét riêng. Sau đó, "Tổ trưởng" sẽ gom 2 nhận xét này lại (Concatenation) và đưa qua một lớp mạng nơ-ron đơn giản để chốt số điểm cuối cùng. Việc độc lập này giúp mô hình ổn định, tốn ít RAM và dễ bắt bệnh.
-
-### 2. Hàm mất mát Baseline (Loss Function): Tại sao lại dùng Joint MSE?
-Bài toán dự đoán điểm đánh giá (1-10) là bài toán **Hồi quy (Regression)** chứ không phải Phân loại (Classification) vì điểm số có tính liên tục (sai 8 thành 7 thì có thể chấp nhận, nhưng sai 8 thành 1 thì là thảm họa).
-- **Hàm MSE (Mean Squared Error):** Phạt rất nặng các trường hợp máy đoán lệch quá xa so với thực tế (vì sai số bị bình phương lên). 
-- **Joint Loss (Mất mát kết hợp):** Thay vì chỉ dạy máy dự đoán điểm "Overall", chúng tôi bắt máy phải học cách dự đoán cả 3 yếu tố chi tiết (Food, Price, Atmosphere) cùng lúc. Công thức Baseline: 
-  `Tổng Loss = 0.5 * MSE_Overall + 0.5 * MSE_Factors`
-  Việc này giúp mô hình "hiểu sâu" hơn: Nó sẽ nhận ra rằng điểm Overall thấp thường là do Food tệ hoặc Price quá đắt.
-
-### 3. Chiến lược Huấn luyện 3 Giai đoạn (Modality Warming)
-Nếu "bắt" mô hình học cả Text và Image ngay từ đầu, nó thường sinh ra tật lười biếng: Chuyên gia Text quá giỏi nên "Tổ trưởng" chỉ nghe Text mà lơ đi Image (Hiện tượng Modality Collapse). Do đó, ta áp dụng chiến thuật:
-- **Giai đoạn 1:** Chỉ dạy chuyên gia Text.
-- **Giai đoạn 2:** Chỉ dạy chuyên gia Image.
-- **Giai đoạn 3:** Đóng băng 2 chuyên gia, chỉ dạy tổ trưởng cách tổng hợp ý kiến.
-Cách này ép cả hai nguồn dữ liệu đều phát huy tối đa 100% năng lực.
+## Tài liệu & Kiến trúc Mô hình
+Chi tiết về Kiến trúc Mô hình (XLM-RoBERTa + ConvNeXt), các Quyết định Thiết kế (Late Fusion, Joint MSE) và Hướng dẫn chạy trên Google Colab đã được chuyển sang thư mục [`doc/`](./doc/). Vui lòng tham khảo các tài liệu trong đó để hiểu rõ cách thức hoạt động của mô hình.
 ## Hướng dẫn chạy & Cài đặt (Setup Guide)
 
 Quy trình chạy và huấn luyện mô hình được thiết kế để hoạt động ổn định trên mọi môi trường (Máy cá nhân, Server, Cloud) nhờ việc sử dụng đường dẫn tương đối (`./data/...`). Để huấn luyện hiệu quả, bạn nên sử dụng máy có GPU (khuyên dùng GPU có VRAM từ 16GB trở lên).
