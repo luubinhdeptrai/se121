@@ -45,11 +45,11 @@ Thêm một cell khác:
 !pip install -r requirements.txt
 ```
 
-**3. Kết nối Dữ liệu bằng Symlink (Quan Trọng Nhất)**
-Sử dụng lệnh `ln -s` để trỏ vào thư mục `data` nằm bên trong thư mục gốc của bạn trên Drive:
+**3. Tải Dữ liệu từ Google Drive vào Máy ảo (Tăng tốc tối đa)**
+Thay vì trỏ Symlink, ta sẽ copy toàn bộ thư mục `data` từ Drive vào thẳng ổ cứng của Colab để tốc độ huấn luyện đạt mức tối đa (nhanh như Kaggle):
 ```bash
 !rm -rf ./data
-!ln -s /content/drive/MyDrive/SE365/data ./data
+!cp -r /content/drive/MyDrive/SE365/data ./data
 ```
 *(Thay thế `SE365/data` bằng đúng đường dẫn đến thư mục `data` trên Drive của bạn)*
 
