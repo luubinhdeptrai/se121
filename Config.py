@@ -9,10 +9,10 @@ def get_args():
                         help="Chọn chế độ train: text, image, hoặc fusion")
     
     # File paths
-    parser.add_argument('--train_path', type=str, default='/kaggle/input/datasets/lchhong/multimodal/data/text/train.csv', help='Đường dẫn file CSV train')
-    parser.add_argument('--val_path', type=str, default='/kaggle/input/datasets/lchhong/multimodal/data/text/val.csv', help='Đường dẫn file CSV val')
-    parser.add_argument('--test_path', type=str, default='/kaggle/input/datasets/lchhong/multimodal/data/text/test.csv', help='Đường dẫn file CSV test')
-    parser.add_argument('--image_dir', type=str, default='/kaggle/input/datasets/lchhong/multimodal/data/image', help='Thư mục chứa ảnh đã tải')
+    parser.add_argument('--train_path', type=str, default='./data/text/train.csv', help='Đường dẫn file CSV train')
+    parser.add_argument('--val_path', type=str, default='./data/text/val.csv', help='Đường dẫn file CSV val')
+    parser.add_argument('--test_path', type=str, default='./data/text/test.csv', help='Đường dẫn file CSV test')
+    parser.add_argument('--image_dir', type=str, default='./data/image', help='Thư mục chứa ảnh đã tải')
     parser.add_argument('--save_path', type=str, default='./checkpoints', help='Thư mục lưu model')
     
     # Model configuration
