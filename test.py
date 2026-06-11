@@ -48,8 +48,20 @@ def test():
     model.eval()
 
     criterion = nn.MSELoss()
+    mae_criterion = nn.L1Loss()
+    
     test_loss_overall = 0.0
     test_loss_factors = 0.0
+    
+    # Biến lưu loss từng phần
+    test_loss_food = 0.0
+    test_loss_price = 0.0
+    test_loss_atmosphere = 0.0
+    
+    test_mae_overall = 0.0
+    test_mae_food = 0.0
+    test_mae_price = 0.0
+    test_mae_atmosphere = 0.0
     
     with torch.no_grad():
         for batch in test_loader:
@@ -72,13 +84,32 @@ def test():
             test_loss_overall += criterion(pred_overall, true_overall).item()
             test_loss_factors += criterion(pred_factors, true_factors).item()
             
+            # Tính riêng từng tiêu chí cho MSE
+            test_loss_food += criterion(pred_factors[:, 0], true_factors[:, 0]).item()
+            test_loss_price += criterion(pred_factors[:, 1], true_factors[:, 1]).item()
+            test_loss_atmosphere += criterion(pred_factors[:, 2], true_factors[:, 2]).item()
+            
+            # Tính MAE
+            test_mae_overall += mae_criterion(pred_overall, true_overall).item()
+            test_mae_food += mae_criterion(pred_factors[:, 0], true_factors[:, 0]).item()
+            test_mae_price += mae_criterion(pred_factors[:, 1], true_factors[:, 1]).item()
+            test_mae_atmosphere += mae_criterion(pred_factors[:, 2], true_factors[:, 2]).item()
+            
     mse_overall = test_loss_overall / len(test_loader)
     mse_factors = test_loss_factors / len(test_loader)
+    mse_food = test_loss_food / len(test_loader)
+    mse_price = test_loss_price / len(test_loader)
+    mse_atmosphere = test_loss_atmosphere / len(test_loader)
     
-    print("\n[KẾT QUẢ TEST TRÊN TẬP DỮ LIỆU ĐỘC LẬP]")
-    print(f"MSE Overall Score: {mse_overall:.4f}")
-    print(f"MSE Factor Scores: {mse_factors:.4f}")
-    print(f"Sai số tuyệt đối trung bình (MAE) ước lượng: {mse_overall**0.5:.4f} điểm / 10 điểm")
+    mae_overall = test_mae_overall / len(test_loader)
+    mae_food = test_mae_food / len(test_loader)
+    mae_price = test_mae_price / len(test_loader)
+    mae_atmosphere = test_mae_atmosphere / len(test_loader)
+    
+    print("\n[EVALUATION METRICS ON INDEPENDENT TEST SET]")
+    print(f"MSE  (Overall): {mse_overall:.4f} | (Food): {mse_food:.4f} | (Price): {mse_price:.4f} | (Atmos): {mse_atmosphere:.4f}")
+    print(f"RMSE (Overall): {mse_overall**0.5:.4f} | (Food): {mse_food**0.5:.4f} | (Price): {mse_price**0.5:.4f} | (Atmos): {mse_atmosphere**0.5:.4f}")
+    print(f"MAE  (Overall): {mae_overall:.4f} | (Food): {mae_food:.4f} | (Price): {mae_price:.4f} | (Atmos): {mae_atmosphere:.4f}")
 
 if __name__ == '__main__':
     test()
