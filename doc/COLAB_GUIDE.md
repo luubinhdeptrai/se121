@@ -66,28 +66,42 @@ print(f'Mọi checkpoint trong phiên này sẽ được lưu chung vào: {drive
 
 **5. Chạy Training và Đánh Giá**
 
-Nếu dữ liệu của bạn không nằm ở thư mục `./data` mặc định, bạn hoàn toàn có thể khai báo trực tiếp đường dẫn của từng file thông qua các tham số của `main.py`:
+Ngoài các tham số đường dẫn, bạn cũng có thể tùy chỉnh các siêu tham số (hyperparameters) để tối ưu mô hình. Dưới đây là danh sách các tham số chính của `main.py`:
+
+**Tham số đường dẫn:**
 - `--train_path`: Đường dẫn đến file train.csv
 - `--val_path`: Đường dẫn đến file val.csv
 - `--test_path`: Đường dẫn đến file test.csv
 - `--image_dir`: Đường dẫn đến thư mục chứa 5000 file ảnh
 
-Lưu ý: Sau mỗi bước Training, trọng số sẽ tự động được copy ngay lập tức vào chung thư mục `$DRIVE_CKPT` trên Google Drive.
+**Tham số huấn luyện (Hyperparameters):**
+- `--epochs`: Số vòng lặp huấn luyện (Mặc định: 5)
+- `--batch_size`: Kích thước batch (Mặc định: 16)
+- `--lr`: Learning rate (Mặc định: 2e-5)
+- `--alpha`: Trọng số loss (Mặc định: 0.5)
 
+Lưu ý: Bạn có thể copy từng cụm lệnh dưới đây vào **các cell riêng biệt** trên Colab để dễ dàng theo dõi quá trình chạy. Sau mỗi bước Training, trọng số sẽ tự động được copy vào chung thư mục `$DRIVE_CKPT` trên Google Drive.
+
+**5.1. Huấn luyện mô hình Text**
 ```bash
-# 5.1. Huấn luyện mô hình Text
-!python main.py --mode train_text --epochs 5 --train_path ./data/text/train.csv --val_path ./data/text/val.csv --test_path ./data/text/test.csv
+!python main.py --mode train_text --epochs 5 --batch_size 16 --lr 2e-5 --train_path ./data/text/train.csv --val_path ./data/text/val.csv --test_path ./data/text/test.csv
 !cp ./checkpoints/best_model_train_text.pth $DRIVE_CKPT/
+```
 
-# 5.2. Huấn luyện mô hình Image
-!python main.py --mode train_image --epochs 10 --train_path ./data/text/train.csv --val_path ./data/text/val.csv --test_path ./data/text/test.csv --image_dir ./data/image
+**5.2. Huấn luyện mô hình Image**
+```bash
+!python main.py --mode train_image --epochs 10 --batch_size 16 --lr 2e-5 --train_path ./data/text/train.csv --val_path ./data/text/val.csv --test_path ./data/text/test.csv --image_dir ./data/image
 !cp ./checkpoints/best_model_train_image.pth $DRIVE_CKPT/
+```
 
-# 5.3. Huấn luyện mô hình Fusion kết hợp
-!python main.py --mode train_fusion --epochs 15 --train_path ./data/text/train.csv --val_path ./data/text/val.csv --test_path ./data/text/test.csv --image_dir ./data/image
+**5.3. Huấn luyện mô hình Fusion kết hợp**
+```bash
+!python main.py --mode train_fusion --epochs 15 --batch_size 16 --lr 2e-5 --alpha 0.5 --train_path ./data/text/train.csv --val_path ./data/text/val.csv --test_path ./data/text/test.csv --image_dir ./data/image
 !cp ./checkpoints/best_model_train_fusion.pth $DRIVE_CKPT/
+```
 
-# 5.4. Đánh giá kiểm thử (Test) trên mô hình tốt nhất
+**5.4. Đánh giá kiểm thử (Test) trên mô hình tốt nhất**
+```bash
 !python test.py --mode train_fusion --test_path ./data/text/test.csv --image_dir ./data/image
 ```
 
