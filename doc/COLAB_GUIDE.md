@@ -2,13 +2,12 @@
 
 Tài liệu này hướng dẫn chi tiết cách chạy rèn luyện (Train) và đánh giá (Test) mô hình Multimodal trên Google Colab.
 
-Được thiết kế theo cấu trúc "Code một nơi, Data một nẻo", luồng thực thi này giúp bạn tránh phải tải đi tải lại dữ liệu khổng lồ lên hệ thống của Colab.
 
 ## BƯỚC 1: Chuẩn bị Dữ liệu bằng Lối tắt (Shortcut)
 
 Nhóm đã chuẩn bị sẵn toàn bộ dữ liệu trên Google Drive. Bạn không cần tải về máy, chỉ cần tạo "Lối tắt" sang Drive của bạn:
 
-1. Bấm vào link Drive được share sẵn của nhóm: [Link Drive Share Dữ liệu](https://drive.google.com/drive/folders/1uwKnhb2d3lOLlMIpRU-qnW67ar4LQWk2?usp=sharing).
+1. Bấm vào link Drive được share sẵn của nhóm: https://drive.google.com/drive/folders/1uwKnhb2d3lOLlMIpRU-qnW67ar4LQWk2?usp=sharing
 2. Nhấn vào tên thư mục ở trên cùng -> Chọn **Thêm lối tắt vào Drive (Add shortcut to Drive)**.
 3. Chọn vị trí lưu là **Drive của tôi (MyDrive)**. Hãy đặt tên cho lối tắt này là `SE365` để khớp với mã nguồn.
 
@@ -105,4 +104,3 @@ Lưu ý: Bạn có thể copy từng cụm lệnh dưới đây vào **các cell
 !python test.py --mode train_fusion --test_path ./data/text/test.csv --image_dir ./data/image
 ```
 
-Lúc này, toàn bộ quá trình sẽ diễn ra hoàn toàn tự động từ A tới Z!
