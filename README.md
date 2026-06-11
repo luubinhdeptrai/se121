@@ -41,10 +41,10 @@ Nếu bạn có thư mục `data_raw/` chứa các file cào về từ Foody/Sho
 Mặc định, mã nguồn sẽ tự động đọc dữ liệu từ thư mục `./data/` (ví dụ: `./data/text/train.csv` và `./data/image/`). Nếu dữ liệu của bạn nằm ở một thư mục khác, thiết lập như sau:
 
 Khai báo trực tiếp đường dẫn của từng file thông qua các tham số của `main.py`:
-- `--train_path`: Đường dẫn đến file train.csv
-- `--val_path`: Đường dẫn đến file val.csv
-- `--test_path`: Đường dẫn đến file test.csv
-- `--image_dir`: Đường dẫn đến thư mục chứa 5000 file ảnh
+- `--train_path`: Đường dẫn đến file train.csv *(Mặc định: `./data/text/train.csv`)*
+- `--val_path`: Đường dẫn đến file val.csv *(Mặc định: `./data/text/val.csv`)*
+- `--test_path`: Đường dẫn đến file test.csv *(Mặc định: `./data/text/test.csv`)*
+- `--image_dir`: Đường dẫn đến thư mục ảnh *(Mặc định: `./data/image`)*
 
 *Ví dụ chạy lệnh với data nằm ở ổ cứng ngoài:*
 ```bash
