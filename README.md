@@ -58,6 +58,7 @@ python main.py --mode train_text \
 
 ### Bước 3: Chạy Train các mô hình
 Bạn hoàn toàn có thể tuỳ chỉnh siêu tham số (hyperparameters) bằng cách truyền argument vào lệnh chạy (giống repo gốc). Dưới đây là các tham số bạn có thể điều chỉnh:
+- `--mode`: Chế độ chạy (`train_text`, `train_image`, `train_fusion`)
 - `--epochs`: Số vòng lặp huấn luyện (Mặc định: 5)
 - `--batch_size`: Kích thước batch (Mặc định: 16)
 - `--lr`: Learning rate (Mặc định: 2e-5)
