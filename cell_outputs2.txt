@@ -1,0 +1,17 @@
+--- cell 60 stream ---
+                  rule polarity   score  n_reviews  pct_reviews
+   strong_satisfaction positive  0.6000        700       7.0400
+strong_dissatisfaction negative -0.6000        653       6.5700
+     revisit_intention positive  0.5000        558       5.6100
+        recommendation positive  0.4000        523       5.2600
+              advocacy positive  0.5000        332       3.3400
+           frustration negative -0.4000        298       3.0000
+            no_revisit negative -0.5000        255       2.5600
+       repeat_purchase positive  0.4000        208       2.0900
+       waiting_problem negative -0.4000        202       2.0300
+               loyalty positive  0.5000        113       1.1400
+       value_for_money positive  0.3000         66       0.6600
+          no_complaint positive  0.3000         57       0.5700
+                regret negative -0.4000         27       0.2700
+          not_worth_it negative -0.5000         21       0.2100
+

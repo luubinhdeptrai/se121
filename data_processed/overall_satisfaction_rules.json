@@ -1,0 +1,170 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "generated_at": "2026-06-13T07:26:05.628291+00:00",
+    "scale_min": 0,
+    "scale_max": 10,
+    "total_categories": 14,
+    "positive_categories": 8,
+    "negative_categories": 6,
+    "language": "vi",
+    "notes": "Patterns are matched against normalized review text (Unicode NFC, lowercased, whitespace-collapsed) using Python 're' with re.search. Negative lookbehind assertions guard against negated forms ('khong'/'chang'/'chua'/'ko'/'se khong' and several multi-word reversal idioms) that would reverse a pattern's polarity. Each rule's 'score' is added to avg_rating (0-10 scale) for every matched pattern occurrence in a review."
+  },
+  "rules": {
+    "revisit_intention": {
+      "score": 0.5,
+      "description": "Reviewer explicitly expresses intention to return or visit the restaurant again in the future. This is a global satisfaction signal independent of any single aspect (food/service/atmosphere/price). The '(quay lai|tro lai|ghe lai) lan (sau|toi|nua)' pattern additionally carries '(khong|chang|ko) bao gio' guards because corpus analysis found '(khong|ko) bao gio quay lai lan nua' (=will never come back again) is a common NEGATIVE idiom that would otherwise be misclassified as a revisit intention. The 'se (quay lai|...)' pattern carries '(khong|ko) nghi' guards because corpus analysis found '(khong|ko) nghi se quay lai' (=don't think [I'll] come back) is a NEGATIVE idiom that would otherwise be misclassified as a revisit intention.",
+      "patterns": [
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không nghĩ )(?<!ko nghĩ )sẽ (quay lại|trở lại|ghé lại|ghé|đến lại)",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không bao giờ )(?<!chẳng bao giờ )(?<!ko bao giờ )(quay lại|trở lại|ghé lại) lần (sau|tới|nữa)",
+        "lần sau (sẽ |chắc |nhất định )?(quay lại|ghé|trở lại)",
+        "nhất định (sẽ )?(quay lại|ghé lại|trở lại)",
+        "chắc chắn (sẽ )?(quay lại|ghé lại|trở lại)"
+      ]
+    },
+    "repeat_purchase": {
+      "score": 0.4,
+      "description": "Reviewer indicates they will order, buy, or eat the same item again (repeat-purchase intention for the product/dish, distinct from revisiting the venue itself). All patterns carry '(khong|chang|ko) bao gio' guards because corpus analysis found '(khong|chac chan khong|ko) bao gio an/mua/dat lai' (=will never order/buy/eat again) are common NEGATIVE idioms that would otherwise be misclassified as repeat-purchase intention.",
+      "patterns": [
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không bao giờ )(?<!chẳng bao giờ )(?<!ko bao giờ )ăn lại",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không bao giờ )(?<!chẳng bao giờ )(?<!ko bao giờ )mua lại",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không bao giờ )(?<!chẳng bao giờ )(?<!ko bao giờ )order lại",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không bao giờ )(?<!chẳng bao giờ )(?<!ko bao giờ )đặt lại",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không bao giờ )(?<!chẳng bao giờ )(?<!ko bao giờ )gọi lại (món|đồ)"
+      ]
+    },
+    "recommendation": {
+      "score": 0.4,
+      "description": "Reviewer recommends the restaurant or its food/service to other people - a word-of-mouth endorsement of the overall experience.",
+      "patterns": [
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!sẽ không )recommend",
+        "(?<!không )(?<!chẳng )(?<!chưa )giới thiệu (cho |với )?(bạn bè|mọi người|gia đình|người thân)",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )nên (thử|ăn thử|ghé|đến|quay lại)",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )đáng (để )?thử",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )rất đáng (thử|ghé)"
+      ]
+    },
+    "value_for_money": {
+      "score": 0.3,
+      "description": "Reviewer explicitly states the price paid is worth the overall value/quality received. This is a global price-value judgment, distinct from aspect-specific price comments such as 'gia re' or 'gia hop ly' which are excluded from this rule set.",
+      "patterns": [
+        "(?<!không )(?<!chẳng )(?<!chưa )đáng đồng tiền",
+        "(?<!không )(?<!chẳng )(?<!chưa )xứng đáng (với )?(số tiền|đồng tiền|tiền bỏ ra)",
+        "(?<!không )(?<!chẳng )(?<!chưa )đáng giá (với )?(số tiền|đồng tiền|tiền bỏ ra)"
+      ]
+    },
+    "strong_satisfaction": {
+      "score": 0.6,
+      "description": "Reviewer expresses strong overall satisfaction or delight with the experience as a whole, not tied to a single aspect (food/service/atmosphere/price). 'xuat sac'/'hoan hao' patterns carry extra lookbehind guards for hedged-negation idioms such as 'khong qua xuat sac' (=not too excellent) discovered during corpus analysis. The bare 'hai long' pattern additionally carries '(?<!ko )', '(?<!khong duoc )', '(?<!ko duoc )', '(?<!khong thay )' and '(?<!chua lam )' guards because corpus analysis found 'ko hai long' (=not satisfied) and '(khong|ko) duoc hai long' (=wasn't satisfied) are common NEGATIVE idioms that would otherwise be misclassified as strong satisfaction. Every 'khong X' guard on 'xuat sac' is mirrored by a 'ko X' guard (and 'tuyet voi' gains a 'khong/ko ngon' guard) because 'ko' is the same informal abbreviation of 'khong' found during corpus analysis of the 'hai long' pattern, e.g. 'ko qua xuat sac' (=not too excellent) and 'ko ngon tuyet voi' (=not wonderfully delicious) are common hedged-negation idioms.",
+      "patterns": [
+        "(?<!không )(?<!chẳng )(?<!chưa )rất hài lòng",
+        "cực kỳ hài lòng",
+        "vô cùng hài lòng",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không được )(?<!ko được )(?<!không thấy )(?<!chưa làm )hài lòng",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!không ngon )(?<!ko ngon )tuyệt vời",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không quá )(?<!ko quá )(?<!không phải )(?<!ko phải )(?<!không phải quá )(?<!ko phải quá )(?<!không hẳn )(?<!ko hẳn )(?<!không gọi là )(?<!ko gọi là )(?<!không có gì )(?<!ko có gì )(?<!không có gì quá )(?<!ko có gì quá )(?<!không ngon )(?<!ko ngon )(?<!không phải ngon )(?<!ko phải ngon )xuất sắc",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!không đến mức )(?<!không gọi là )hoàn hảo",
+        "\\b10/10\\b|\\b10 điểm\\b"
+      ]
+    },
+    "no_complaint": {
+      "score": 0.3,
+      "description": "Reviewer explicitly states they have no complaints or issues with the overall experience. The leading 'khong'/'chang'/'ko' here is part of the positive idiom itself, so it is intentionally not guarded against; the first pattern's '(khong|ko)' alternation adds the same 'ko'-abbreviation coverage used throughout this rule set (e.g. 'ko co gi de che', 19 additional reviews). A trailing word boundary on 'che' in all three patterns fixes a pre-existing bug where 'che' matched as a substring-prefix of the unrelated word 'chenh' (=differ/vary), e.g. 'khong chenh lech nhieu' (=doesn't vary much, a price-consistency remark unrelated to complaints) was previously misclassified as no_complaint (3 reviews).",
+      "patterns": [
+        "(không|ko) (có )?(gì )?(để |phải )?(chê\\b|phàn nàn|than phiền)",
+        "chẳng (có )?(gì )?(để |phải )?(chê\\b|phàn nàn|than phiền)",
+        "không (một|1) (lời|điều|chỗ) (chê\\b|phàn nàn)"
+      ]
+    },
+    "loyalty": {
+      "score": 0.5,
+      "description": "Reviewer identifies as a regular or loyal customer / long-term patron of the restaurant.",
+      "patterns": [
+        "khách quen",
+        "ăn (ở đây|quán này|chỗ này) (nhiều|hoài|suốt|thường xuyên|miết)",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )ghé (đây|quán này|chỗ này) (thường xuyên|hoài|suốt|nhiều lần)",
+        "lần thứ (\\d+|mấy|bao nhiêu|n) (ăn|ghé|đến|quay lại)",
+        "(?<!không )(?<!chẳng )(?<!chưa )trung thành"
+      ]
+    },
+    "advocacy": {
+      "score": 0.5,
+      "description": "Reviewer actively promotes or endorses the restaurant to others, going beyond a simple recommendation (active word-of-mouth advocacy / support for the business). The 'ung ho' pattern requires a leading word boundary because corpus analysis found it otherwise false-matches as a substring of unrelated words such as 'lung hop' (=the box leaks/breaks, about packaging); it also carries '(khong|ko) muon' guards because '(khong|ko) muon ung ho' (=don't want to support) is a NEGATIVE idiom that would otherwise be misclassified as advocacy.",
+      "patterns": [
+        "\\b(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!sẽ không )(?<!không muốn )(?<!ko muốn )ủng hộ",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )support quán",
+        "(?<!không )(?<!chẳng )(?<!chưa )pr cho quán",
+        "(?<!không )(?<!chẳng )(?<!chưa )quảng cáo không công"
+      ]
+    },
+    "no_revisit": {
+      "score": -0.5,
+      "description": "Reviewer explicitly states they will not return to the restaurant in the future. The leading '(khong|ko)' alternation in the first and fourth patterns mirrors the 'ko'-abbreviation handling used throughout this rule set (see strong_satisfaction): corpus analysis found 'ko bao gio quay lai' / 'ko nen an o day' are common informal spellings of 'khong bao gio quay lai' / 'khong nen an o day' that the bare 'khong'-only patterns missed (76 additional reviews corpus-wide).",
+      "patterns": [
+        "(sẽ )?(không|ko) (bao giờ )?(quay lại|trở lại|ghé lại|đến lại|ăn lại)( nữa)?",
+        "chắc (chắn )?không (quay lại|trở lại|ghé|ghé lại)",
+        "đừng (quay lại|ghé|trở lại)",
+        "(không|ko) nên (đến|ghé|ăn) (ở đây|quán này|chỗ này)",
+        "(một|1) lần (rồi thôi|là đủ|cho biết|và không bao giờ trở lại)"
+      ]
+    },
+    "strong_dissatisfaction": {
+      "score": -0.6,
+      "description": "Reviewer expresses strong overall dissatisfaction or disappointment with the experience as a whole, not tied to a single aspect. The 'that vong' and 'te' patterns carry extended lookbehind guards for common reversal idioms ('se khong lam ban that vong' = won't disappoint you; 'khong qua te' = not too bad) discovered during corpus analysis. A dedicated '(khong|ko) hai long' (=not satisfied) pattern is included because it is a direct negative-satisfaction statement, not a hedge of a positive word; the '(khong|ko)' alternation is the same 'ko'-abbreviation found during corpus analysis of strong_satisfaction's 'hai long' guard ('ko hai long' is the exact idiom that pattern guards AGAINST as a positive - here it is the trigger FOR strong_dissatisfaction, adding 14 reviews that previously triggered no rule at all).",
+      "patterns": [
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!không tới nỗi )(?<!không đến nổi )(?<!không đến nỗi )rất (thất vọng|tệ)",
+        "cực kỳ (thất vọng|tệ)",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!không tới nỗi )(?<!không đến nổi )(?<!không đến nỗi )quá (tệ|thất vọng)",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!không hề )(?<!không bị )(?<!không phải )(?<!không làm bạn )(?<!không làm mình )(?<!không khiến mình )(?<!không làm các bạn )(?<!không làm mọi người )(?<!không bao giờ làm mình )(?<!không cảm thấy chút nào )thất vọng",
+        "tệ (nhất|kinh khủng|không thể tả)",
+        "kinh khủng",
+        "(không|ko) (thấy |cảm thấy |được )?hài lòng",
+        "\\b0/10\\b|\\b1/10\\b|\\b0 điểm\\b"
+      ]
+    },
+    "not_worth_it": {
+      "score": -0.5,
+      "description": "Reviewer states the price paid was not worth it relative to the overall quality received - a global price-value judgment (negative counterpart of value_for_money). The second pattern's '(khong|ko)' alternation adds the same 'ko'-abbreviation coverage used throughout this rule set (e.g. 'ko dang dong tien', 1 additional review).",
+      "patterns": [
+        "không xứng (đáng )?(với )?(số tiền|đồng tiền|tiền bỏ ra)",
+        "(không|ko) đáng (giá|với)? ?(số tiền|đồng tiền|tiền bỏ ra)",
+        "chẳng đáng (số )?tiền",
+        "phí tiền",
+        "tiền mất tật mang"
+      ]
+    },
+    "waiting_problem": {
+      "score": -0.4,
+      "description": "Reviewer reports significant waiting-time issues, indicating slow overall service delivery (not a specific food/service quality complaint, but an overall experience friction). The 'cho/doi (rat|qua)? lau' patterns carry '(khong|ko) (phai|bi|can|de)?', 'chua (phai)?' and 'dung' guards because corpus analysis found '(khong|ko) phai doi/cho (qua)? lau' (=don't have to wait long) is a common POSITIVE idiom that would otherwise be misclassified as a waiting-time problem.",
+      "patterns": [
+        "(?<!không )(?<!không phải )(?<!không bị )(?<!không cần )(?<!không để )(?<!ko )(?<!ko phải )(?<!ko bị )(?<!ko cần )(?<!ko để )(?<!chẳng )(?<!chưa )(?<!chưa phải )(?<!đừng )chờ (rất |quá )?lâu",
+        "(?<!không )(?<!không phải )(?<!không bị )(?<!không cần )(?<!không để )(?<!ko )(?<!ko phải )(?<!ko bị )(?<!ko cần )(?<!ko để )(?<!chẳng )(?<!chưa )(?<!chưa phải )(?<!đừng )đợi (rất |quá )?lâu",
+        "chờ (\\d+) (phút|tiếng|giờ)",
+        "đợi (\\d+) (phút|tiếng|giờ)",
+        "phục vụ (quá |rất )?chậm",
+        "lâu (kinh khủng|ơi là lâu|không chịu được)"
+      ]
+    },
+    "frustration": {
+      "score": -0.4,
+      "description": "Reviewer expresses frustration, anger, or annoyance with the overall experience. The 'kho chiu' pattern carries '(khong|chang|chua|ko)', '(khong|ko) he' and 'khong bi/thay' guards because corpus analysis found '(khong|ko) (he) kho chiu' (=not at all annoying) is a common POSITIVE idiom that would otherwise be misclassified as frustration.",
+      "patterns": [
+        "bực (mình|bội)",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không hề )(?<!ko hề )(?<!không bị )(?<!không thấy )khó chịu",
+        "(?<!không )(?<!chẳng )(?<!chưa )nổi (giận|cáu)",
+        "tức (giận|mình)",
+        "thái độ (kém|tệ|khó chịu)"
+      ]
+    },
+    "regret": {
+      "score": -0.4,
+      "description": "Reviewer expresses regret about having visited or spent money/time at the restaurant. 'hoi han' and 'uong cong/tien' carry negation guards because corpus analysis found 'khong uong cong' (=not a waste of effort, i.e. well worth it) and 'khong (chut) hoi han' (=no regrets) are common POSITIVE idioms that would otherwise be misclassified as regret.",
+      "patterns": [
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(?<!không chút )(?<!chẳng chút )hối hận",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )tiếc (tiền|công|thời gian)",
+        "(?<!không )(?<!chẳng )(?<!chưa )(?<!ko )(uổng|lãng phí) (tiền|công|thời gian)",
+        "biết (vậy|thế) (thì |là )?(đã )?không (đến|ghé|ăn)"
+      ]
+    }
+  }
+}
