@@ -14,13 +14,12 @@ class ImageModel(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.2)
         )
-        # self.overall_head = nn.Linear(256, 1)
+
         self.factor_head = nn.Linear(256, num_factors)
         
     def forward(self, pixel_values):
         features = self.encoder(pixel_values)
         features = features.to(torch.float32)
         out = self.fc(features)
-        # overall_score = self.overall_head(out)
         factor_scores = self.factor_head(out)
-        return None, factor_scores, features
+        return factor_scores, features

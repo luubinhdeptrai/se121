@@ -53,7 +53,6 @@ class MultimodalDataset(Dataset):
         image_inputs = self.image_processor(image, return_tensors="pt")['pixel_values']
         
         # Labels
-        overall_score = torch.tensor([row['avg_rating']], dtype=torch.float)
         factor_scores = torch.tensor([
             row['food_score'],
             row['price_score'],
@@ -65,6 +64,5 @@ class MultimodalDataset(Dataset):
             'input_ids': text_inputs['input_ids'].squeeze(0),
             'attention_mask': text_inputs['attention_mask'].squeeze(0),
             'pixel_values': image_inputs.squeeze(0),
-            'overall_score': overall_score,
             'factor_scores': factor_scores
         }

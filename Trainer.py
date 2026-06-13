@@ -14,7 +14,6 @@ class Trainer:
         self.criterion = nn.MSELoss()
         self.mae_criterion = nn.L1Loss()
         self.optimizer = torch.optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr, weight_decay=args.weight_decay)
-        self.alpha = args.alpha
 
     def train_epoch(self, epoch):
         self.model.train()
@@ -28,26 +27,24 @@ class Trainer:
             if self.args.mode == 'train_text':
                 input_ids = batch['input_ids'].to(self.device)
                 attention_mask = batch['attention_mask'].to(self.device)
-                pred_overall, pred_factors, _ = self.model(input_ids, attention_mask)
+                pred_factors, _ = self.model(input_ids, attention_mask)
             elif self.args.mode == 'train_image':
                 pixel_values = batch['pixel_values'].to(self.device)
-                pred_overall, pred_factors, _ = self.model(pixel_values)
+                pred_factors, _ = self.model(pixel_values)
             else: # fusion
                 input_ids = batch['input_ids'].to(self.device)
                 attention_mask = batch['attention_mask'].to(self.device)
                 pixel_values = batch['pixel_values'].to(self.device)
-                pred_overall, pred_factors = self.model(input_ids, attention_mask, pixel_values)
+                pred_factors = self.model(input_ids, attention_mask, pixel_values)
             
             # Labels
-            true_overall = batch['overall_score'].to(self.device)
             true_factors = batch['factor_scores'].to(self.device)
             
             # Compute loss
-            # loss_overall = self.criterion(pred_overall, true_overall)
-            loss_factors = self.criterion(pred_factors, true_factors)
-            loss = loss_factors # self.alpha * loss_overall + (1 - self.alpha) * loss_factors
+            loss = self.criterion(pred_factors, true_factors)
             
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
             self.optimizer.step()
             
             total_loss += loss.item()
@@ -58,13 +55,11 @@ class Trainer:
     def validate(self):
         self.model.eval()
         val_loss = 0.0
-        val_loss_overall = 0.0
         val_loss_food = 0.0
         val_loss_price = 0.0
         val_loss_atmos = 0.0
         val_loss_service = 0.0
         
-        val_mae_overall = 0.0
         val_mae_food = 0.0
         val_mae_price = 0.0
         val_mae_atmos = 0.0
@@ -75,21 +70,19 @@ class Trainer:
                 if self.args.mode == 'train_text':
                     input_ids = batch['input_ids'].to(self.device)
                     attention_mask = batch['attention_mask'].to(self.device)
-                    pred_overall, pred_factors, _ = self.model(input_ids, attention_mask)
+                    pred_factors, _ = self.model(input_ids, attention_mask)
                 elif self.args.mode == 'train_image':
                     pixel_values = batch['pixel_values'].to(self.device)
-                    pred_overall, pred_factors, _ = self.model(pixel_values)
+                    pred_factors, _ = self.model(pixel_values)
                 else:
                     input_ids = batch['input_ids'].to(self.device)
                     attention_mask = batch['attention_mask'].to(self.device)
                     pixel_values = batch['pixel_values'].to(self.device)
-                    pred_overall, pred_factors = self.model(input_ids, attention_mask, pixel_values)
+                    pred_factors = self.model(input_ids, attention_mask, pixel_values)
                 
-                true_overall = batch['overall_score'].to(self.device)
                 true_factors = batch['factor_scores'].to(self.device)
                 
-                # loss_overall = self.criterion(pred_overall, true_overall)
-                loss_factors = self.criterion(pred_factors, true_factors)
+                loss = self.criterion(pred_factors, true_factors)
                 
                 loss_food = self.criterion(pred_factors[:, 0], true_factors[:, 0])
                 loss_price = self.criterion(pred_factors[:, 1], true_factors[:, 1])
@@ -97,21 +90,17 @@ class Trainer:
                 loss_service = self.criterion(pred_factors[:, 3], true_factors[:, 3])
                 
                 # Tính MAE (Mean Absolute Error)
-                # mae_overall = self.mae_criterion(pred_overall, true_overall)
                 mae_food = self.mae_criterion(pred_factors[:, 0], true_factors[:, 0])
                 mae_price = self.mae_criterion(pred_factors[:, 1], true_factors[:, 1])
                 mae_atmos = self.mae_criterion(pred_factors[:, 2], true_factors[:, 2])
                 mae_service = self.mae_criterion(pred_factors[:, 3], true_factors[:, 3])
                 
-                loss = loss_factors # self.alpha * loss_overall + (1 - self.alpha) * loss_factors
                 val_loss += loss.item()
-                # val_loss_overall += loss_overall.item()
                 val_loss_food += loss_food.item()
                 val_loss_price += loss_price.item()
                 val_loss_atmos += loss_atmos.item()
                 val_loss_service += loss_service.item()
                 
-                # val_mae_overall += mae_overall.item()
                 val_mae_food += mae_food.item()
                 val_mae_price += mae_price.item()
                 val_mae_atmos += mae_atmos.item()
@@ -120,12 +109,10 @@ class Trainer:
         num_batches = len(self.val_loader)
         return {
             'loss': val_loss / num_batches,
-            'mse_overall': val_loss_overall / num_batches,
             'mse_food': val_loss_food / num_batches,
             'mse_price': val_loss_price / num_batches,
             'mse_atmos': val_loss_atmos / num_batches,
             'mse_service': val_loss_service / num_batches,
-            'mae_overall': val_mae_overall / num_batches,
             'mae_food': val_mae_food / num_batches,
             'mae_price': val_mae_price / num_batches,
             'mae_atmos': val_mae_atmos / num_batches,

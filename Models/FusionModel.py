@@ -27,14 +27,14 @@ class FusionModel(nn.Module):
             nn.ReLU()
         )
         
-        # self.overall_head = nn.Linear(256, 1)
+
         self.factor_head = nn.Linear(256, num_factors)
 
     def forward(self, input_ids, attention_mask, pixel_values):
         # Lấy features từ text_model và image_model (chúng ta đã thiết kế model trả về features ở index 2)
         with torch.no_grad():
-            _, _, text_features = self.text_model(input_ids, attention_mask)
-            _, _, image_features = self.image_model(pixel_values)
+            _, text_features = self.text_model(input_ids, attention_mask)
+            _, image_features = self.image_model(pixel_values)
             
         # Concatenation
         text_features = text_features.to(torch.float32)
@@ -42,6 +42,5 @@ class FusionModel(nn.Module):
         fused_features = torch.cat((text_features, image_features), dim=1)
         out = self.fusion_fc(fused_features)
         
-        # overall_score = self.overall_head(out)
         factor_scores = self.factor_head(out)
-        return None, factor_scores
+        return factor_scores

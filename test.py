@@ -50,16 +50,11 @@ def test():
     criterion = nn.MSELoss()
     mae_criterion = nn.L1Loss()
     
-    test_loss_overall = 0.0
-    test_loss_factors = 0.0
-    
-    # Biến lưu loss từng phần
     test_loss_food = 0.0
     test_loss_price = 0.0
     test_loss_atmosphere = 0.0
     test_loss_service = 0.0
     
-    test_mae_overall = 0.0
     test_mae_food = 0.0
     test_mae_price = 0.0
     test_mae_atmosphere = 0.0
@@ -70,21 +65,17 @@ def test():
             if args.mode == 'train_text':
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
-                pred_overall, pred_factors, _ = model(input_ids, attention_mask)
+                pred_factors, _ = model(input_ids, attention_mask)
             elif args.mode == 'train_image':
                 pixel_values = batch['pixel_values'].to(device)
-                pred_overall, pred_factors, _ = model(pixel_values)
+                pred_factors, _ = model(pixel_values)
             else:
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
                 pixel_values = batch['pixel_values'].to(device)
-                pred_overall, pred_factors = model(input_ids, attention_mask, pixel_values)
+                pred_factors = model(input_ids, attention_mask, pixel_values)
             
-            true_overall = batch['overall_score'].to(device)
             true_factors = batch['factor_scores'].to(device)
-            
-            # test_loss_overall += criterion(pred_overall, true_overall).item()
-            test_loss_factors += criterion(pred_factors, true_factors).item()
             
             # Tính riêng từng tiêu chí cho MSE
             test_loss_food += criterion(pred_factors[:, 0], true_factors[:, 0]).item()
@@ -93,20 +84,16 @@ def test():
             test_loss_service += criterion(pred_factors[:, 3], true_factors[:, 3]).item()
             
             # Tính MAE
-            # test_mae_overall += mae_criterion(pred_overall, true_overall).item()
             test_mae_food += mae_criterion(pred_factors[:, 0], true_factors[:, 0]).item()
             test_mae_price += mae_criterion(pred_factors[:, 1], true_factors[:, 1]).item()
             test_mae_atmosphere += mae_criterion(pred_factors[:, 2], true_factors[:, 2]).item()
             test_mae_service += mae_criterion(pred_factors[:, 3], true_factors[:, 3]).item()
             
-    mse_overall = test_loss_overall / len(test_loader)
-    mse_factors = test_loss_factors / len(test_loader)
     mse_food = test_loss_food / len(test_loader)
     mse_price = test_loss_price / len(test_loader)
     mse_atmosphere = test_loss_atmosphere / len(test_loader)
     mse_service = test_loss_service / len(test_loader)
     
-    mae_overall = test_mae_overall / len(test_loader)
     mae_food = test_mae_food / len(test_loader)
     mae_price = test_mae_price / len(test_loader)
     mae_atmosphere = test_mae_atmosphere / len(test_loader)
