@@ -9,25 +9,28 @@ def process_data():
     
     # Đọc dữ liệu
     df_multi = pd.read_csv(os.path.join(raw_dir, 'multimodal_reviews.csv'))
-    df_reviews = pd.read_csv(os.path.join(raw_dir, 'reviews_clean.csv'))
+    df_reviews = pd.read_csv('./data_processed/reviews_clean_enhanced.csv')
     
     print(f"Đọc {len(df_multi)} dòng từ multimodal_reviews.csv")
-    print(f"Đọc {len(df_reviews)} dòng từ reviews_clean.csv")
+    print(f"Đọc {len(df_reviews)} dòng từ reviews_clean_enhanced.csv")
     
-    # Merge để lấy các điểm số (food, price, atmosphere) từ reviews_clean vào df_multi
+    # Merge để lấy các điểm số từ reviews_clean_enhanced vào df_multi
+    cols_to_merge = ['review_id', 'food_score', 'service_score', 'atmosphere_score', 'price_score', 'overall_satisfaction']
+    
     df_merged = pd.merge(
         df_multi, 
-        df_reviews[['review_id', 'food_score', 'service_score', 'atmosphere_score', 'price_score']], 
+        df_reviews[cols_to_merge], 
         on='review_id', 
         how='inner'
     )
     
     # Lọc bỏ các cột bị missing values ở những trường quan trọng
-    cols_to_check = ['comment_clean', 'image_url', 'avg_rating', 'food_score', 'service_score', 'atmosphere_score', 'price_score']
+    cols_to_check = ['comment_clean', 'image_url', 'overall_satisfaction', 'food_score', 'service_score', 'atmosphere_score', 'price_score']
     df_merged = df_merged.dropna(subset=cols_to_check)
     
     # Chỉ giữ lại các cột cần thiết cho việc train
-    df_final = df_merged[['review_id', 'comment_clean', 'image_url', 'avg_rating', 'food_score', 'service_score', 'atmosphere_score', 'price_score']].copy()
+    final_cols = ['review_id', 'comment_clean', 'image_url', 'overall_satisfaction', 'food_score', 'service_score', 'atmosphere_score', 'price_score']
+    df_final = df_merged[final_cols].copy()
     
     # Lấy 5000 mẫu ngẫu nhiên cho nhẹ nhàng (giống code cũ)
     df_final = df_final.sample(n=5000, random_state=42).reset_index(drop=True)
