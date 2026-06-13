@@ -92,22 +92,26 @@ Mô hình đã được chạy thử nghiệm trên tập dữ liệu 5000 mẫu
 
 ### 1. Bảng sai số tuyệt đối trung bình (MAE)
 *Độ đo thực tế và dễ hiểu nhất, cho biết trung bình máy đoán lệch bao nhiêu điểm (trên thang 1-10).*
-| Model / Architecture | Loss Function | Overall | Food | Price | Atmos |
-|----------------------|---------------|---------|------|-------|-------|
-| Intermediate Fusion (XLM-R + ConvNeXt) | Joint MSE | **0.9968** | **1.2220** | **1.2173** | **1.2327** |
+| Model / Architecture | Loss Function | Food | Price | Atmos | Service |
+|----------------------|---------------|------|-------|-------|---------|
+| XLM-R + ConvNeXt | Joint MSE | **1.0098** | **1.0483** | **1.0135** | **1.0330** |
+| mDeBERTa + SigLIP | Joint MSE | 1.1016 | 1.0694 | 1.0547 | 1.1185 |
 
 ### 2. Bảng căn bậc hai sai số bình phương (RMSE)
 *Độ đo phạt nặng các dự đoán sai lệch lớn (Outliers).*
-| Model / Architecture | Loss Function | Overall | Food | Price | Atmos |
-|----------------------|---------------|---------|------|-------|-------|
-| Intermediate Fusion (XLM-R + ConvNeXt) | Joint MSE | 1.3950 | 1.6424 | 1.6432 | 1.7008 |
+| Model / Architecture | Loss Function | Food | Price | Atmos | Service |
+|----------------------|---------------|------|-------|-------|---------|
+| XLM-R + ConvNeXt | Joint MSE | **1.3870** | **1.4537** | **1.3673** | **1.3925** |
+| mDeBERTa + SigLIP | Joint MSE | 1.4941 | 1.4820 | 1.4252 | 1.5198 |
 
 ### 3. Bảng sai số bình phương (MSE)
 *Độ đo cơ sở để tối ưu hóa trong quá trình huấn luyện.*
-| Model / Architecture | Loss Function | Overall | Food | Price | Atmos |
-|----------------------|---------------|---------|------|-------|-------|
-| Intermediate Fusion (XLM-R + ConvNeXt) | Joint MSE | 1.9460 | 2.6976 | 2.7000 | 2.8927 |
+| Model / Architecture | Loss Function | Food | Price | Atmos | Service |
+|----------------------|---------------|------|-------|-------|---------|
+| XLM-R + ConvNeXt | Joint MSE | **1.9238** | **2.1133** | **1.8695** | **1.9391** |
+| mDeBERTa + SigLIP | Joint MSE | 2.2324 | 2.1963 | 2.0311 | 2.3099 |
 
 **Đánh giá chung:** 
-- Trung bình, mô hình baseline hiện tại chỉ đoán sai **~0.99 điểm** (tương đương với mức MAE ở bảng 1) so với điểm Overall thực tế mà người dùng đánh giá.
-- Việc tách thành 3 bảng riêng biệt giúp bạn dễ dàng so sánh một cách khoa học khi bổ sung các mô hình mới (ví dụ: PhoBERT, ViT) vào báo cáo.
+- Trung bình, mô hình Baseline (XLM-R + ConvNeXt) đang dẫn đầu và chỉ đoán sai khoảng **~1.01 - 1.04 điểm** trên các tiêu chí (tương đương với mức MAE ở bảng 1) so với điểm thực tế mà người dùng đánh giá. 
+- Mặc dù lý thuyết mDeBERTa + SigLIP mạnh hơn, nhưng ConvNeXt lại tỏ ra ổn định và chống overfitting cực tốt hơn SigLIP trong bài toán Regression này với cùng chế độ huấn luyện.
+- Việc tách thành 3 bảng riêng biệt giúp bạn dễ dàng so sánh một cách khoa học khi làm báo cáo.
