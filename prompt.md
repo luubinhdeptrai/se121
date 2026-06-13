@@ -1,138 +1,177 @@
 # ROLE
 
-You are a Principal AI Research Engineer, Senior Data Scientist, Machine Learning Engineer, Data Engineer, and Research Scientist specializing in:
+You are a Principal AI Research Engineer, Senior Machine Learning Engineer, Technical Architect, Technical Writer, and Research Documentation Specialist.
 
-- Natural Language Processing (NLP)
-- Sentiment Analysis
-- Aspect-Based Sentiment Analysis (ABSA)
+You specialize in:
+
 - Multi-modal Deep Learning
 - Explainable AI (XAI)
+- Computer Vision
+- NLP
+- ConvNeXt
+- XLM-RoBERTa
+- SHAP
+- LIME
+- Grad-CAM
+- PyTorch
 - Dataset Engineering
-- Data Annotation Pipelines
-- Python
-- Pandas
-- Jupyter Notebook
-- Reproducible Research
-- Research Methodology
+- Research Documentation
+- Thesis Writing
 
-You are also an experienced thesis advisor and reviewer who follows strict academic standards regarding auditability, reproducibility, explainability, traceability, data provenance, and research validity.
+You are also an experienced software architect who understands the importance of keeping documentation synchronized with the actual implementation.
 
 ---
 
 # GOAL
 
-Create a complete, production-quality Jupyter Notebook:
+I have the following documentation files:
 
-`01_generate_overall_satisfaction.ipynb`
+1. @Explainable_AI_for_Multimodal_Product_Quality_Assessment.md
+2. @Multimodal_Learning_Handbook.md
+3. @Proposal_Multimodel.md
+4. @XAI_Survival_Guide.md
 
-that performs:
+These documents were written at different stages of the project.
 
-1. Read and deeply analyze @reviews_clean.csv and @reviews_clean.json
-2. Dataset restructuring
-3. Position aspect exclusion from modeling
-4. Avg rating recomputation
-5. Corpus analysis
-6. Rule discovery
-7. Rule generation
-8. Overall satisfaction generation
-9. Dataset auditing
-10. Statistical analysis
-11. Dataset export
+Some information is now outdated because the actual implementation evolved significantly.
 
----
+Your task is to:
 
-# MANDATORY DATASET READING REQUIREMENT
+1. Read the entire current codebase.
 
-Before writing transformation logic, rule logic, or export logic, you MUST carefully read and inspect BOTH dataset files:
+2. Understand the actual implementation.
 
-- @reviews_clean.csv
-- @reviews_clean.json
+3. Read all four documentation files completely.
 
-You must not assume the schema.
+4. Detect every inconsistency between:
+   - codebase
+   - dataset
+   - training pipeline
+   - architecture
+   - documentation
 
-You must analyze:
+5. Update all four documents so that they accurately reflect the CURRENT implementation.
 
-- all columns
-- data types
-- missing values
-- duplicate records
-- rating distributions
-- text length distribution
-- common Vietnamese review phrases
-- aspect score distributions
-- image-related fields
-- relationship between `avg_rating` and aspect scores
-- consistency between CSV and JSON
-
-Generate a **Dataset Understanding Report** before any transformation.
+The goal is to make all documentation internally consistent and fully aligned with the real project.
 
 ---
 
-# PROJECT CONTEXT
+# CRITICAL REQUIREMENT
 
-I am developing a thesis project:
+DO NOT assume the proposal is correct.
 
-**"Explainable Multi-modal Deep Learning System for Product Quality Assessment using Image and Text Data"**
+DO NOT assume the handbook is correct.
 
-Current aspect ratings:
+DO NOT assume the XAI guide is correct.
 
-- food_score
-- service_score
-- atmosphere_score
-- price_score
-- position_score
+DO NOT assume any document is the source of truth.
 
-Current Foody overall rating:
+The source of truth is:
 
-- avg_rating
+1. Current codebase
+2. Current dataset structure
+3. Current training pipeline
+4. Current model implementation
 
-The original Foody `avg_rating` is derived from aspect ratings, so it is not an independent overall satisfaction label.
+Documentation must be updated to match reality.
 
----
+Never modify the codebase to match documentation.
 
-# IMPORTANT DATASET RESTRUCTURING REQUIREMENT
-
-The Position aspect is intentionally excluded from this research.
-
-Reason:
-
-Position convenience is weakly observable from review images and is often not explicitly discussed in review text.
-
-Therefore, `position_score` introduces label noise and reduces explainability quality.
-
-Do NOT delete `position_score`.
-
-Preserve it for traceability, but exclude it from:
-
-- avg_rating computation
-- training targets
-- overall_satisfaction generation
-- evaluation metrics
-- target visualizations
+Always modify documentation to match the codebase.
 
 ---
 
-# REQUIRED RATING TRANSFORMATION
+# REQUIRED READING PHASE
 
-Preserve original Foody avg_rating as:
+Before making any modification:
 
-`foody_original_avg_rating`
+Read the ENTIRE codebase carefully.
 
-Then recompute:
+Inspect:
 
-```text
-avg_rating =
-(
-food_score +
-service_score +
-atmosphere_score +
-price_score
-) / 4
-```
+- model definitions
+- dataset loaders
+- preprocessing code
+- training scripts
+- evaluation scripts
+- inference scripts
+- XAI implementations
+- configuration files
+- notebooks
+- utility modules
 
-All subsequent processing must use the recomputed `avg_rating`.
+Understand:
 
-Final training targets:
+- actual architecture
+- actual tensor flow
+- actual outputs
+- actual labels
+- actual training targets
+- actual loss functions
+- actual preprocessing
+- actual explainability workflow
+
+Only after understanding the implementation may you edit documentation.
+
+---
+
+# REQUIRED DATASET ANALYSIS
+
+Read the actual dataset schema.
+
+Inspect:
+
+- reviews_clean.csv
+- reviews_clean.json
+- any processed datasets
+- training datasets
+- validation datasets
+
+Determine:
+
+- actual targets
+- actual aspect scores
+- actual label meanings
+- actual overall_satisfaction design
+- actual feature availability
+
+Documentation must reflect the real dataset.
+
+---
+
+# REQUIRED CONSISTENCY AUDIT
+
+Create a consistency audit table.
+
+For every inconsistency found:
+
+Report:
+
+- document name
+- section
+- outdated content
+- actual implementation
+- proposed correction
+
+Example:
+
+| Document | Section | Old Content                | Actual Implementation            | Action |
+| -------- | ------- | -------------------------- | -------------------------------- | ------ |
+| Proposal | Targets | quality, price, appearance | food, service, atmosphere, price | Update |
+
+Generate the audit before modifying documents.
+
+---
+
+# CURRENT IMPLEMENTATION IS EXPECTED TO USE
+
+The actual implementation may contain items such as:
+
+Dataset:
+
+- Foody review dataset
+
+Targets:
 
 - food_score
 - service_score
@@ -144,403 +183,227 @@ Excluded target:
 
 - position_score
 
----
+Image Encoder:
 
-# DATASET-DRIVEN RULE DISCOVERY
+- ConvNeXt
 
-Before generating `overall_satisfaction_rules.json`, analyze the review corpus from the real dataset.
+Text Encoder:
 
-Distinguish:
+- XLM-RoBERTa
 
-## Aspect-specific expressions
+Fusion:
 
-These should generally NOT modify overall_satisfaction:
+- late fusion
+- embedding concatenation baseline
 
-- món ngon
-- đồ ăn ngon
-- phục vụ tốt
-- nhân viên thân thiện
-- không gian đẹp
-- giá rẻ
+XAI:
 
-## Global satisfaction expressions
+- Grad-CAM
+- Attention Visualization
+- SHAP
+- LIME
 
-These MAY modify overall_satisfaction:
+However:
 
-- sẽ quay lại
-- chắc chắn sẽ quay lại
-- không quay lại nữa
-- không bao giờ quay lại
-- rất hài lòng
-- cực kỳ hài lòng
-- thất vọng
-- không có gì để chê
-- đáng để thử
-- quán ruột
-- đi như cơm bữa
-- giới thiệu cho bạn bè
-- ủng hộ dài lâu
+DO NOT blindly trust this list.
+
+Verify everything directly from the codebase.
+
+The codebase always wins.
 
 ---
 
-# REQUIRED RULE FILE
+# DOCUMENT UPDATE REQUIREMENTS
 
-Create:
+For all four documents:
 
-`overall_satisfaction_rules.json`
+Update:
 
-The rule file must be generated from:
+- architecture diagrams
+- tensor shapes
+- model descriptions
+- target definitions
+- aspect definitions
+- dataset descriptions
+- preprocessing descriptions
+- training pipeline
+- loss functions
+- evaluation methodology
+- XAI methodology
+- example outputs
+- implementation notes
+- thesis-defense notes
 
-- corpus analysis
-- expert-designed rules
-- manual review
+Remove obsolete content.
 
-Each rule must contain:
+Replace outdated examples.
 
-```json
-{
-  "rule_name": {
-    "score": 0.5,
-    "description": "...",
-    "patterns": [...]
-  }
-}
-```
-
-Required categories:
-
-Positive:
-
-1. revisit_intention
-2. repeat_purchase
-3. recommendation
-4. value_for_money
-5. strong_satisfaction
-6. no_complaint
-7. loyalty
-8. advocacy
-
-Negative:
-
-1. no_revisit
-2. strong_dissatisfaction
-3. not_worth_it
-4. waiting_problem
-5. frustration
-6. regret
-
-Rules must be loaded dynamically, not hardcoded into the rule engine.
+Add missing implementation details where necessary.
 
 ---
 
-# REQUIRED NEW COLUMNS
+# SPECIFIC ITEMS TO VERIFY
 
-Append these fields to BOTH CSV and JSON outputs:
+Verify whether the documentation still contains references to:
 
-- overall_adjustment
-- overall_satisfaction
-- overall_rules_triggered
-- overall_evidence
+- quality_score
+- appearance_score
+- 3-factor prediction
+- old datasets
+- old architecture assumptions
+- old fusion assumptions
+- obsolete loss functions
+- obsolete evaluation procedures
 
-For CSV, store `overall_evidence` as a serialized JSON string.
+If found:
 
-For JSON, store `overall_evidence` as a structured JSON array.
-
----
-
-# REQUIRED COMPUTATION
-
-```text
-overall_adjustment = sum(all matched rule scores)
-
-overall_satisfaction =
-clip(
-    avg_rating + overall_adjustment,
-    0,
-    10
-)
-```
-
-Every adjustment must be:
-
-- traceable
-- explainable
-- reproducible
+Update them to match the current implementation.
 
 ---
 
-# REQUIRED NOTEBOOK STRUCTURE
+# TERMINOLOGY CONSISTENCY
 
-## 1. Environment Setup
+Use identical terminology across all documents.
 
-- imports
-- configuration
-- random seed
+If the codebase uses:
 
-## 2. Load and Understand Dataset
+food_score
 
-Load:
+then do NOT write:
 
-- reviews_clean.csv
-- reviews_clean.json
+quality_score
 
-Validate:
+in another document.
 
-- file existence
-- schema
-- duplicates
-- missing values
-- data consistency between CSV and JSON
+The same concept must use the same name everywhere.
 
-Generate Dataset Understanding Report.
+Create a terminology consistency section.
 
-## 3. Rating and Aspect Analysis
+---
 
-Analyze:
+# ARCHITECTURE CONSISTENCY
 
-- foody original avg_rating
-- food_score
-- service_score
-- atmosphere_score
-- price_score
-- position_score
+Ensure all documents describe the same architecture.
 
-Show distributions and summary statistics.
+The following must be consistent everywhere:
 
-## 4. Dataset Restructuring
+- image encoder
+- text encoder
+- fusion layer
+- prediction heads
+- tensor dimensions
+- outputs
+- explainability pipeline
 
-Create:
+No contradictions are allowed.
 
-- foody_original_avg_rating
+---
 
-Recompute:
+# XAI CONSISTENCY
 
-- avg_rating from 4 aspects only
+Ensure:
 
-Generate comparison statistics:
+Explainable_AI_for_Multimodal_Product_Quality_Assessment.md
 
-- average difference
-- max difference
-- min difference
-- distribution shift
-- affected review percentage
+and
 
-## 5. Corpus Analysis
+XAI_Survival_Guide.md
 
-Analyze:
+are synchronized.
 
-- review length distribution
-- common phrases
-- common positive phrases
-- common negative phrases
-- Vietnamese satisfaction signals
+The same:
 
-## 6. Generate Rule Candidates
+- Grad-CAM strategy
+- SHAP strategy
+- LIME strategy
+- attention visualization strategy
 
-Discover candidate patterns from the dataset.
+must appear consistently.
 
-Separate:
+---
 
-- positive global satisfaction signals
-- negative global satisfaction signals
-- aspect-specific expressions
-
-## 7. Create and Validate overall_satisfaction_rules.json
-
-Generate rules.
-
-Validate schema.
-
-Display rule summary.
-
-## 8. Text Normalization
-
-Implement:
-
-- lowercase
-- unicode normalization
-- whitespace cleanup
-- punctuation cleanup
-
-## 9. Rule Engine
-
-Implement reusable functions:
-
-- normalize_text()
-- find_matching_rules()
-- calculate_adjustment()
-- generate_evidence()
-
-Use:
-
-- modular design
-- type hints
-- docstrings
-
-## 10. Generate Overall Satisfaction
+# REQUIRED OUTPUTS
 
 Generate:
 
-- overall_adjustment
-- overall_satisfaction
-- overall_rules_triggered
-- overall_evidence
+1. Updated Explainable_AI_for_Multimodal_Product_Quality_Assessment.md
+2. Updated Multimodal_Learning_Handbook.md
+3. Updated Proposal_Multimodel.md
+4. Updated XAI_Survival_Guide.md
 
-for every review.
+Additionally generate:
 
-## 11. Dataset Statistics
+5. Documentation_Consistency_Audit.md
 
-Compute:
+This file must contain:
 
-- total reviews
-- adjusted reviews
-- unchanged reviews
-- positive adjustments
-- negative adjustments
-- average adjustment
-- max adjustment
-- min adjustment
+- all inconsistencies found
+- rationale for every modification
+- mapping from old concepts to new concepts
 
-## 12. Rule Coverage Analysis
+Example:
 
-For every rule, compute:
+quality_score
+→ food_score
 
-- trigger count
-- percentage coverage
-- most common matched phrases
+appearance_score
+→ atmosphere_score (if applicable)
 
-Identify:
-
-- unused rules
-- redundant rules
-- conflicting rules
-
-## 13. Visualization
-
-Create publication-quality charts:
-
-- original Foody avg_rating distribution
-- recomputed avg_rating distribution
-- overall_satisfaction distribution
-- adjustment distribution
-- rule frequency distribution
-- top rule coverage
-
-## 14. Quality Checks
-
-Verify:
-
-- no score above 10
-- no score below 0
-- no NaN values
-- evidence consistency
-- JSON validity
-- CSV validity
-
-## 15. Sample Auditing
-
-Display 20 adjusted reviews with:
-
-- review text
-- foody_original_avg_rating
-- recomputed avg_rating
-- overall_adjustment
-- overall_satisfaction
-- triggered rules
-- evidence
-
-## 16. Research Analysis
-
-Generate a section:
-
-**Impact of Removing Position from Rating Computation**
-
-Discuss:
-
-- why Position was excluded
-- statistical impact
-- rating shifts
-- implications for model training
-- implications for explainability
-
-## 17. Export Results
-
-Save:
-
-- reviews_clean_enhanced.csv
-- reviews_clean_enhanced.json
-- overall_satisfaction_rules.json
-- overall_satisfaction_rule_analysis.md
-
-Do NOT overwrite original files.
+etc.
 
 ---
 
-# CONSTRAINTS
+# DOCUMENT QUALITY REQUIREMENTS
 
-Use:
+The updated documents must be:
 
-- Python
-- Pandas
-- NumPy
-- JSON
-- Matplotlib
+- internally consistent
+- codebase-consistent
+- thesis-ready
+- publication-ready
+- beginner-friendly
+- technically accurate
 
-Do NOT:
+Avoid:
 
-- overwrite original files
-- modify original Foody ratings
-- use random score generation
-- use undocumented heuristics
-- use black-box score modification
+- speculative content
+- future features presented as implemented
+- outdated architecture descriptions
+- outdated examples
 
-Every score adjustment must be explainable.
-
----
-
-# OUTPUT FORMAT
-
-Generate:
-
-1. Complete notebook source code.
-2. Complete `overall_satisfaction_rules.json`.
-3. Complete `overall_satisfaction_rule_analysis.md`.
-4. Folder structure.
-5. Example outputs.
-6. Dataset schema documentation.
-7. Rule documentation.
+Only describe what actually exists in the current implementation unless explicitly marked as future work.
 
 ---
 
-# SELF-REVIEW PROCESS
+# SELF-REVIEW PROCESS (MANDATORY)
 
-After generating the notebook, perform a complete engineering review.
+After updating all documents:
+
+Perform a full documentation review.
 
 Check:
 
-1. Dataset reading correctness.
-2. Dataset understanding completeness.
-3. Dataset restructuring correctness.
-4. Avg rating recomputation correctness.
-5. Rule correctness.
-6. CSV export correctness.
-7. JSON export correctness.
-8. Evidence generation correctness.
-9. Auditability.
-10. Reproducibility.
-11. Maintainability.
-12. Research validity.
+1. Consistency with codebase.
+2. Consistency across documents.
+3. Consistency of terminology.
+4. Consistency of tensor shapes.
+5. Consistency of targets.
+6. Consistency of architecture diagrams.
+7. Consistency of XAI descriptions.
+8. Consistency of dataset descriptions.
+9. Consistency of training pipeline descriptions.
+10. Consistency of evaluation methodology.
 
-Then fix every issue found.
+Identify every remaining contradiction.
+
+Fix all issues.
 
 Repeat:
 
-review → fix → review → fix
+audit → fix → audit → fix
 
-until the notebook is:
+until no significant inconsistency remains.
 
-- production-ready
-- research-ready
-- audit-ready
-- thesis-ready
-- publication-ready
+Do NOT stop after the first pass.
+
+Continue until all documents are synchronized with the actual implementation and with each other.
