@@ -43,9 +43,9 @@ class Trainer:
             true_factors = batch['factor_scores'].to(self.device)
             
             # Compute loss
-            loss_overall = self.criterion(pred_overall, true_overall)
+            # loss_overall = self.criterion(pred_overall, true_overall)
             loss_factors = self.criterion(pred_factors, true_factors)
-            loss = self.alpha * loss_overall + (1 - self.alpha) * loss_factors
+            loss = loss_factors # self.alpha * loss_overall + (1 - self.alpha) * loss_factors
             
             loss.backward()
             self.optimizer.step()
@@ -86,7 +86,7 @@ class Trainer:
                 true_overall = batch['overall_score'].to(self.device)
                 true_factors = batch['factor_scores'].to(self.device)
                 
-                loss_overall = self.criterion(pred_overall, true_overall)
+                # loss_overall = self.criterion(pred_overall, true_overall)
                 loss_factors = self.criterion(pred_factors, true_factors)
                 
                 loss_food = self.criterion(pred_factors[:, 0], true_factors[:, 0])
@@ -94,19 +94,19 @@ class Trainer:
                 loss_atmos = self.criterion(pred_factors[:, 2], true_factors[:, 2])
                 
                 # Tính MAE (Mean Absolute Error)
-                mae_overall = self.mae_criterion(pred_overall, true_overall)
+                # mae_overall = self.mae_criterion(pred_overall, true_overall)
                 mae_food = self.mae_criterion(pred_factors[:, 0], true_factors[:, 0])
                 mae_price = self.mae_criterion(pred_factors[:, 1], true_factors[:, 1])
                 mae_atmos = self.mae_criterion(pred_factors[:, 2], true_factors[:, 2])
                 
-                loss = self.alpha * loss_overall + (1 - self.alpha) * loss_factors
+                loss = loss_factors # self.alpha * loss_overall + (1 - self.alpha) * loss_factors
                 val_loss += loss.item()
-                val_loss_overall += loss_overall.item()
+                # val_loss_overall += loss_overall.item()
                 val_loss_food += loss_food.item()
                 val_loss_price += loss_price.item()
                 val_loss_atmos += loss_atmos.item()
                 
-                val_mae_overall += mae_overall.item()
+                # val_mae_overall += mae_overall.item()
                 val_mae_food += mae_food.item()
                 val_mae_price += mae_price.item()
                 val_mae_atmos += mae_atmos.item()

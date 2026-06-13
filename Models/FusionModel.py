@@ -27,7 +27,7 @@ class FusionModel(nn.Module):
             nn.ReLU()
         )
         
-        self.overall_head = nn.Linear(256, 1)
+        # self.overall_head = nn.Linear(256, 1)
         self.factor_head = nn.Linear(256, num_factors)
 
     def forward(self, input_ids, attention_mask, pixel_values):
@@ -40,6 +40,6 @@ class FusionModel(nn.Module):
         fused_features = torch.cat((text_features, image_features), dim=1)
         out = self.fusion_fc(fused_features)
         
-        overall_score = self.overall_head(out)
+        # overall_score = self.overall_head(out)
         factor_scores = self.factor_head(out)
-        return overall_score, factor_scores
+        return None, factor_scores

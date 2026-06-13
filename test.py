@@ -81,7 +81,7 @@ def test():
             true_overall = batch['overall_score'].to(device)
             true_factors = batch['factor_scores'].to(device)
             
-            test_loss_overall += criterion(pred_overall, true_overall).item()
+            # test_loss_overall += criterion(pred_overall, true_overall).item()
             test_loss_factors += criterion(pred_factors, true_factors).item()
             
             # Tính riêng từng tiêu chí cho MSE
@@ -90,7 +90,7 @@ def test():
             test_loss_atmosphere += criterion(pred_factors[:, 2], true_factors[:, 2]).item()
             
             # Tính MAE
-            test_mae_overall += mae_criterion(pred_overall, true_overall).item()
+            # test_mae_overall += mae_criterion(pred_overall, true_overall).item()
             test_mae_food += mae_criterion(pred_factors[:, 0], true_factors[:, 0]).item()
             test_mae_price += mae_criterion(pred_factors[:, 1], true_factors[:, 1]).item()
             test_mae_atmosphere += mae_criterion(pred_factors[:, 2], true_factors[:, 2]).item()
