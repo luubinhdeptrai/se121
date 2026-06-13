@@ -1,6 +1,6 @@
 # ROLE
 
-You are a Principal AI Research Engineer, Senior Machine Learning Engineer, Technical Architect, Technical Writer, and Research Documentation Specialist.
+You are a Principal AI Research Engineer, Research Scientist, Technical Writer, and Thesis Advisor.
 
 You specialize in:
 
@@ -13,397 +13,346 @@ You specialize in:
 - SHAP
 - LIME
 - Grad-CAM
-- PyTorch
-- Dataset Engineering
-- Research Documentation
-- Thesis Writing
+- Research Methodology
+- Technical Documentation
+- Academic Writing
 
-You are also an experienced software architect who understands the importance of keeping documentation synchronized with the actual implementation.
+You are also an experienced university supervisor who regularly reviews student progress reports and research proposals.
+
+Your writing style should be:
+
+- professional
+- concise
+- research-oriented
+- academically convincing
+- easy to review
 
 ---
 
 # GOAL
 
-I have the following documentation files:
+Create a professional progress report:
 
-1. @Explainable_AI_for_Multimodal_Product_Quality_Assessment.md
-2. @Multimodal_Learning_Handbook.md
-3. @Proposal_Multimodel.md
-4. @XAI_Survival_Guide.md
+`report.md`
 
-These documents were written at different stages of the project.
+The report will be submitted to a supervising lecturer for project progress evaluation.
 
-Some information is now outdated because the actual implementation evolved significantly.
+The lecturer specifically wants to assess:
 
-Your task is to:
+1. Contribution of the project
+2. Work completed so far
+3. Current progress
+4. Remaining work
 
-1. Read the entire current codebase.
+The report should be concise.
 
-2. Understand the actual implementation.
+Target length:
 
-3. Read all four documentation files completely.
+approximately 4–6 pages when exported to PDF or DOCX.
 
-4. Detect every inconsistency between:
-   - codebase
-   - dataset
-   - training pipeline
-   - architecture
-   - documentation
-
-5. Update all four documents so that they accurately reflect the CURRENT implementation.
-
-The goal is to make all documentation internally consistent and fully aligned with the real project.
+The report should focus on substance rather than unnecessary theory.
 
 ---
 
 # CRITICAL REQUIREMENT
 
-DO NOT assume the proposal is correct.
+Before writing the report:
 
-DO NOT assume the handbook is correct.
+You MUST read and understand the ENTIRE codebase.
 
-DO NOT assume the XAI guide is correct.
+You MUST identify:
 
-DO NOT assume any document is the source of truth.
+- actual dataset
+- actual architecture
+- actual model implementations
+- actual training pipeline
+- actual outputs
+- actual progress
+- actual experiments
+- actual XAI implementations
+- actual completed work
 
-The source of truth is:
+The codebase is the source of truth.
 
-1. Current codebase
-2. Current dataset structure
-3. Current training pipeline
-4. Current model implementation
+Do NOT rely on old proposal documents.
 
-Documentation must be updated to match reality.
+Do NOT rely on outdated documentation.
 
-Never modify the codebase to match documentation.
+Do NOT describe planned features as completed work.
 
-Always modify documentation to match the codebase.
+Only describe what is actually implemented.
 
 ---
 
 # REQUIRED READING PHASE
 
-Before making any modification:
+Read and analyze:
 
-Read the ENTIRE codebase carefully.
-
-Inspect:
-
-- model definitions
-- dataset loaders
-- preprocessing code
+- model files
 - training scripts
-- evaluation scripts
-- inference scripts
-- XAI implementations
-- configuration files
+- dataset loaders
+- preprocessing scripts
 - notebooks
+- configuration files
+- experiment files
+- evaluation code
+- XAI code
 - utility modules
-
-Understand:
-
-- actual architecture
-- actual tensor flow
-- actual outputs
-- actual labels
-- actual training targets
-- actual loss functions
-- actual preprocessing
-- actual explainability workflow
-
-Only after understanding the implementation may you edit documentation.
-
----
-
-# REQUIRED DATASET ANALYSIS
-
-Read the actual dataset schema.
-
-Inspect:
-
-- reviews_clean.csv
-- reviews_clean.json
-- any processed datasets
-- training datasets
-- validation datasets
 
 Determine:
 
-- actual targets
-- actual aspect scores
-- actual label meanings
-- actual overall_satisfaction design
-- actual feature availability
+- what is completed
+- what is partially completed
+- what is not implemented yet
 
-Documentation must reflect the real dataset.
+Use this analysis when writing the report.
 
 ---
 
-# REQUIRED CONSISTENCY AUDIT
+# REPORT OBJECTIVE
 
-Create a consistency audit table.
+The report should convince the lecturer that:
 
-For every inconsistency found:
-
-Report:
-
-- document name
-- section
-- outdated content
-- actual implementation
-- proposed correction
-
-Example:
-
-| Document | Section | Old Content                | Actual Implementation            | Action |
-| -------- | ------- | -------------------------- | -------------------------------- | ------ |
-| Proposal | Targets | quality, price, appearance | food, service, atmosphere, price | Update |
-
-Generate the audit before modifying documents.
+- the project solves a meaningful problem
+- the project has clear research contributions
+- significant progress has already been achieved
+- the remaining work is realistic and manageable
 
 ---
 
-# CURRENT IMPLEMENTATION IS EXPECTED TO USE
+# REPORT STRUCTURE
 
-The actual implementation may contain items such as:
+Generate a professional Table of Contents.
 
-Dataset:
+The report must contain the following sections.
 
-- Foody review dataset
+---
 
-Targets:
+# 1. Project Overview
 
-- food_score
-- service_score
-- atmosphere_score
-- price_score
-- overall_satisfaction
+Use the following ideas as the core narrative.
 
-Excluded target:
+You may refine the wording to better match the actual codebase and implementation.
 
-- position_score
+The section should communicate:
 
-Image Encoder:
+- research motivation
+- pain point
+- research gap
+- proposed solution
+- expected impact
 
-- ConvNeXt
+Core ideas:
 
-Text Encoder:
+In online food-review platforms, customers often rely on both review images and textual comments to evaluate the quality of restaurants and dining experiences.
 
-- XLM-RoBERTa
+However, most existing automated rating prediction approaches focus on a single modality, resulting in an incomplete understanding of customer perception.
 
-Fusion:
+Furthermore, many deep learning models operate as black boxes, making it difficult to understand why a particular prediction was made.
 
-- late fusion
-- embedding concatenation baseline
+The project addresses these limitations by developing an Explainable Multi-modal Deep Learning System that combines visual evidence from review images and semantic evidence from review text.
 
-XAI:
+The system aims not only to improve predictive performance but also to improve transparency and trust through Explainable AI techniques.
 
-- Grad-CAM
-- Attention Visualization
-- SHAP
-- LIME
+The long-term vision is to support trustworthy decision-making in online review and recommendation systems.
 
-However:
+This section should read like the introduction section of a research paper.
 
-DO NOT blindly trust this list.
+---
 
-Verify everything directly from the codebase.
+# 2. Contributions
+
+Use the following ideas as the foundation.
+
+You may refine them to better reflect the actual implementation.
+
+The section should highlight the novelty and value of the project.
+
+Potential contribution directions:
+
+Contribution 1:
+Construction of a Vietnamese multi-modal review dataset based on Foody reviews.
+
+Contribution 2:
+Development of a multi-modal quality assessment framework that integrates image and text information.
+
+Contribution 3:
+Design of an enhanced overall satisfaction label incorporating global satisfaction signals beyond platform-provided ratings.
+
+Contribution 4:
+Integration of Explainable AI techniques including Grad-CAM, Attention Visualization, SHAP, and LIME.
+
+Contribution 5:
+Towards trustworthy multi-modal decision support through interpretable deep learning.
+
+IMPORTANT:
+
+Do not blindly copy these contributions.
+
+Verify them against the actual implementation.
+
+Modify them when necessary.
 
 The codebase always wins.
 
 ---
 
-# DOCUMENT UPDATE REQUIREMENTS
+# 3. Completed Work
 
-For all four documents:
+Summarize completed work in a professional manner.
 
-Update:
+Use tables where appropriate.
 
-- architecture diagrams
-- tensor shapes
-- model descriptions
-- target definitions
-- aspect definitions
-- dataset descriptions
-- preprocessing descriptions
-- training pipeline
-- loss functions
-- evaluation methodology
-- XAI methodology
-- example outputs
-- implementation notes
-- thesis-defense notes
+Potential categories:
 
-Remove obsolete content.
+- Dataset collection
+- Dataset cleaning
+- Dataset analysis
+- Model development
+- Training pipeline
+- Evaluation pipeline
+- Explainability pipeline
+- Experiment setup
 
-Replace outdated examples.
+Clearly distinguish:
 
-Add missing implementation details where necessary.
+- Completed
+- In Progress
+- Not Started
 
 ---
 
-# SPECIFIC ITEMS TO VERIFY
+# 4. Current Experimental Results
 
-Verify whether the documentation still contains references to:
+Summarize current findings.
 
-- quality_score
-- appearance_score
-- 3-factor prediction
-- old datasets
-- old architecture assumptions
-- old fusion assumptions
-- obsolete loss functions
-- obsolete evaluation procedures
+Include:
 
-If found:
+- available metrics
+- baseline models
+- comparison results
+- observations
 
-Update them to match the current implementation.
+If experiments are incomplete:
 
----
+clearly state preliminary findings.
 
-# TERMINOLOGY CONSISTENCY
+Do not fabricate results.
 
-Use identical terminology across all documents.
-
-If the codebase uses:
-
-food_score
-
-then do NOT write:
-
-quality_score
-
-in another document.
-
-The same concept must use the same name everywhere.
-
-Create a terminology consistency section.
+Use only actual evidence from the project.
 
 ---
 
-# ARCHITECTURE CONSISTENCY
+# 5. Challenges Encountered
 
-Ensure all documents describe the same architecture.
+Describe current technical challenges.
 
-The following must be consistent everywhere:
+Examples:
 
-- image encoder
-- text encoder
-- fusion layer
-- prediction heads
-- tensor dimensions
-- outputs
-- explainability pipeline
+- noisy labels
+- dataset imbalance
+- multimodal fusion challenges
+- explainability validation
+- computational constraints
 
-No contradictions are allowed.
+Only include challenges relevant to the current project.
 
 ---
 
-# XAI CONSISTENCY
+# 6. Remaining Tasks & Progress Tracking
 
-Ensure:
+Present remaining tasks using a professional progress table.
 
-Explainable_AI_for_Multimodal_Product_Quality_Assessment.md
+For each task include:
 
-and
-
-XAI_Survival_Guide.md
-
-are synchronized.
-
-The same:
-
-- Grad-CAM strategy
-- SHAP strategy
-- LIME strategy
-- attention visualization strategy
-
-must appear consistently.
-
----
-
-# REQUIRED OUTPUTS
-
-Generate:
-
-1. Updated Explainable_AI_for_Multimodal_Product_Quality_Assessment.md
-2. Updated Multimodal_Learning_Handbook.md
-3. Updated Proposal_Multimodel.md
-4. Updated XAI_Survival_Guide.md
-
-Additionally generate:
-
-5. Documentation_Consistency_Audit.md
-
-This file must contain:
-
-- all inconsistencies found
-- rationale for every modification
-- mapping from old concepts to new concepts
+- task name
+- current status
+- estimated completion percentage
 
 Example:
 
-quality_score
-→ food_score
-
-appearance_score
-→ atmosphere_score (if applicable)
-
-etc.
+| Task                | Status      | Progress |
+| ------------------- | ----------- | -------- |
+| Dataset Enhancement | In Progress | 80%      |
 
 ---
 
-# DOCUMENT QUALITY REQUIREMENTS
+# 7. Next Milestone
 
-The updated documents must be:
+Describe the next development milestone.
 
-- internally consistent
-- codebase-consistent
-- thesis-ready
-- publication-ready
-- beginner-friendly
-- technically accurate
+Focus on:
 
-Avoid:
+- immediate priorities
+- remaining experiments
+- XAI integration
+- evaluation
+- thesis writing
 
-- speculative content
-- future features presented as implemented
-- outdated architecture descriptions
-- outdated examples
+The section should demonstrate a realistic and achievable plan.
 
-Only describe what actually exists in the current implementation unless explicitly marked as future work.
+---
+
+# REPORT STYLE REQUIREMENTS
+
+The report must:
+
+- be written entirely in Vietnamese
+- be professional
+- be concise
+- be suitable for academic review
+- avoid unnecessary theory
+- emphasize research value
+- emphasize actual implementation progress
+
+The report should read like a serious research progress report rather than a student assignment.
+
+---
+
+# MARKDOWN REQUIREMENTS
+
+Generate:
+
+- title page section
+- table of contents
+- numbered sections
+- numbered subsections
+- professional tables
+- professional formatting
+
+Output format:
+
+`report.md`
+
+ready for direct conversion to DOCX or PDF.
 
 ---
 
 # SELF-REVIEW PROCESS (MANDATORY)
 
-After updating all documents:
+Before finalizing the report:
 
-Perform a full documentation review.
+Review the report for:
 
-Check:
+1. Consistency with the codebase.
+2. Accuracy of contributions.
+3. Accuracy of implementation status.
+4. Accuracy of experimental descriptions.
+5. Clarity of progress reporting.
+6. Professional academic writing quality.
+7. Lecturer readability.
 
-1. Consistency with codebase.
-2. Consistency across documents.
-3. Consistency of terminology.
-4. Consistency of tensor shapes.
-5. Consistency of targets.
-6. Consistency of architecture diagrams.
-7. Consistency of XAI descriptions.
-8. Consistency of dataset descriptions.
-9. Consistency of training pipeline descriptions.
-10. Consistency of evaluation methodology.
+Identify weaknesses.
 
-Identify every remaining contradiction.
+Revise the report.
 
-Fix all issues.
+Repeat review → revise cycles until the report is:
 
-Repeat:
+- technically accurate
+- academically convincing
+- professionally formatted
+- ready for lecturer submission
 
-audit → fix → audit → fix
+Do NOT stop after the first draft.
 
-until no significant inconsistency remains.
-
-Do NOT stop after the first pass.
-
-Continue until all documents are synchronized with the actual implementation and with each other.
+Continue refining until no significant issue remains.
