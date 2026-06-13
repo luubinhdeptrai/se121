@@ -19,6 +19,7 @@ class ImageModel(nn.Module):
         
     def forward(self, pixel_values):
         features = self.encoder(pixel_values)
+        features = features.to(torch.float32)
         out = self.fc(features)
         # overall_score = self.overall_head(out)
         factor_scores = self.factor_head(out)

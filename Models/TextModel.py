@@ -23,7 +23,7 @@ class TextModel(nn.Module):
             features = outputs.pooler_output
         else:
             features = outputs.last_hidden_state[:, 0, :]
-            
+        features = features.to(torch.float32)
         out = self.fc(features)
         # overall_score = self.overall_head(out)
         factor_scores = self.factor_head(out)

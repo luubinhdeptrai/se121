@@ -37,6 +37,8 @@ class FusionModel(nn.Module):
             _, _, image_features = self.image_model(pixel_values)
             
         # Concatenation
+        text_features = text_features.to(torch.float32)
+        image_features = image_features.to(torch.float32)
         fused_features = torch.cat((text_features, image_features), dim=1)
         out = self.fusion_fc(fused_features)
         
