@@ -1,0 +1,187 @@
+--- cell 73 stream ---
+Audit sample size: 20 reviews (categories: no_rule_triggered=5, positive_only=5, negative_only=5, mixed_pos_neg=3, clipped_high=1, clipped_low=1)
+
+--- cell 74 stream ---
+[ 1/20] category=no_rule_triggered  review_id=1422814
+     comment_clean         : 'Vị trí dễ tìm không gian khá rộng rãi nhân viên dễ thương Bánh ăn cũng ok lắm bù thêm 30k để có thêm món ăn kèm nha các bạn Nói chung là ok'
+     foody_original_rating : 6.40
+     avg_rating (4-aspect) : 6.75
+     overall_adjustment    : +0.00
+         (no rule triggered)
+     overall_satisfaction  : 6.75
+------------------------------------------------------------------------------
+[ 2/20] category=no_rule_triggered  review_id=2743021
+     comment_clean         : 'Đây là phần ăn 77k + 16k cơm cháy ??? - Rồi cơm cháy đâu ? Rau cho ăn xin ăn ak ? Sườn không thể làm gì khác cho bớt suy dinh dưỡng ak ? Canh thì được 2 “cục” khổ qua tí hon ? Khôn'
+     foody_original_rating : 2.60
+     avg_rating (4-aspect) : 2.00
+     overall_adjustment    : +0.00
+         (no rule triggered)
+     overall_satisfaction  : 2.00
+------------------------------------------------------------------------------
+[ 3/20] category=no_rule_triggered  review_id=7210083
+     comment_clean         : 'Cơm tấm cali mình ăn nhiều rồi, đồ ăn ngon, chất lượng nhưng giá khá cao so với mặt bằng chung, và nếu bạn nào ăn nhiều thì 1 phần không đủ đâu nhaaaaa , vì ít lắm nè, mà đôi khi m'
+     foody_original_rating : 6.80
+     avg_rating (4-aspect) : 6.75
+     overall_adjustment    : +0.00
+         (no rule triggered)
+     overall_satisfaction  : 6.75
+------------------------------------------------------------------------------
+[ 4/20] category=no_rule_triggered  review_id=40072
+     comment_clean         : 'Quán này khá có tiếng , quán nhìn bên ngoài nhỏ nhưng bên trong khá nhiều bàn ghế , và hạ tầng khá xuống nhưng bánh ăn khá ok , bánh to và nhân nhiều nè , vỏ bánh mỏng và giòn , ít'
+     foody_original_rating : 6.40
+     avg_rating (4-aspect) : 6.50
+     overall_adjustment    : +0.00
+         (no rule triggered)
+     overall_satisfaction  : 6.50
+------------------------------------------------------------------------------
+[ 5/20] category=no_rule_triggered  review_id=2014522
+     comment_clean         : 'Món cuốn miền Nam ăn hoài không ngán'
+     foody_original_rating : 9.00
+     avg_rating (4-aspect) : 9.00
+     overall_adjustment    : +0.00
+         (no rule triggered)
+     overall_satisfaction  : 9.00
+------------------------------------------------------------------------------
+[ 6/20] category=positive_only  review_id=1425726
+     comment_clean         : 'Bữa đó xem phim xong siêu đói bụng luôn, đi dạo 1 vòng Aeon Mall thì thấy quá trời đồ ăn @@ Sẵn hổm rày cũng đang thèm pizza nên rủ nguyên đám bạn bay vô Pizza Hut liền luôn, vì tr'
+     foody_original_rating : 8.60
+     avg_rating (4-aspect) : 8.75
+     overall_adjustment    : +0.60
+         [positive] strong_satisfaction       +0.60  matched='hài lòng'
+     overall_satisfaction  : 9.35
+------------------------------------------------------------------------------
+[ 7/20] category=positive_only  review_id=2704312
+     comment_clean         : 'Lần thứ 2 ăn ở quán này, lần đầu tiên là khoảng 3 4 năm trước. Quán vẫn rất là đông khách, người ra vô nườm nượp. Không gian quán rộng rãi. Hôm nay mình ăn chả ram tôm, gỏi cuốn và'
+     foody_original_rating : 7.00
+     avg_rating (4-aspect) : 7.00
+     overall_adjustment    : +0.80
+         [positive] value_for_money           +0.30  matched='đáng đồng tiền'
+         [positive] loyalty                   +0.50  matched='lần thứ 2 ăn'
+     overall_satisfaction  : 7.80
+------------------------------------------------------------------------------
+[ 8/20] category=positive_only  review_id=1677462
+     comment_clean         : 'Ai ko quen bún riêu kiểu Bắc ăn chắc sẽ thấy thiếu thiếu vì ko có huyết và đậu hũ. Mình thì lại thích cái tô dân dã, mộc mạc, đơn sơ với 1 đống cua và ốc như thế này. Nước dùng rất'
+     foody_original_rating : 7.80
+     avg_rating (4-aspect) : 7.75
+     overall_adjustment    : +0.60
+         [positive] strong_satisfaction       +0.60  matched='tuyệt vời'
+     overall_satisfaction  : 8.35
+------------------------------------------------------------------------------
+[ 9/20] category=positive_only  review_id=2056654
+     comment_clean         : 'Mình gọi phần 2 người, ăn lo nốc luôn. Bún tươi, đậu chiên nóng, béo, thịt luộc mềm thơm, có nạc có mỡ, rau và dưa leo sạch, mắm tôm bạn mình gốc Bắc nên nhận xét mắm quán pha chuẩ'
+     foody_original_rating : 8.00
+     avg_rating (4-aspect) : 7.50
+     overall_adjustment    : +0.30
+         [positive] value_for_money           +0.30  matched='đáng đồng tiền'
+     overall_satisfaction  : 7.80
+------------------------------------------------------------------------------
+[10/20] category=positive_only  review_id=17823937
+     comment_clean         : 'Rất ngon và vừa miệng mọi người nên thử nhé'
+     foody_original_rating : 10.00
+     avg_rating (4-aspect) : 10.00
+     overall_adjustment    : +0.40
+         [positive] recommendation            +0.40  matched='nên thử'
+     overall_satisfaction  : 10.00
+------------------------------------------------------------------------------
+[11/20] category=negative_only  review_id=1112794
+     comment_clean         : 'Vị trí cũng dễ tìm, gặp bác bảo vệ cũng dễ thương. Vô quán nhân viên cực kì coi thường khách hàng, mình đến quầy order đứng đó chờ kêu 3 4 lần nhân viên mới khó chịu đi ra trong kh'
+     foody_original_rating : 4.00
+     avg_rating (4-aspect) : 3.75
+     overall_adjustment    : -0.40
+         [negative] frustration               -0.40  matched='khó chịu'
+     overall_satisfaction  : 3.35
+------------------------------------------------------------------------------
+[12/20] category=negative_only  review_id=18296931
+     comment_clean         : 'Mình đã thưởng thức ở quán vào 21.1.2024, có thể bạn đến trải nghiệm sẽ có nhiều điều thú vị khác Mình gọi 1 phần cơm chả + 1 phần chả giò chay chiên (giá cả 2 phần 104.000) + Điểm'
+     foody_original_rating : 4.80
+     avg_rating (4-aspect) : 4.25
+     overall_adjustment    : -0.50
+         [n
+--- cell 76 stream ---
+Correlation matrix (5 aspects + 3 rating variants):
+                           food_score  service_score  atmosphere_score  price_score  position_score  foody_original_avg_rating  avg_rating  \
+food_score                     1.0000         0.8350            0.7600       0.8280          0.7560                     0.9230      0.9340   
+service_score                  0.8350         1.0000            0.8110       0.7910          0.7620                     0.9260      0.9360   
+atmosphere_score               0.7600         0.8110            1.0000       0.7520          0.8080                     0.9030      0.8970   
+price_score                    0.8280         0.7910            0.7520       1.0000          0.7690                     0.9100      0.9150   
+position_score                 0.7560         0.7620            0.8080       0.7690          1.0000                     0.8920      0.8390   
+foody_original_avg_rating      0.9230         0.9260            0.9030       0.9100          0.8920                     1.0000      0.9940   
+avg_rating                     0.9340         0.9360            0.8970       0.9150          0.8390                     0.9940      1.0000   
+overall_satisfaction           0.9320         0.9320            0.8860       0.9060          0.8290                     0.9870      0.9940   
+
+                           overall_satisfaction  
+food_score                               0.9320  
+service_score                            0.9320  
+atmosphere_score                         0.8860  
+price_score                              0.9060  
+position_score                           0.8290  
+foody_original_avg_rating                0.9870  
+avg_rating                               0.9940  
+overall_satisfaction                     1.0000  
+
+Correlation of each of the 5 original aspects with foody_original_avg_rating (5-aspect mean):
+service_score      0.9260
+food_score         0.9230
+price_score        0.9100
+atmosphere_score   0.9030
+position_score     0.8920
+Name: foody_original_avg_rating, dtype: float64
+
+'position_score' has the LOWEST correlation with the overall Foody rating among the 5 aspects (0.892 vs 0.903-0.926 for the other 4) - i.e. it is the aspect least representative of the holistic quality judgment.
+
+position_score vs each of the 4 retained aspects:
+  corr(position_score, food_score        ) = 0.7560
+  corr(position_score, service_score     ) = 0.7619
+  corr(position_score, atmosphere_score  ) = 0.8085
+  corr(position_score, price_score       ) = 0.7694
+  corr(position_score, avg_rating [4-aspect mean]) = 0.8387
+
+--- cell 78 stream ---
+Impact of excluding position_score on the rating label (avg_rating - foody_original_avg_rating):
+count   9946.0000
+mean      -0.0655
+std        0.2780
+min       -1.8000
+25%       -0.2000
+50%        0.0000
+75%        0.0500
+max        1.3500
+dtype: float64
+
+Reviews whose label changed by >= 0.5 points after excluding position_score: 1044 (10.50%)
+
+corr(avg_rating, overall_satisfaction)                = 0.9936
+corr(foody_original_avg_rating, overall_satisfaction) = 0.9869
+
+Both correlations are very high because overall_satisfaction = avg_rating + a small
+rule-based adjustment (Section 11.1): the rule engine REFINES the label with global
+satisfaction signals from the review text, it does not replace it.
+
+--- cell 80 stream ---
+df has 47 columns = 40 original + 7 new
+New/changed columns: ['foody_original_avg_rating', 'avg_rating_recomputed', 'comment_normalized', 'overall_adjustment', 'overall_rules_triggered', 'overall_evidence', 'overall_satisfaction']
+('avg_rating' is also modified in place - see Section 4)
+
+--- cell 81 stream ---
+Wrote ..\data_processed\reviews_clean_enhanced.csv (19,546,094 bytes, 9946 rows x 47 cols)
+
+--- cell 81 stream ---
+Wrote ..\data_processed\reviews_clean_enhanced.json (31,094,754 bytes, 9946 records)
+
+--- cell 83 stream ---
+[PASS] CSV round-trip OK: 9946 rows x 47 cols
+
+--- cell 83 stream ---
+[PASS] JSON round-trip OK: 9946 records, overall_evidence/overall_rules_triggered are native JSON arrays
+
+[INFO] ..\data_processed\overall_satisfaction_rules.json already written in Section 7 (10,630 bytes)
+
+--- cell 85 stream ---
+Helper tables prepared:
+  rule_table_df : (14, 6)
+  top_pairs_df  : (5, 4)
+  adj_table_df  : (31, 3)
+
+--- cell 86 stream ---
+Wrote ..\data_processed\overall_satisfaction_rule_analysis.md (10,891 bytes, 114 lines)
+

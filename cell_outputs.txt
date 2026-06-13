@@ -1,0 +1,171 @@
+--- cell 48 stream ---
+New columns added:
+  comment_normalized        dtype=str
+  overall_adjustment        dtype=float64
+  overall_rules_triggered   dtype=object
+  overall_evidence          dtype=object
+  overall_satisfaction      dtype=float64
+
+overall_satisfaction is within [0, 10] for all rows, no NaN.
+
+--- cell 50 stream ---
+=== Positive adjustment example ===
+review_id            : 1721355
+comment_clean        : 'Gần trường có highland ngay tầng trệt vincom luôn nên khoái lắm. Đi như cơm bữa. Bữa hai đứa hết tiền cũng cúp học đi vô highlands uống cafe sữa size nhỏ =))) Thảm khủng khiếp =))) May mắn là hôm đi l'
+avg_rating (4-aspect): 8.000
+overall_adjustment   : +0.60
+rules_triggered      : ['strong_satisfaction']
+    strong_satisfaction       +0.60  matched='rất hài lòng'
+overall_satisfaction : 8.600
+----------------------------------------------------------------------
+
+=== Negative adjustment example ===
+review_id            : 17018807
+comment_clean        : 'Bánh trôi nước có 3 cục nhỏ xíu Phí tiền, ăn được cái mã hộp đẹp, chất lượng ko ngon'
+avg_rating (4-aspect): 5.500
+overall_adjustment   : -0.50
+rules_triggered      : ['not_worth_it']
+    not_worth_it              -0.50  matched='phí tiền'
+overall_satisfaction : 5.000
+----------------------------------------------------------------------
+
+=== No rule triggered example ===
+review_id            : 1883704
+comment_clean        : 'Highlands thì mình thấy ok lắm rồi. Từ nhân viên không gian đến thức uống. Thích nhất là trà thạch đào.'
+avg_rating (4-aspect): 8.000
+overall_adjustment   : +0.00
+rules_triggered      : []
+overall_satisfaction : 8.000
+----------------------------------------------------------------------
+
+--- cell 52 stream ---
+                              count   mean    std    min    25%    50%    75%     max
+foody_original_avg_rating 9946.0000 6.7544 2.4138 0.0000 5.4000 7.2000 8.4000 10.0000
+avg_rating                9946.0000 6.6889 2.5001 0.0000 5.0000 7.2500 8.5000 10.0000
+overall_satisfaction      9946.0000 6.7173 2.6069 0.0000 5.2500 7.2500 8.5000 10.0000
+
+Mean shift  avg_rating -> overall_satisfaction        : +0.0283
+Mean shift  foody_original -> overall_satisfaction     : -0.0371
+
+--- cell 54 stream ---
+Total reviews                  : 9946
+Reviews with adjustment != 0   : 3274 (32.92%)
+  - net positive adjustment    : 2082 (20.93%)
+  - net negative adjustment    : 1192 (11.98%)
+Reviews with no rule triggered  : 6672 (67.08%)
+
+overall_adjustment summary:
+count   9946.0000
+mean       0.0508
+std        0.3351
+min       -1.5000
+25%        0.0000
+50%        0.0000
+75%        0.0000
+max        2.0000
+Name: overall_adjustment, dtype: float64
+
+Most common overall_adjustment values:
+overall_adjustment
+0.0000     6672
+0.5000      689
+0.4000      508
+0.6000      500
+-0.6000     441
+-0.4000     350
+-0.5000     180
+1.0000       84
+1.1000       79
+0.3000       75
+Name: count, dtype: int64
+
+--- cell 56 stream ---
+Rows where avg_rating + overall_adjustment > 10 (clipped down): 429
+Rows where avg_rating + overall_adjustment < 0  (clipped up)  : 20
+    review_id  avg_rating  overall_adjustment  overall_satisfaction
+9    18569954     10.0000              0.7000               10.0000
+10   18568168     10.0000              1.1000               10.0000
+12   18549650     10.0000              0.6000               10.0000
+13   18547249     10.0000              0.6000               10.0000
+14   18547248     10.0000              0.6000               10.0000
+      review_id  avg_rating  overall_adjustment  overall_satisfaction
+355     1385455      1.0000             -1.1000                0.0000
+1061    1677706      1.2500             -1.5000                0.0000
+1176     895867      1.2500             -1.5000                0.0000
+2097    2686967      1.0000             -1.1000                0.0000
+2701     463479      1.2500             -1.5000                0.0000
+
+--- cell 58 stream ---
+      avg_rating  overall_satisfaction  delta
+0-2          731                   836    105
+2-4          796                   789     -7
+4-6         1350                  1293    -57
+6-8         3432                  3211   -221
+8-10        3637                  3817    180
+
+--- cell 60 stream ---
+                  rule polarity   score  n_reviews  pct_reviews
+   strong_satisfaction positive  0.6000        700       7.0400
+strong_dissatisfaction negative -0.6000        653       6.5700
+     revisit_intention positive  0.5000        558       5.6100
+        recommendation positive  0.4000        523       5.2600
+              advocacy positive  0.5000        332       3.3400
+           frustration negative -0.4000        298       3.0000
+            no_revisit negative -0.5000        255       2.5600
+       repeat_purchase positive  0.4000        208       2.0900
+       waiting_problem negative -0.4000        202       2.0300
+               loyalty positive  0.5000        113       1.1400
+       value_for_money positive  0.3000         66       0.6600
+          no_complaint positive  0.3000         57       0.5700
+                regret negative -0.4000         39       0.3900
+          not_worth_it negative -0.5000         21       0.2100
+
+--- cell 62 stream ---
+Top 10 most similar rule pairs (potential redundancy):
+                rule_a                 rule_b  jaccard  n_overlap
+            no_revisit strong_dissatisfaction   0.0657         56
+strong_dissatisfaction            frustration   0.0578         52
+     revisit_intention    strong_satisfaction   0.0554         66
+            no_revisit            frustration   0.0513         27
+        recommendation    strong_satisfaction   0.0435         51
+     revisit_intention               advocacy   0.0409         35
+     revisit_intention         recommendation   0.0354         37
+       repeat_purchase strong_dissatisfaction   0.0324         27
+   strong_satisfaction               advocacy   0.0320         32
+       repeat_purchase             no_revisit   0.0221         10
+
+Pairs with Jaccard > 0.3: 0
+
+--- cell 64 stream ---
+Reviews with ONLY positive rule(s)  : 2022
+Reviews with ONLY negative rule(s)  : 1080
+Reviews with BOTH positive & negative: 219 (2.20%)
+Reviews with NO rule triggered        : 6625
+
+--- cell 65 stream ---
+Sample of mixed-sentiment reviews (both positive and negative rules fired):
+
+review_id=2546382  avg_rating=9.75  overall_adjustment=+0.20  overall_satisfaction=9.95
+  text: '- Chiều nay mình đặt chỗ này, nhà hàng báo không có làm sẵn mà làm tươi nóng, thôi ráng đợi luôn khoảng 2 tiếng sau có, khi nhận hàng đúng thật là gà nóng hổi, khi ăn thì đúng ngon'
+    [positive] strong_satisfaction       +0.60  'hài lòng'
+    [negative] regret                    -0.40  'uổng công'
+
+review_id=8016854  avg_rating=10.00  overall_adjustment=+0.10  overall_satisfaction=10.00
+  text: 'Nhìn hộp bún vậy ai nghĩ chỉ 35k ko ạ, thịt đầy ấp luôn. Đảm bảo phần này ăn o sg 5-60k đó. Thịt nướng ướp mềm thơm mặn ngọt vừa đủ, ăn vào rất mềm, nem nướng thì siêu ngon nha, ko'
+    [positive] advocacy                  +0.50  'ủng hộ'
+    [negative] frustration               -0.40  'khó chịu'
+
+review_id=3371713  avg_rating=5.00  overall_adjustment=+0.20  overall_satisfaction=5.20
+  text: 'Tôi cũng là chủ quán hiểu cảm giác kinh doanh phải tính mới có lãi còn đây là quá tính. Tôi ăn nhiều lần ở đây cái không hài lòng là gửi xe trước quán lấy phí 3.000, thật không đán'
+    [positive] no_complaint              +0.30  'không chê'
+    [positive] advocacy                  +0.50  'ủng hộ'
+    [negative] strong_dissatisfaction    -0.60  'không hài lòng'
+
+Interpretation: these reviews genuinely contain BOTH a positive global-satisfaction signal
+(e.g. a recommendation, loyalty, or revisit intention) AND a negative one (e.g. a waiting-time
+complaint or frustration). overall_adjustment correctly sums both effects rather than picking
+a single 'winner' - this is the intended, explainable behaviour for nuanced reviews, not a bug.
+
+--- cell 69 stream ---
+overall_adjustment == 0 for 6672 reviews (67.1%)
+
