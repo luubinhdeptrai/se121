@@ -4,7 +4,7 @@ Tài liệu này giải thích chi tiết các quyết định đằng sau việ
 
 ## 1. Kiến trúc Mô hình (Model Architecture)
 
-Mô hình hiện tại đang sử dụng phương pháp **Late Fusion** (Kết hợp trễ), trong đó Dữ liệu văn bản (Text) và Hình ảnh (Image) được xử lý song song bởi hai Backbone độc lập trước khi gộp lại.
+Mô hình hiện tại đang sử dụng phương pháp **Intermediate Fusion** (Kết hợp trung gian), trong đó Dữ liệu văn bản (Text) và Hình ảnh (Image) được xử lý song song bởi hai Backbone độc lập để trích xuất đặc trưng rồi mới gộp lại.
 
 ### Text Backbone: XLM-RoBERTa
 - **Lý do lựa chọn:** Dữ liệu có thể chứa ngôn ngữ đa dạng (ví dụ: đánh giá nhà hàng bằng tiếng Việt, Anh, v.v.). XLM-RoBERTa là mô hình ngôn ngữ đa ngữ (Multilingual) hàng đầu hiện nay, vượt trội hơn so với mBERT truyền thống, đặc biệt trong việc hiểu ngữ cảnh cảm xúc của câu.

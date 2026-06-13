@@ -1,11 +1,11 @@
 # Multimodal Food Review Prediction
 
-Kho mã nguồn này triển khai một kiến trúc Late Fusion Multimodal bằng PyTorch để dự đoán điểm đánh giá đồ ăn (Điểm tổng quan - Overall và các Yếu tố cụ thể - Factors) dựa trên bình luận của người dùng và hình ảnh đi kèm.
+Kho mã nguồn này triển khai một kiến trúc Intermediate Fusion Multimodal bằng PyTorch để dự đoán điểm đánh giá đồ ăn (Điểm tổng quan - Overall và các Yếu tố cụ thể - Factors) dựa trên bình luận của người dùng và hình ảnh đi kèm.
 
 ## 📚 Hệ thống Tài liệu (Documentation)
 Để giữ cho file README này ngắn gọn, toàn bộ các chi tiết kỹ thuật sâu hơn và hướng dẫn chạy thực tế đã được phân tách rõ ràng vào thư mục [`doc/`](./doc/). Tuỳ theo nhu cầu của bạn, hãy đọc các file sau:
 
-- 🧠 **Cần tìm hiểu về Kiến trúc Mô hình (Late Fusion, XLM-RoBERTa, ConvNeXt) & Các Quyết định Thiết kế (Joint MSE Loss):** Hãy đọc file [`doc/ARCHITECTURE_AND_METRICS.md`](./doc/ARCHITECTURE_AND_METRICS.md)
+- 🧠 **Cần tìm hiểu về Kiến trúc Mô hình (Intermediate Fusion, XLM-RoBERTa, ConvNeXt) & Các Quyết định Thiết kế (Joint MSE Loss):** Hãy đọc file [`doc/ARCHITECTURE_AND_METRICS.md`](./doc/ARCHITECTURE_AND_METRICS.md)
 - 🚀 **Cần Hướng dẫn Train/Test trực tiếp trên Google Colab siêu tốc độ (Tích hợp Google Drive):** Hãy đọc file [`doc/COLAB_GUIDE.md`](./doc/COLAB_GUIDE.md)
 - 📊 **Cần tìm hiểu cách xử lý, làm sạch và nạp dữ liệu từ Raw Data (Foody/ShopeeFood):** Hãy đọc file [`doc/DATA_SETUP.md`](./doc/DATA_SETUP.md)
 
@@ -94,19 +94,19 @@ Mô hình đã được chạy thử nghiệm trên tập dữ liệu 5000 mẫu
 *Độ đo thực tế và dễ hiểu nhất, cho biết trung bình máy đoán lệch bao nhiêu điểm (trên thang 1-10).*
 | Model / Architecture | Loss Function | Overall | Food | Price | Atmos |
 |----------------------|---------------|---------|------|-------|-------|
-| Late Fusion (XLM-R + ConvNeXt) | Joint MSE | **0.9968** | **1.2220** | **1.2173** | **1.2327** |
+| Intermediate Fusion (XLM-R + ConvNeXt) | Joint MSE | **0.9968** | **1.2220** | **1.2173** | **1.2327** |
 
 ### 2. Bảng căn bậc hai sai số bình phương (RMSE)
 *Độ đo phạt nặng các dự đoán sai lệch lớn (Outliers).*
 | Model / Architecture | Loss Function | Overall | Food | Price | Atmos |
 |----------------------|---------------|---------|------|-------|-------|
-| Late Fusion (XLM-R + ConvNeXt) | Joint MSE | 1.3950 | 1.6424 | 1.6432 | 1.7008 |
+| Intermediate Fusion (XLM-R + ConvNeXt) | Joint MSE | 1.3950 | 1.6424 | 1.6432 | 1.7008 |
 
 ### 3. Bảng sai số bình phương (MSE)
 *Độ đo cơ sở để tối ưu hóa trong quá trình huấn luyện.*
 | Model / Architecture | Loss Function | Overall | Food | Price | Atmos |
 |----------------------|---------------|---------|------|-------|-------|
-| Late Fusion (XLM-R + ConvNeXt) | Joint MSE | 1.9460 | 2.6976 | 2.7000 | 2.8927 |
+| Intermediate Fusion (XLM-R + ConvNeXt) | Joint MSE | 1.9460 | 2.6976 | 2.7000 | 2.8927 |
 
 **Đánh giá chung:** 
 - Trung bình, mô hình baseline hiện tại chỉ đoán sai **~0.99 điểm** (tương đương với mức MAE ở bảng 1) so với điểm Overall thực tế mà người dùng đánh giá.
