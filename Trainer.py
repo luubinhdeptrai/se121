@@ -62,11 +62,13 @@ class Trainer:
         val_loss_food = 0.0
         val_loss_price = 0.0
         val_loss_atmos = 0.0
+        val_loss_service = 0.0
         
         val_mae_overall = 0.0
         val_mae_food = 0.0
         val_mae_price = 0.0
         val_mae_atmos = 0.0
+        val_mae_service = 0.0
         
         with torch.no_grad():
             for batch in self.val_loader:
@@ -92,12 +94,14 @@ class Trainer:
                 loss_food = self.criterion(pred_factors[:, 0], true_factors[:, 0])
                 loss_price = self.criterion(pred_factors[:, 1], true_factors[:, 1])
                 loss_atmos = self.criterion(pred_factors[:, 2], true_factors[:, 2])
+                loss_service = self.criterion(pred_factors[:, 3], true_factors[:, 3])
                 
                 # Tính MAE (Mean Absolute Error)
                 # mae_overall = self.mae_criterion(pred_overall, true_overall)
                 mae_food = self.mae_criterion(pred_factors[:, 0], true_factors[:, 0])
                 mae_price = self.mae_criterion(pred_factors[:, 1], true_factors[:, 1])
                 mae_atmos = self.mae_criterion(pred_factors[:, 2], true_factors[:, 2])
+                mae_service = self.mae_criterion(pred_factors[:, 3], true_factors[:, 3])
                 
                 loss = loss_factors # self.alpha * loss_overall + (1 - self.alpha) * loss_factors
                 val_loss += loss.item()
@@ -105,11 +109,13 @@ class Trainer:
                 val_loss_food += loss_food.item()
                 val_loss_price += loss_price.item()
                 val_loss_atmos += loss_atmos.item()
+                val_loss_service += loss_service.item()
                 
                 # val_mae_overall += mae_overall.item()
                 val_mae_food += mae_food.item()
                 val_mae_price += mae_price.item()
                 val_mae_atmos += mae_atmos.item()
+                val_mae_service += mae_service.item()
                 
         num_batches = len(self.val_loader)
         return {
@@ -118,10 +124,12 @@ class Trainer:
             'mse_food': val_loss_food / num_batches,
             'mse_price': val_loss_price / num_batches,
             'mse_atmos': val_loss_atmos / num_batches,
+            'mse_service': val_loss_service / num_batches,
             'mae_overall': val_mae_overall / num_batches,
             'mae_food': val_mae_food / num_batches,
             'mae_price': val_mae_price / num_batches,
-            'mae_atmos': val_mae_atmos / num_batches
+            'mae_atmos': val_mae_atmos / num_batches,
+            'mae_service': val_mae_service / num_batches
         }
 
     def run(self):
@@ -135,8 +143,8 @@ class Trainer:
             val_loss = metrics['loss']
             
             print(f"\nEpoch {epoch+1}/{self.args.epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
-            print(f"  -> RMSE | Overall: {metrics['mse_overall']**0.5:.4f} | Food: {metrics['mse_food']**0.5:.4f} | Price: {metrics['mse_price']**0.5:.4f} | Atmos: {metrics['mse_atmos']**0.5:.4f}")
-            print(f"  -> MAE  | Overall: {metrics['mae_overall']:.4f} | Food: {metrics['mae_food']:.4f} | Price: {metrics['mae_price']:.4f} | Atmos: {metrics['mae_atmos']:.4f}")
+            print(f"  -> RMSE | Food: {metrics['mse_food']**0.5:.4f} | Price: {metrics['mse_price']**0.5:.4f} | Atmos: {metrics['mse_atmos']**0.5:.4f} | Service: {metrics['mse_service']**0.5:.4f}")
+            print(f"  -> MAE  | Food: {metrics['mae_food']:.4f} | Price: {metrics['mae_price']:.4f} | Atmos: {metrics['mae_atmos']:.4f} | Service: {metrics['mae_service']:.4f}")
             
             if val_loss < best_val_loss:
                 best_val_loss = val_loss

@@ -19,7 +19,6 @@ def get_args():
     parser.add_argument('--text_model_name', type=str, default='xlm-roberta-base', help='HuggingFace Text Model')
     parser.add_argument('--image_model_name', type=str, default='convnext_base_in22k', help='Timm Image Model')
     parser.add_argument('--max_length', type=int, default=128, help='Chiều dài tối đa chuỗi token text')
-    parser.add_argument('--num_factors', type=int, default=3, help='Số lượng factor scores (ví dụ: food, price, atmosphere)')
     
     # Training parameters
     parser.add_argument('--batch_size', type=int, default=16, help='Batch size')

@@ -3,7 +3,7 @@ import torch.nn as nn
 import timm
 
 class ImageModel(nn.Module):
-    def __init__(self, model_name='convnext_base', num_factors=3):
+    def __init__(self, model_name='convnext_base', num_factors=4):
         super(ImageModel, self).__init__()
         # num_classes=0 to get raw features
         self.encoder = timm.create_model(model_name, pretrained=True, num_classes=0)

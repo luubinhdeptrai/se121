@@ -17,17 +17,17 @@ def process_data():
     # Merge để lấy các điểm số (food, price, atmosphere) từ reviews_clean vào df_multi
     df_merged = pd.merge(
         df_multi, 
-        df_reviews[['review_id', 'food_score', 'price_score', 'atmosphere_score']], 
+        df_reviews[['review_id', 'food_score', 'service_score', 'atmosphere_score', 'price_score']], 
         on='review_id', 
         how='inner'
     )
     
     # Lọc bỏ các cột bị missing values ở những trường quan trọng
-    cols_to_check = ['comment_clean', 'image_url', 'avg_rating', 'food_score', 'price_score', 'atmosphere_score']
+    cols_to_check = ['comment_clean', 'image_url', 'avg_rating', 'food_score', 'service_score', 'atmosphere_score', 'price_score']
     df_merged = df_merged.dropna(subset=cols_to_check)
     
     # Chỉ giữ lại các cột cần thiết cho việc train
-    df_final = df_merged[['review_id', 'comment_clean', 'image_url', 'avg_rating', 'food_score', 'price_score', 'atmosphere_score']].copy()
+    df_final = df_merged[['review_id', 'comment_clean', 'image_url', 'avg_rating', 'food_score', 'service_score', 'atmosphere_score', 'price_score']].copy()
     
     # Lấy 5000 mẫu ngẫu nhiên cho nhẹ nhàng (giống code cũ)
     df_final = df_final.sample(n=5000, random_state=42).reset_index(drop=True)

@@ -57,7 +57,8 @@ class MultimodalDataset(Dataset):
         factor_scores = torch.tensor([
             row['food_score'],
             row['price_score'],
-            row['atmosphere_score']
+            row['atmosphere_score'],
+            row['service_score']
         ], dtype=torch.float)
         
         return {

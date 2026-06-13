@@ -36,13 +36,13 @@ def main():
     # Model Initialization
     print("Initializing Model...")
     if args.mode == 'train_text':
-        model = TextModel(model_name=args.text_model_name, num_factors=args.num_factors)
+        model = TextModel(model_name=args.text_model_name)
     elif args.mode == 'train_image':
-        model = ImageModel(model_name=args.image_model_name, num_factors=args.num_factors)
+        model = ImageModel(model_name=args.image_model_name)
     elif args.mode == 'train_fusion':
         # Khởi tạo và load trọng số đã train
-        text_model = TextModel(model_name=args.text_model_name, num_factors=args.num_factors)
-        image_model = ImageModel(model_name=args.image_model_name, num_factors=args.num_factors)
+        text_model = TextModel(model_name=args.text_model_name)
+        image_model = ImageModel(model_name=args.image_model_name)
         
         text_weights = os.path.join(args.save_path, 'best_model_train_text.pth')
         image_weights = os.path.join(args.save_path, 'best_model_train_image.pth')
@@ -59,7 +59,7 @@ def main():
         else:
             print("WARNING: Image Model weights not found! Training fusion with untrained image features.")
             
-        model = FusionModel(text_model, image_model, num_factors=args.num_factors)
+        model = FusionModel(text_model, image_model)
 
     model.to(device)
 

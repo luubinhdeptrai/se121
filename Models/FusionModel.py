@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class FusionModel(nn.Module):
-    def __init__(self, text_model, image_model, num_factors=3):
+    def __init__(self, text_model, image_model, num_factors=4):
         super(FusionModel, self).__init__()
         # Các mô hình nhánh đã được train
         self.text_model = text_model

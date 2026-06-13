@@ -3,7 +3,7 @@ import torch.nn as nn
 from transformers import AutoModel
 
 class TextModel(nn.Module):
-    def __init__(self, model_name='xlm-roberta-base', num_factors=3):
+    def __init__(self, model_name='xlm-roberta-base', num_factors=4):
         super(TextModel, self).__init__()
         self.encoder = AutoModel.from_pretrained(model_name)
         hidden_size = self.encoder.config.hidden_size
