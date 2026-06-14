@@ -54,11 +54,13 @@ def test():
     test_loss_price = 0.0
     test_loss_atmosphere = 0.0
     test_loss_service = 0.0
+    test_loss_overall = 0.0
     
     test_mae_food = 0.0
     test_mae_price = 0.0
     test_mae_atmosphere = 0.0
     test_mae_service = 0.0
+    test_mae_overall = 0.0
     
     with torch.no_grad():
         for batch in test_loader:
@@ -82,27 +84,31 @@ def test():
             test_loss_price += criterion(pred_factors[:, 1], true_factors[:, 1]).item()
             test_loss_atmosphere += criterion(pred_factors[:, 2], true_factors[:, 2]).item()
             test_loss_service += criterion(pred_factors[:, 3], true_factors[:, 3]).item()
+            test_loss_overall += criterion(pred_factors[:, 4], true_factors[:, 4]).item()
             
             # Tính MAE
             test_mae_food += mae_criterion(pred_factors[:, 0], true_factors[:, 0]).item()
             test_mae_price += mae_criterion(pred_factors[:, 1], true_factors[:, 1]).item()
             test_mae_atmosphere += mae_criterion(pred_factors[:, 2], true_factors[:, 2]).item()
             test_mae_service += mae_criterion(pred_factors[:, 3], true_factors[:, 3]).item()
+            test_mae_overall += mae_criterion(pred_factors[:, 4], true_factors[:, 4]).item()
             
     mse_food = test_loss_food / len(test_loader)
     mse_price = test_loss_price / len(test_loader)
     mse_atmosphere = test_loss_atmosphere / len(test_loader)
     mse_service = test_loss_service / len(test_loader)
+    mse_overall = test_loss_overall / len(test_loader)
     
     mae_food = test_mae_food / len(test_loader)
     mae_price = test_mae_price / len(test_loader)
     mae_atmosphere = test_mae_atmosphere / len(test_loader)
     mae_service = test_mae_service / len(test_loader)
+    mae_overall = test_mae_overall / len(test_loader)
     
     print("\n[EVALUATION METRICS ON INDEPENDENT TEST SET]")
-    print(f"MSE  | Food: {mse_food:.4f} | Price: {mse_price:.4f} | Atmos: {mse_atmosphere:.4f} | Service: {mse_service:.4f}")
-    print(f"RMSE | Food: {mse_food**0.5:.4f} | Price: {mse_price**0.5:.4f} | Atmos: {mse_atmosphere**0.5:.4f} | Service: {mse_service**0.5:.4f}")
-    print(f"MAE  | Food: {mae_food:.4f} | Price: {mae_price:.4f} | Atmos: {mae_atmosphere:.4f} | Service: {mae_service:.4f}")
+    print(f"MSE  | Food: {mse_food:.4f} | Price: {mse_price:.4f} | Atmos: {mse_atmosphere:.4f} | Service: {mse_service:.4f} | Overall: {mse_overall:.4f}")
+    print(f"RMSE | Food: {mse_food**0.5:.4f} | Price: {mse_price**0.5:.4f} | Atmos: {mse_atmosphere**0.5:.4f} | Service: {mse_service**0.5:.4f} | Overall: {mse_overall**0.5:.4f}")
+    print(f"MAE  | Food: {mae_food:.4f} | Price: {mae_price:.4f} | Atmos: {mae_atmosphere:.4f} | Service: {mae_service:.4f} | Overall: {mae_overall:.4f}")
 
 if __name__ == '__main__':
     test()

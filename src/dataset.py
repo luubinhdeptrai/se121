@@ -57,7 +57,8 @@ class MultimodalDataset(Dataset):
             row['food_score'],
             row['price_score'],
             row['atmosphere_score'],
-            row['service_score']
+            row['service_score'],
+            row['overall_satisfaction']
         ], dtype=torch.float)
         
         return {
