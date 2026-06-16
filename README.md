@@ -72,17 +72,17 @@ Lần lượt chạy các lệnh sau:
 
 **Giai đoạn 1: Train Text**
 ```bash
-python main.py --mode train_text --epochs 15 --batch_size 16 --grad_accum_steps 4 --lr 2e-5
+python main.py --mode train_text --epochs 15 --batch_size 8 --grad_accum_steps 2 --lr 2e-5
 ```
 
 **Giai đoạn 2: Train Image**
 ```bash
-python main.py --mode train_image --epochs 15 --batch_size 16 --grad_accum_steps 4 --lr 2e-5
+python main.py --mode train_image --epochs 15 --batch_size 4 --grad_accum_steps 4 --lr 2e-5
 ```
 
 **Giai đoạn 3: Train Fusion**
 ```bash
-python main.py --mode train_fusion --epochs 10 --batch_size 16 --grad_accum_steps 4 --lr 1e-4 --unfreeze_text_layers 1 --unfreeze_image_layers 1
+python main.py --mode train_fusion --epochs 10 --batch_size 4 --grad_accum_steps 4 --lr 1e-4 --unfreeze_text_layers 1 --unfreeze_image_layers 1
 ```
 
 ### Bước 4: Test Báo Cáo Kết Quả
