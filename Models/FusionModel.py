@@ -4,21 +4,15 @@ import torch.nn as nn
 class FusionModel(nn.Module):
     def __init__(self, text_model, image_model, num_factors=5):
         super(FusionModel, self).__init__()
-        # Các mô hình nhánh đã được train
         self.text_model = text_model
         self.image_model = image_model
         
-        # Đóng băng trọng số (Freeze) nếu cần, hoặc để fine-tune với learning rate thấp
-        for param in self.text_model.parameters():
-            param.requires_grad = False
-        for param in self.image_model.parameters():
+        # Đóng băng trọng số
+        for param in list(self.text_model.parameters()) + list(self.image_model.parameters()):
             param.requires_grad = False
             
-        # Tự động lấy kích thước feature từ các encoder
-        text_hidden_size = self.text_model.encoder.config.hidden_size
-        image_hidden_size = self.image_model.encoder.num_features
+        fusion_size = self.text_model.encoder.config.hidden_size + self.image_model.encoder.num_features
         
-        fusion_size = text_hidden_size + image_hidden_size
         self.fusion_fc = nn.Sequential(
             nn.Linear(fusion_size, 512),
             nn.ReLU(),
@@ -26,21 +20,13 @@ class FusionModel(nn.Module):
             nn.Linear(512, 256),
             nn.ReLU()
         )
-        
-
         self.factor_head = nn.Linear(256, num_factors)
 
-    def forward(self, input_ids, attention_mask, pixel_values):
-        # Lấy features từ text_model và image_model (chúng ta đã thiết kế model trả về features ở index 2)
+    def forward(self, input_ids, attention_mask, pixel_values, num_images=None):
         with torch.no_grad():
             _, text_features = self.text_model(input_ids, attention_mask)
-            _, image_features = self.image_model(pixel_values)
+            # ImageModel đã tự xử lý 5D tensor và tính Average Pooling bên trong
+            _, image_features = self.image_model(pixel_values, num_images=num_images)
             
-        # Concatenation
-        text_features = text_features.to(torch.float32)
-        image_features = image_features.to(torch.float32)
-        fused_features = torch.cat((text_features, image_features), dim=1)
-        out = self.fusion_fc(fused_features)
-        
-        factor_scores = self.factor_head(out)
-        return factor_scores
+        fused_features = torch.cat((text_features.to(torch.float32), image_features.to(torch.float32)), dim=1)
+        return self.factor_head(self.fusion_fc(fused_features))

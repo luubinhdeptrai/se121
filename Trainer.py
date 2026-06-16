@@ -15,6 +15,17 @@ class Trainer:
         self.mae_criterion = nn.L1Loss()
         self.optimizer = torch.optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr, weight_decay=args.weight_decay)
 
+    def _prepare_inputs(self, batch):
+        """Helper để tự động trích xuất đúng các tham số mà model cần, loại bỏ if-else"""
+        if self.args.mode == 'train_text':
+            keys = ['input_ids', 'attention_mask']
+        elif self.args.mode == 'train_image':
+            keys = ['pixel_values', 'num_images']
+        else:
+            keys = ['input_ids', 'attention_mask', 'pixel_values', 'num_images']
+            
+        return {k: batch[k].to(self.device) for k in keys if k in batch}
+
     def train_epoch(self, epoch):
         self.model.train()
         total_loss = 0.0
@@ -23,24 +34,13 @@ class Trainer:
         for batch in loop:
             self.optimizer.zero_grad()
             
-            # Forward based on mode
-            if self.args.mode == 'train_text':
-                input_ids = batch['input_ids'].to(self.device)
-                attention_mask = batch['attention_mask'].to(self.device)
-                pred_factors, _ = self.model(input_ids, attention_mask)
-            elif self.args.mode == 'train_image':
-                pixel_values = batch['pixel_values'].to(self.device)
-                pred_factors, _ = self.model(pixel_values)
-            else: # fusion
-                input_ids = batch['input_ids'].to(self.device)
-                attention_mask = batch['attention_mask'].to(self.device)
-                pixel_values = batch['pixel_values'].to(self.device)
-                pred_factors = self.model(input_ids, attention_mask, pixel_values)
+            inputs = self._prepare_inputs(batch)
+            output = self.model(**inputs)
             
-            # Labels
+            # TextModel và ImageModel trả về (factor_scores, features), FusionModel trả về factor_scores
+            pred_factors = output[0] if isinstance(output, tuple) else output
             true_factors = batch['factor_scores'].to(self.device)
             
-            # Compute loss
             loss = self.criterion(pred_factors, true_factors)
             
             loss.backward()
@@ -55,77 +55,33 @@ class Trainer:
     def validate(self):
         self.model.eval()
         val_loss = 0.0
-        val_loss_food = 0.0
-        val_loss_price = 0.0
-        val_loss_atmos = 0.0
-        val_loss_service = 0.0
-        val_loss_overall = 0.0
-        
-        val_mae_food = 0.0
-        val_mae_price = 0.0
-        val_mae_atmos = 0.0
-        val_mae_service = 0.0
-        val_mae_overall = 0.0
+        val_loss_factors = [0.0] * 5
+        val_mae_factors = [0.0] * 5
         
         with torch.no_grad():
             for batch in self.val_loader:
-                if self.args.mode == 'train_text':
-                    input_ids = batch['input_ids'].to(self.device)
-                    attention_mask = batch['attention_mask'].to(self.device)
-                    pred_factors, _ = self.model(input_ids, attention_mask)
-                elif self.args.mode == 'train_image':
-                    pixel_values = batch['pixel_values'].to(self.device)
-                    pred_factors, _ = self.model(pixel_values)
-                else:
-                    input_ids = batch['input_ids'].to(self.device)
-                    attention_mask = batch['attention_mask'].to(self.device)
-                    pixel_values = batch['pixel_values'].to(self.device)
-                    pred_factors = self.model(input_ids, attention_mask, pixel_values)
+                inputs = self._prepare_inputs(batch)
+                output = self.model(**inputs)
                 
+                pred_factors = output[0] if isinstance(output, tuple) else output
                 true_factors = batch['factor_scores'].to(self.device)
                 
                 loss = self.criterion(pred_factors, true_factors)
-                
-                loss_food = self.criterion(pred_factors[:, 0], true_factors[:, 0])
-                loss_price = self.criterion(pred_factors[:, 1], true_factors[:, 1])
-                loss_atmos = self.criterion(pred_factors[:, 2], true_factors[:, 2])
-                loss_service = self.criterion(pred_factors[:, 3], true_factors[:, 3])
-                loss_overall = self.criterion(pred_factors[:, 4], true_factors[:, 4])
-                
-                # Tính MAE (Mean Absolute Error)
-                mae_food = self.mae_criterion(pred_factors[:, 0], true_factors[:, 0])
-                mae_price = self.mae_criterion(pred_factors[:, 1], true_factors[:, 1])
-                mae_atmos = self.mae_criterion(pred_factors[:, 2], true_factors[:, 2])
-                mae_service = self.mae_criterion(pred_factors[:, 3], true_factors[:, 3])
-                mae_overall = self.mae_criterion(pred_factors[:, 4], true_factors[:, 4])
-                
                 val_loss += loss.item()
-                val_loss_food += loss_food.item()
-                val_loss_price += loss_price.item()
-                val_loss_atmos += loss_atmos.item()
-                val_loss_service += loss_service.item()
-                val_loss_overall += loss_overall.item()
                 
-                val_mae_food += mae_food.item()
-                val_mae_price += mae_price.item()
-                val_mae_atmos += mae_atmos.item()
-                val_mae_service += mae_service.item()
-                val_mae_overall += mae_overall.item()
+                for i in range(5):
+                    val_loss_factors[i] += self.criterion(pred_factors[:, i], true_factors[:, i]).item()
+                    val_mae_factors[i] += self.mae_criterion(pred_factors[:, i], true_factors[:, i]).item()
                 
         num_batches = len(self.val_loader)
-        return {
-            'loss': val_loss / num_batches,
-            'mse_food': val_loss_food / num_batches,
-            'mse_price': val_loss_price / num_batches,
-            'mse_atmos': val_loss_atmos / num_batches,
-            'mse_service': val_loss_service / num_batches,
-            'mse_overall': val_loss_overall / num_batches,
-            'mae_food': val_mae_food / num_batches,
-            'mae_price': val_mae_price / num_batches,
-            'mae_atmos': val_mae_atmos / num_batches,
-            'mae_service': val_mae_service / num_batches,
-            'mae_overall': val_mae_overall / num_batches
-        }
+        metrics = {'loss': val_loss / num_batches}
+        factor_names = ['food', 'price', 'atmos', 'service', 'overall']
+        
+        for i, name in enumerate(factor_names):
+            metrics[f'mse_{name}'] = val_loss_factors[i] / num_batches
+            metrics[f'mae_{name}'] = val_mae_factors[i] / num_batches
+            
+        return metrics
 
     def run(self):
         best_val_loss = float('inf')

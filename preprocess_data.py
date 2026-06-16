@@ -32,25 +32,39 @@ def process_data():
     df_merged = df_merged.drop_duplicates(subset=['image_url'])
     
     # Chỉ giữ lại các cột cần thiết cho việc train
-    final_cols = ['review_id', 'comment_clean', 'image_url', 'overall_satisfaction', 'food_score', 'service_score', 'atmosphere_score', 'price_score']
-    df_final = df_merged[final_cols].copy()
+    # GOM NHÓM: Mỗi dòng (1 mẫu) là 1 Bài Review + Danh sách các ảnh
+    df_grouped = df_merged.groupby('review_id').agg({
+        'comment_clean': 'first',
+        'image_url': list,  # Chuyển thành danh sách các link ảnh
+        'overall_satisfaction': 'first',
+        'food_score': 'first',
+        'service_score': 'first',
+        'atmosphere_score': 'first',
+        'price_score': 'first'
+    }).reset_index()
     
-    # Lấy 5500 mẫu ngẫu nhiên (dư ra 500 mẫu làm backup cho các link ảnh chết)
-    df_final = df_final.sample(n=5500, random_state=42).reset_index(drop=True)
+    print(f"Tổng số mẫu (review + list ảnh) sau khi gom nhóm: {len(df_grouped)}")
     
-    # Chia Train, Val, Test
-    train_df, temp_df = train_test_split(df_final, test_size=1100, random_state=42)
-    val_df, test_df = train_test_split(temp_df, test_size=550, random_state=42)
+    # Lấy 6000 mẫu ngẫu nhiên để có số chẵn chia tỷ lệ 8:1:1 (4800 / 600 / 600)
+    sample_size = min(6000, len(df_grouped))
+    df_final = df_grouped.sample(n=sample_size, random_state=42).reset_index(drop=True)
+    
+    # Chia Train (80%), Val (10%), Test (10%)
+    train_size = int(0.8 * sample_size)
+    val_size = int(0.1 * sample_size)
+    
+    train_df, temp_df = train_test_split(df_final, test_size=(sample_size - train_size), random_state=42)
+    val_df, test_df = train_test_split(temp_df, test_size=val_size, random_state=42)
     
     # Lưu kết quả
     train_df.to_csv(os.path.join(output_dir, 'train.csv'), index=False)
     val_df.to_csv(os.path.join(output_dir, 'val.csv'), index=False)
     test_df.to_csv(os.path.join(output_dir, 'test.csv'), index=False)
     
-    print(f"Đã chuẩn bị {len(df_final)} dòng (bao gồm dự phòng).")
-    print(f"- Train: {len(train_df)} dòng")
-    print(f"- Val:   {len(val_df)} dòng")
-    print(f"- Test:  {len(test_df)} dòng")
+    print(f"Đã chuẩn bị tổng cộng {len(df_final)} mẫu (1 mẫu = 1 text + nhiều ảnh).")
+    print(f"- Train: {len(train_df)} mẫu")
+    print(f"- Val:   {len(val_df)} mẫu")
+    print(f"- Test:  {len(test_df)} mẫu")
 
 if __name__ == '__main__':
     process_data()
