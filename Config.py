@@ -26,5 +26,14 @@ def get_args():
     parser.add_argument('--lr', type=float, default=1e-5, help='Learning rate')
     parser.add_argument('--weight_decay', type=float, default=1e-2, help='Weight decay cho AdamW')
     
+    # New Advanced Training parameters
+    parser.add_argument('--grad_accum_steps', type=int, default=1, help='Số bước tích lũy gradient (Gradient Accumulation)')
+    parser.add_argument('--patience', type=int, default=3, help='Patience cho Early Stopping')
+    parser.add_argument('--warmup_ratio', type=float, default=0.1, help='Tỷ lệ số bước Warmup trên tổng số bước')
+    
+    # Unfreeze parameters
+    parser.add_argument('--unfreeze_text_layers', type=int, default=0, help='Số lượng layer cuối của Text Backbone để unfreeze (0 = freeze all)')
+    parser.add_argument('--unfreeze_image_layers', type=int, default=0, help='Số lượng block cuối của Image Backbone để unfreeze (0 = freeze all)')
+    
     args = parser.parse_args()
     return args

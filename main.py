@@ -59,7 +59,12 @@ def main():
         else:
             print("WARNING: Image Model weights not found! Training fusion with untrained image features.")
             
-        model = FusionModel(text_model, image_model)
+        model = FusionModel(
+            text_model, 
+            image_model,
+            unfreeze_text_layers=args.unfreeze_text_layers,
+            unfreeze_image_layers=args.unfreeze_image_layers
+        )
 
     model.to(device)
 

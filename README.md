@@ -57,28 +57,32 @@ python main.py --mode train_text \
 ```
 
 ### Bước 3: Chạy Train các mô hình
-Bạn hoàn toàn có thể tuỳ chỉnh siêu tham số (hyperparameters) bằng cách truyền argument vào lệnh chạy (giống repo gốc). Dưới đây là các tham số bạn có thể điều chỉnh:
+Bạn hoàn toàn có thể tuỳ chỉnh siêu tham số (hyperparameters) bằng cách truyền argument vào lệnh chạy (giống repo gốc). Dưới đây là các tham số nổi bật bạn có thể điều chỉnh:
 - `--mode`: Chế độ chạy (`train_text`, `train_image`, `train_fusion`)
 - `--epochs`: Số vòng lặp huấn luyện (Mặc định: 5)
 - `--batch_size`: Kích thước batch (Mặc định: 16)
+- `--grad_accum_steps`: Tích luỹ gradient chống văng lỗi vRAM (Mặc định: 1)
 - `--lr`: Learning rate (Mặc định: 2e-5)
-- `--alpha`: Trọng số loss (Mặc định: 0.5)
+- `--patience`: Số epoch Early Stopping chờ đợi (Mặc định: 3)
+- `--warmup_ratio`: Tỷ lệ Warmup cho Scheduler (Mặc định: 0.1)
+- `--unfreeze_text_layers`: Số layer cuối của Text Model để "tan băng" khi chạy Fusion (Mặc định: 0)
+- `--unfreeze_image_layers`: Số block cuối của Image Model để "tan băng" khi chạy Fusion (Mặc định: 0)
 
 Lần lượt chạy các lệnh sau:
 
 **Giai đoạn 1: Train Text**
 ```bash
-python main.py --mode train_text --epochs 5 --batch_size 16 --lr 2e-5
+python main.py --mode train_text --epochs 15 --batch_size 16 --grad_accum_steps 4 --lr 2e-5
 ```
 
 **Giai đoạn 2: Train Image**
 ```bash
-python main.py --mode train_image --epochs 5 --batch_size 16 --lr 2e-5
+python main.py --mode train_image --epochs 15 --batch_size 16 --grad_accum_steps 4 --lr 2e-5
 ```
 
 **Giai đoạn 3: Train Fusion**
 ```bash
-python main.py --mode train_fusion --epochs 10 --batch_size 16 --lr 1e-4
+python main.py --mode train_fusion --epochs 10 --batch_size 16 --grad_accum_steps 4 --lr 1e-4 --unfreeze_text_layers 1 --unfreeze_image_layers 1
 ```
 
 ### Bước 4: Test Báo Cáo Kết Quả
