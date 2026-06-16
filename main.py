@@ -25,8 +25,8 @@ def main():
 
     # Data
     print("Loading Dataset...")
-    train_dataset = MultimodalDataset(args.train_path, tokenizer, image_processor, args.max_length, args.image_dir)
-    val_dataset = MultimodalDataset(args.val_path, tokenizer, image_processor, args.max_length, args.image_dir)
+    train_dataset = MultimodalDataset(args.train_path, tokenizer, image_processor, max_length=args.max_length, image_dir=args.image_dir)
+    val_dataset = MultimodalDataset(args.val_path, tokenizer, image_processor, max_length=args.max_length, image_dir=args.image_dir)
     
     print(f"Đã nạp {len(train_dataset)} mẫu cho Train và {len(val_dataset)} mẫu cho Val")
 
