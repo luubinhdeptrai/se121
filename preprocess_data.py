@@ -45,23 +45,23 @@ def process_data():
     
     print(f"Tổng số mẫu (review + list ảnh) sau khi gom nhóm: {len(df_grouped)}")
     
-    # Lấy 6000 mẫu ngẫu nhiên để có số chẵn chia tỷ lệ 8:1:1 (4800 / 600 / 600)
-    sample_size = min(6000, len(df_grouped))
-    df_final = df_grouped.sample(n=sample_size, random_state=42).reset_index(drop=True)
+    # Không giới hạn 6000 ở đây nữa. Lấy TOÀN BỘ dữ liệu ban đầu
+    df_final = df_grouped.sample(frac=1, random_state=42).reset_index(drop=True)
+    sample_size = len(df_final)
     
-    # Chia Train (80%), Val (10%), Test (10%)
+    # Chia Train (80%), Val (10%), Test (10%) từ TỔNG 6080
     train_size = int(0.8 * sample_size)
     val_size = int(0.1 * sample_size)
     
     train_df, temp_df = train_test_split(df_final, test_size=(sample_size - train_size), random_state=42)
-    val_df, test_df = train_test_split(temp_df, test_size=val_size, random_state=42)
+    val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
     
     # Lưu kết quả
     train_df.to_csv(os.path.join(output_dir, 'train.csv'), index=False)
     val_df.to_csv(os.path.join(output_dir, 'val.csv'), index=False)
     test_df.to_csv(os.path.join(output_dir, 'test.csv'), index=False)
     
-    print(f"Đã chuẩn bị tổng cộng {len(df_final)} mẫu (1 mẫu = 1 text + nhiều ảnh).")
+    print(f"Đã chuẩn bị tổng cộng {len(df_final)} mẫu (1 mẫu = 1 text + nhiều ảnh) làm dữ liệu gốc.")
     print(f"- Train: {len(train_df)} mẫu")
     print(f"- Val:   {len(val_df)} mẫu")
     print(f"- Test:  {len(test_df)} mẫu")

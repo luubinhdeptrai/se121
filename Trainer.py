@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 import os
+from transformers import get_cosine_schedule_with_warmup
 
 class Trainer:
     def __init__(self, model, train_loader, val_loader, device, args):
@@ -13,7 +14,21 @@ class Trainer:
         
         self.criterion = nn.MSELoss()
         self.mae_criterion = nn.L1Loss()
+        
+        # Setup Optimizer
         self.optimizer = torch.optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr, weight_decay=args.weight_decay)
+        
+        # Setup Gradient Accumulation
+        self.grad_accum_steps = getattr(args, 'grad_accum_steps', 1)
+        
+        # Setup LR Scheduler (Cosine with Warmup)
+        total_steps = (len(train_loader) // self.grad_accum_steps) * args.epochs
+        warmup_steps = int(getattr(args, 'warmup_ratio', 0.1) * total_steps)
+        self.scheduler = get_cosine_schedule_with_warmup(
+            self.optimizer, 
+            num_warmup_steps=warmup_steps, 
+            num_training_steps=total_steps
+        )
 
     def _prepare_inputs(self, batch):
         """Helper để tự động trích xuất đúng các tham số mà model cần, loại bỏ if-else"""
@@ -31,9 +46,9 @@ class Trainer:
         total_loss = 0.0
         
         loop = tqdm(self.train_loader, desc=f"Epoch {epoch+1}/{self.args.epochs}")
-        for batch in loop:
-            self.optimizer.zero_grad()
-            
+        self.optimizer.zero_grad()
+        
+        for step, batch in enumerate(loop):
             inputs = self._prepare_inputs(batch)
             output = self.model(**inputs)
             
@@ -43,12 +58,18 @@ class Trainer:
             
             loss = self.criterion(pred_factors, true_factors)
             
+            # Gradient Accumulation
+            loss = loss / self.grad_accum_steps
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
-            self.optimizer.step()
             
-            total_loss += loss.item()
-            loop.set_postfix(loss=loss.item())
+            if (step + 1) % self.grad_accum_steps == 0 or (step + 1) == len(self.train_loader):
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+                self.optimizer.step()
+                self.scheduler.step()
+                self.optimizer.zero_grad()
+            
+            total_loss += loss.item() * self.grad_accum_steps
+            loop.set_postfix(loss=loss.item() * self.grad_accum_steps, lr=self.scheduler.get_last_lr()[0])
             
         return total_loss / len(self.train_loader)
 
