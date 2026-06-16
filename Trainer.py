@@ -106,6 +106,9 @@ class Trainer:
 
     def run(self):
         best_val_loss = float('inf')
+        patience_counter = 0
+        patience = getattr(self.args, 'patience', 3)
+        
         os.makedirs(self.args.save_path, exist_ok=True)
         save_file = os.path.join(self.args.save_path, f'best_model_{self.args.mode}.pth')
 
@@ -120,5 +123,12 @@ class Trainer:
             
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
+                patience_counter = 0
                 torch.save(self.model.state_dict(), save_file)
                 print(f"*** Saved best model to {save_file} ***\n")
+            else:
+                patience_counter += 1
+                print(f"--- Early Stopping Patience: {patience_counter}/{patience} ---\n")
+                if patience_counter >= patience:
+                    print(f"🛑 Early stopping triggered after {epoch+1} epochs!")
+                    break
