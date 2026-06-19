@@ -20,26 +20,24 @@ Mỗi combo được thiết kế theo tư duy **multimodal-first**: text encode
 
 ---
 
-- **Thử nghiệm 1.1 — "Domain-Exact" (Ưu tiên số 1):** `ViSoBERT` (Text) + `CLIP ViT-B/32` (Image)
-  - **Lý do chọn Text:** ViSoBERT (EMNLP 2023) là mô hình duy nhất pre-train **trực tiếp trên văn bản mạng xã hội tiếng Việt** (Facebook, TikTok, YouTube) — đúng domain của dữ liệu Foody/ShopeeFood (emoji, teencode, ngôn ngữ không trang trọng). Trên các task sentiment review tiếng Việt, ViSoBERT vượt cả PhoBERT và XLM-R. **`[1]`**
-  - **Lý do chọn Image:** CLIP ViT-B/32 (OpenAI) được pre-train bằng contrastive learning trên **400M cặp ảnh-văn bản**. Điều này giúp các vector ảnh của CLIP **có cùng semantic space** với các vector ngôn ngữ — giảm thiểu "khoảng cách modality" (modality gap) khi fusion. **`[2]`** Nghiên cứu multimodal sentiment 2026 (MDPI Applied Sciences) xác nhận `RoBERTa + CLIP` cross-attention đạt kết quả tốt nhất trong các combo được thử nghiệm. **`[3]`**
-  - **Lưu ý kỹ thuật:** CLIP tokenizer giới hạn 77 token — giữ nguyên tokenizer của ViSoBERT cho text, chỉ dùng **visual encoder của CLIP** để lấy ảnh features.
-  - **HuggingFace ID:** `uitnlp/visobert` | `openai/clip-vit-base-patch32` (visual encoder)
+- **Thử nghiệm 1.1 — "RoBERTa + CLIP" (Đúng như paper):** `roberta-base` (Text) + `CLIP ViT-B/32` (Image)
+  - **Lý do:** Đây là combo được test trực tiếp trong paper MDPI Applied Sciences 2026 trên bài toán multimodal sentiment. RoBERTa text encoder kết hợp với CLIP ViT-B/32 qua cross-attention — đạt **79.62% test accuracy, F1=79.42** trên MVSA-Single. CLIP ViT-B/32 được chọn vì visual features của nó **đã được align với ngôn ngữ** từ pre-training, giảm modality gap khi fusion. **`[3]`**
+  - **Lưu ý kỹ thuật:** CLIP tokenizer giới hạn 77 token — chỉ dùng **visual encoder của CLIP** để lấy ảnh features, tokenizer của text model dùng riêng.
+  - **HuggingFace ID:** `FacebookAI/roberta-base` | `openai/clip-vit-base-patch32` (visual encoder; timm: `vit_base_patch32_clip_224.openai`)
 
 ---
 
-- **Thử nghiệm 1.2 — "Proven Multimodal Pair" (Cân bằng chất lượng + tốc độ):** `ViDeBERTa-base` (Text) + `EfficientNet-B3` (Image)
-  - **Lý do chọn Text:** ViDeBERTa (EACL 2023) dùng DeBERTaV3 với disentangled attention, vượt PhoBERT-large với chỉ 86M params (PhoBERT-large: 370M). Phù hợp khi cần chất lượng tiếng Việt cao mà GPU budget hạn chế. **`[4]`**
-  - **Lý do chọn Image:** Nghiên cứu multimodal sentiment năm 2024 (IJACSA 2024) thử nghiệm trực tiếp nhiều cặp fusion và phát hiện **EfficientNet-B3 + RoBERTa đạt accuracy cao nhất (75%) trong các combo text+image**, vượt ResNet-50 và MobileNetV2. EfficientNet-B3 cân bằng tốt giữa capacity và tốc độ, feature vector 1536-dim dễ concat/fuse với hidden_size của ViDeBERTa (768-dim). **`[5]`**
-  - **Timm ID:** `HySonLab/ViDeBERTa` | `efficientnet_b3` (timm)
+- **Thử nghiệm 1.2 — "Vietnamese Equivalent" (Thích nghi tiếng Việt):** `ViSoBERT` (Text) + `EfficientNet-B3` (Image)
+  - **Lý do chọn Text:** Combo gốc từ IJACSA 2024 dùng RoBERTa — tại đây thay bằng **ViSoBERT** (`uitnlp/visobert`, EMNLP 2023) là VN equivalent phù hợp nhất vì cùng kiến trúc XLM-R và được pre-train trực tiếp trên văn bản mạng xã hội tiếng Việt (Facebook, YouTube, TikTok) — đúng domain của dữ liệu Foody/ShopeeFood. **`[1]`**
+  - **Lý do chọn Image:** IJACSA 2024 thử nghiệm trực tiếp nhiều cặp fusion, **EfficientNet-B3 + RoBERTa đạt accuracy cao nhất (75%), vượt ResNet-50 và MobileNetV2**. Feature vector 1536-dim của EfficientNet-B3 dễ concat với hidden_size 768 của ViSoBERT. **`[5]`**
+  - **HuggingFace/Timm ID:** `uitnlp/visobert` | `efficientnet_b3` (timm)
 
 ---
 
-- **Thử nghiệm 1.3 — "Vietnamese ABSA Baseline" (Đối chiếu với nghiên cứu trong nước):** `XLM-RoBERTa-base` (Text) + `CLIP ViT-B/16` (Image)
-  - **Lý do chọn Text:** XLM-R là backbone chuẩn của model `visolex/xlm-roberta-absa-restaurant` (HuggingFace, 2025) — model được fine-tune trực tiếp trên dữ liệu VLSP2018 **restaurant review tiếng Việt** với 12 aspect categories (FOOD#QUALITY, SERVICE#GENERAL, RESTAURANT#PRICES...), đạt Accuracy 0.89. Đây cũng chính là backbone baseline hiện tại của dự án — cho phép so sánh có kiểm soát. **`[6]`**
-  - **Lý do chọn Image:** CLIP ViT-B/16 (patch size nhỏ hơn /32) giữ nhiều spatial detail hơn, phù hợp hơn khi ảnh nhà hàng cần nhận diện chi tiết món ăn, không gian. Trong nghiên cứu multimodal food review (Foody crawl), cặp BERT+CLIP style đã chứng minh hiệu quả trên dữ liệu tương tự. **`[2][3]`**
-  - **Lưu ý kỹ thuật:** ViT-B/16 xuất ra **197 patch tokens** (không chỉ pooled vector), mở đường cho Cross-Attention trong Nhóm 3 (Thử nghiệm 3.3).
-  - **HuggingFace ID:** `xlm-roberta-base` | `openai/clip-vit-base-patch16` (visual encoder)
+- **Thử nghiệm 1.3 — "DeBERTa-v3 + SigLIP2" (Đúng như paper):** `microsoft/deberta-v3-base` (Text) + `SigLIP2-base-patch16` (Image)
+  - **Lý do:** Đây là combo được test trong SINC-V1 (HuggingFace, 2025) — multimodal product classifier kết hợp DeBERTa-v3 (text) với SigLIP2 (image encoder) qua Concatenation + MLP, đạt **92.46% test accuracy** trên 59,789 mẫu e-commerce. Đây là trường hợp duy nhất SigLIP2 hoạt động tốt trong late-fusion vì được paired với DeBERTa-v3 (cùng mức disentangled attention). **`[6]`**
+  - **Lưu ý:** SigLIP2 trong standalone fusion với BERT/RoBERTa thông thường bị thua CLIP (benchmark MMHS150K: SigLIP F1=0.507 vs CLIP F1=0.566). Combo này chỉ hợp lý khi dùng đúng với DeBERTa-v3.
+  - **HuggingFace/Timm ID:** `microsoft/deberta-v3-base` | `vit_base_patch16_siglip2_256` (timm)
 
 ### Nhóm 2: Thử nghiệm Hàm Mất Mát (Loss Functions)
 Giữ nguyên kiến trúc mạng, chỉ thay đổi hàm tính Loss ở khâu cuối để cải thiện trọng số tự động:
@@ -67,25 +65,28 @@ Tất cả các thử nghiệm trên sẽ được đối chiếu trên thang đ
 
 ## 4. Tài liệu Tham khảo — Nhóm 1
 
-> Các nguồn dưới đây là cơ sở khoa học cho việc lựa chọn backbone trong Nhóm 1. Ký hiệu `[Rn]` tương ứng với số thứ tự trong phần thử nghiệm.
+> Các nguồn dưới đây là cơ sở khoa học cho việc lựa chọn backbone trong Nhóm 1. Ký hiệu `[n]` tương ứng với số thứ tự trong phần thử nghiệm.
 
 **[1]** Nguyen, N., Phan, T., Nguyen, D.-V., & Nguyen, K. (2023). **ViSoBERT: A Pre-Trained Language Model for Vietnamese Social Media Text Processing**. *Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)*, pp. 5191–5207. Association for Computational Linguistics, Singapore.
 - 🔗 https://aclanthology.org/2023.emnlp-main.315
 - 📦 HuggingFace: https://huggingface.co/uitnlp/visobert
+- *(Dùng cho: 1.2 — VN equivalent thay RoBERTa)*
 
 **[2]** Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., ... & Sutskever, I. (2021). **Learning Transferable Visual Models From Natural Language Supervision (CLIP)**. *Proceedings of the 38th International Conference on Machine Learning (ICML 2021)*, pp. 8748–8763. PMLR.
 - 🔗 https://proceedings.mlr.press/v139/radford21a.html
 - 📦 HuggingFace: https://huggingface.co/openai/clip-vit-base-patch32
+- *(Dùng cho: 1.1 — background cho CLIP visual encoder)*
 
-**[3]** (Author et al., 2026). **Text-Anchored Residual Cross-Modal Fusion for Multimodal Sentiment Analysis: A Unified and Protocol-Aware Evaluation on MVSA-Single**. *Applied Sciences*, 16(9), 4514. MDPI. *(Xác nhận RoBERTa + CLIP cross-attention đạt kết quả tốt nhất, accuracy 82.63% val / 79.62% test trên MVSA-Single.)*
+**[3]** Gîrlea, M., et al. (2026). **Text-Anchored Residual Cross-Modal Fusion for Multimodal Sentiment Analysis: A Unified and Protocol-Aware Evaluation on MVSA-Single**. *Applied Sciences*, 16(9), 4514. MDPI. *(Combo RoBERTa + CLIP ViT-B/32 cross-attention đạt 79.62% test accuracy, F1=79.42 trên MVSA-Single — tốt nhất trong tất cả baselines được thử nghiệm.)*
 - 🔗 https://doi.org/10.3390/app16094514
+- *(Dùng cho: 1.1 — nguồn gốc trực tiếp của combo)*
 
-**[4]** Nguyen, T. T., Hy, T. S., & Vu, T. (2023). **ViDeBERTa: A powerful pre-trained language model for Vietnamese**. *Findings of the Association for Computational Linguistics: EACL 2023*, pp. 1071–1078. Association for Computational Linguistics, Dubrovnik, Croatia.
-- 🔗 https://aclanthology.org/2023.findings-eacl.79
-- 📦 GitHub: https://github.com/HySonLab/ViDeBERTa
+**[4]** *(Đã xóa — ViDeBERTa không còn được dùng trong Nhóm 1)*
 
-**[5]** Habib, M. B., Hafiz, M. F. B., Khan, N. A., & Hossain, S. (2024). **Multimodal Sentiment Analysis using Deep Learning Fusion Techniques and Transformers**. *International Journal of Advanced Computer Science and Applications (IJACSA)*, 15(6). The Science and Information Organization. *(Benchmark trực tiếp EfficientNet-B3 + RoBERTa đạt accuracy 75%, F1 74.9% — tốt nhất trong các combo text+image được thử nghiệm.)*
+**[5]** Habib, M. B., Hafiz, M. F. B., Khan, N. A., & Hossain, S. (2024). **Multimodal Sentiment Analysis using Deep Learning Fusion Techniques and Transformers**. *International Journal of Advanced Computer Science and Applications (IJACSA)*, 15(6). The Science and Information Organization. *(Benchmark trực tiếp EfficientNet-B3 + RoBERTa đạt accuracy 75%, F1 74.9% — tốt nhất trong các combo text+image được thử nghiệm, vượt ResNet-50 và MobileNetV2.)*
 - 🔗 http://dx.doi.org/10.14569/IJACSA.2024.0150686
+- *(Dùng cho: 1.2 — nguồn gốc trực tiếp của combo image encoder)*
 
-**[6]** ViSoLex Team. (2025). **XLM-RoBERTa base fine-tuned for Vietnamese Aspect-based Sentiment Analysis** (`visolex/xlm-roberta-absa-restaurant`). *Hugging Face Model Hub*. Fine-tuned trên VLSP2018-ABSA-Restaurant với 12 aspect categories, đạt Accuracy 0.8897 / Weighted-F1 0.8107.
-- 📦 HuggingFace: https://huggingface.co/visolex/xlm-roberta-absa-restaurant
+**[6]** Bangotra, M. (2025). **SINC-V1: Multimodal Product Classifier — DeBERTa-v3-small + SigLIP2-base-patch16**. *Hugging Face Model Hub*. Concatenation + MLP fusion, đạt **92.46% test accuracy / F1=0.73** trên 59,789 mẫu e-commerce. *(Combo DeBERTa-v3 + SigLIP2 được thực nghiệm và công bố kết quả tường minh.)*
+- 📦 https://huggingface.co/manavbangotra/SINC-V1-SIGLIP2-KEE-SPEED-small
+- *(Dùng cho: 1.3 — nguồn gốc trực tiếp của combo)*
