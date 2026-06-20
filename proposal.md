@@ -230,6 +230,8 @@ The test set must be used only after final model selection.
 | 8 | EXP_081 | Full final XAI analysis | XAI case studies | Best baseline and final model | Explain model behavior | Final model is inspectable, not fully transparent | High |
 | 9 | EXP_090 | Thesis-ready packaging | Reporting artifacts | Final results | Package reproducible evidence | Lecturer can audit the work | Critical |
 
+For Phases 2 to 7, the roadmap table rows above are study groups. The concrete trainable run IDs inside each group are enumerated explicitly in Sections 8 and 9 so that each launched experiment corresponds to one exact configuration.
+
 ## 8. Phase Details
 
 ### Phase 0: Research Infrastructure and Reproducibility Setup
@@ -306,21 +308,21 @@ Variable component:
 
 Experiment list:
 
-- `EXP_010_text_only_baseline`
-- `EXP_011_image_only_baseline`
-- `EXP_012_multimodal_concat_baseline`
+- `EXP_010_text_only_xlmr_mse`
+- `EXP_011_image_only_convnext_meanpool_mse`
+- `EXP_012_multimodal_convnext_xlmr_concat_mse`
 
 Required baseline definitions:
 
-- Baseline 0.1: Text-only baseline. Use XLM-R, PhoBERT, or the current text baseline with MSE first.
-- Baseline 0.2: Image-only baseline. Use ConvNeXt or the current image baseline with MSE first.
-- Baseline 0.3: Multimodal baseline. Use ConvNeXt + XLM-R, concatenation + MLP fusion, and MSE first.
+- Baseline 0.1: `EXP_010_text_only_xlmr_mse`. Use `xlm-roberta-base`, first-token pooling, max length 256, and MSE.
+- Baseline 0.2: `EXP_011_image_only_convnext_meanpool_mse`. Use `convnext_base_in22k`, pooled ConvNeXt features, masked multi-image mean pooling, and MSE.
+- Baseline 0.3: `EXP_012_multimodal_convnext_xlmr_concat_mse`. Use ConvNeXt + XLM-R, concatenation + MLP fusion, and MSE.
 
 Every later experiment must be compared against these baselines, not only against the immediately previous ablation.
 
 Implementation notes:
 
-- Text-only baseline should use current text default, likely `xlm-roberta-base`, unless code verification changes the default.
+- Text-only baseline should use `xlm-roberta-base` as the official Phase 1 anchor so that Vietnamese-specific backbones remain cleanly isolated for Phase 3.
 - Image-only baseline should use current image default, `convnext_base_in22k` or its current timm equivalent.
 - Multimodal baseline should use ConvNeXt + XLM-R + concatenation MLP.
 - Record historical notebook metrics only as background evidence, not as official baseline results.
@@ -366,17 +368,28 @@ Variable component:
 
 Experiment list:
 
-- `EXP_020_image_backbone_ablation`
-- `EXP_021_multi_image_pooling_ablation`
-- `EXP_022_image_quality_filtering_ablation`
+- Image backbone runs:
+  - `EXP_020A_convnext_xlmr_concat_mse` (reference; may reuse `EXP_012`)
+  - `EXP_020B_swinb_xlmr_concat_mse`
+  - `EXP_020C_siglip_xlmr_concat_mse`
+  - `EXP_020D_efficientnetb3_xlmr_concat_mse`
+- Multi-image pooling runs:
+  - `EXP_021A_bestimage_meanpool_xlmr_concat_mse` (reference; may reuse the winning `EXP_020*` run)
+  - `EXP_021B_bestimage_attentionpool_xlmr_concat_mse`
+- Image quality filtering runs:
+  - `EXP_022A_bestimage_bestpool_xlmr_concat_mse_nofilter` (reference; may reuse the winning `EXP_021*` run)
+  - `EXP_022B_bestimage_bestpool_xlmr_concat_mse_decodefilter`
+  - `EXP_022C_bestimage_bestpool_xlmr_concat_mse_decode_sizefilter`
 
 Implementation notes:
 
-- Compare ConvNeXt, Swin-B, EfficientNet-B3, CLIP visual encoder, SigLIP/SigLIP2, EVA-CLIP if feasible, ViT-L if resources allow, and MobileViT if lightweight deployment matters.
+- Use `xlm-roberta-base` as the fixed Phase 2 text branch so that image changes remain isolated. Vietnamese-specific text encoders are deferred to Phase 3 by design.
+- Compare the four highest-value image backbones first: ConvNeXt, Swin-B, SigLIP, and EfficientNet-B3.
 - Use Global Average Pooling or timm-provided pooled features for CNN-like models.
 - Use CLS/patch-token strategies only for ViT-like models that actually expose such tokens.
 - Test multi-image mean pooling against attention pooling across images.
 - Image quality filtering should be recorded with a manifest, not silent deletion.
+- CLIP, EVA-CLIP, ViT-L, and MobileViT remain optional extensions under the same template if the core four runs do not separate clearly and compute still permits expansion.
 
 Expected output files:
 
@@ -413,9 +426,21 @@ Variable component:
 
 Experiment list:
 
-- `EXP_030_text_backbone_ablation`
-- `EXP_031_text_pooling_length_ablation`
-- `EXP_032_text_normalization_ablation`
+- Text backbone runs:
+  - `EXP_030A_bestimage_bestpool_xlmr_concat_mse` (reference; may reuse the winning `EXP_022*` run)
+  - `EXP_030B_bestimage_bestpool_phobert_concat_mse`
+  - `EXP_030C_bestimage_bestpool_vibert_concat_mse`
+  - `EXP_030D_bestimage_bestpool_visobert_concat_mse`
+  - `EXP_030E_bestimage_bestpool_mdebertav3_concat_mse`
+- Text pooling and length runs:
+  - `EXP_031A_bestimage_besttext_firsttoken_len256_concat_mse`
+  - `EXP_031B_bestimage_besttext_meanpool_len256_concat_mse`
+  - `EXP_031C_bestimage_besttext_attentionpool_len256_concat_mse`
+  - `EXP_031D_bestimage_besttext_bestpool_len128_concat_mse`
+- Text normalization runs:
+  - `EXP_032A_bestimage_besttext_bestpool_rawtext_concat_mse` (reference; may reuse the winning `EXP_031*` run)
+  - `EXP_032B_bestimage_besttext_bestpool_unicode_whitespace_concat_mse`
+  - `EXP_032C_bestimage_besttext_bestpool_light_slangmap_concat_mse`
 
 Implementation notes:
 
@@ -423,6 +448,7 @@ Implementation notes:
 - Test first-token/CLS pooling, mean pooling over non-padding tokens, attention pooling, and last-layer or last-four-layer aggregation.
 - Test max text length 128 vs 256. Current `Config.py` default is 256, while older docs and some templates mention 128.
 - Text normalization must be conservative. Do not remove sentiment-bearing slang, negation, or emojis without an ablation.
+- The minimum concrete Phase 3 set uses Vietnamese-priority backbones first. RoBERTa remains a literature reference and does not need to be in the core trainable set unless a lecturer specifically requests it.
 
 Expected output files:
 
@@ -459,13 +485,18 @@ Variable component:
 
 Experiment list:
 
-- `EXP_040_fusion_gating_ablation`
-- `EXP_041_film_cross_attention_ablation`
+- Gating runs:
+  - `EXP_040A_bestimage_besttext_besttextpool_concat_mse` (reference; may reuse the winning `EXP_032*` run)
+  - `EXP_040B_bestimage_besttext_besttextpool_gmu_mse`
+  - `EXP_040C_bestimage_besttext_besttextpool_gatedcrossmodal_mse`
+- Interaction runs:
+  - `EXP_041A_bestimage_besttext_besttextpool_film_mse`
+  - `EXP_041B_bestimage_besttext_besttextpool_crossattention_mse`
 
 Implementation notes:
 
 - Concatenation + MLP remains the baseline.
-- Late weighted averaging is a simple sanity comparison.
+- Late weighted averaging is a simple sanity comparison, but it is not part of the minimum trainable set.
 - GMU is useful because modality reliability differs by sample.
 - Gated cross-modal fusion is useful because many review images are not aligned with the score target.
 - FiLM lets one modality modulate another, for example text can condition image features.
@@ -505,8 +536,16 @@ Variable component:
 
 Experiment list:
 
-- `EXP_050_robust_regression_loss_ablation`
-- `EXP_051_multitask_loss_balancing`
+- Robust-loss runs:
+  - `EXP_050A_bestimage_besttext_bestfusion_mse` (reference; may reuse the winning MSE-based Phase 4 run)
+  - `EXP_050B_bestimage_besttext_bestfusion_huber`
+  - `EXP_050C_bestimage_besttext_bestfusion_smoothl1`
+  - `EXP_050D_bestimage_besttext_bestfusion_logcosh`
+- Multitask-balancing runs:
+  - `EXP_051A_bestimage_besttext_bestfusion_bestloss_equalweights` (reference; may reuse the winning `EXP_050*` run)
+  - `EXP_051B_bestimage_besttext_bestfusion_bestloss_manualtaskweights`
+  - `EXP_051C_bestimage_besttext_bestfusion_huber_manualtaskweights`
+  - `EXP_051D_bestimage_besttext_bestfusion_uncertaintyweighted`
 
 Implementation notes:
 
@@ -518,6 +557,7 @@ Implementation notes:
 - Homoscedastic uncertainty-weighted multi-task loss is feasible if implemented carefully and monitored for degenerate weights.
 - Huber itself does not solve multi-task balancing. Task weights solve balancing.
 - Focal loss and weighted cross-entropy are not suitable for the main task unless an auxiliary classification head is added.
+- If `EXP_050` selects Huber as the best scalar loss, `EXP_051B` becomes the weighted-Huber run and `EXP_051C` can be marked skipped as redundant.
 
 Expected output files:
 
@@ -553,19 +593,21 @@ Variable component:
 
 Experiment list:
 
-- `EXP_060_promising_combination_validation`
+- `EXP_060A_bestsequential_full_configuration`
+- `EXP_060B_convnext_phobert_film_huber`
+- `EXP_060C_swinb_vibert_gmu_huber`
+- `EXP_060D_efficientnetb3_visobert_film_huber`
+- `EXP_060E_siglip_mdebertav3_gmu_weightedhuber`
 
 Promising combinations to test:
 
-- Best sequential model from Phases 2 to 5.
-- `ConvNeXt + XLM-R + concat MLP + MSE` as the official baseline anchor.
-- `ConvNeXt + PhoBERT + FiLM + Huber`.
-- `Swin-B + PhoBERT + GMU + Huber`.
-- `ViSoBERT + EfficientNet-B3 + FiLM + Huber`.
-- `CLIP visual encoder + Vietnamese text encoder + Gated Fusion + Weighted Huber`.
-- `SigLIP/SigLIP2 + mDeBERTa-v3 or ViDeBERTa + GMU/Cross-Attention + Weighted Huber`.
-- `EVA-CLIP + ViDeBERTa + Cross-Attention + Weighted Huber`, only if feasible on Colab.
-- `MobileViT + PhoBERT + GMU + Huber`, if lightweight deployment is relevant.
+- `EXP_060A_bestsequential_full_configuration`: the exact winner from Phases 2 to 5.
+- `EXP_012_multimodal_convnext_xlmr_concat_mse` as the official baseline anchor in the comparison table; it does not need to be retrained.
+- `EXP_060B_convnext_phobert_film_huber`.
+- `EXP_060C_swinb_vibert_gmu_huber`.
+- `EXP_060D_efficientnetb3_visobert_film_huber`.
+- `EXP_060E_siglip_mdebertav3_gmu_weightedhuber`.
+- The original CLIP, EVA-CLIP, and MobileViT combinations remain optional extension runs if the core validation set leaves meaningful uncertainty and Colab budget permits.
 
 Expected output files:
 
@@ -600,12 +642,17 @@ Variable component:
 
 Experiment list:
 
-- `EXP_070_final_multiseed_selection`
+- `EXP_070A_candidate1_seed42`
+- `EXP_070B_candidate1_seed123`
+- `EXP_070C_candidate1_seed2026`
+- `EXP_070D_candidate2_seed42`
+- `EXP_070E_candidate2_seed123`
+- `EXP_070F_candidate2_seed2026`
 - `EXP_071_locked_test_evaluation`
 
 Implementation notes:
 
-- Run at least seeds 42, 123, and 2026 for top candidates if compute allows.
+- Run seeds 42, 123, and 2026 for the top two Phase 6 candidates. Extend the same template to a third candidate only if the Phase 6 gap between second and third place is small enough to keep the decision ambiguous.
 - Select final model using validation metrics only.
 - Run test evaluation once for the selected final model.
 - Report mean and standard deviation across seeds on validation, and final test metrics for the selected checkpoint.
@@ -735,30 +782,35 @@ Expected claim/conclusion:
 
 The following specifications define the minimum required details for implementation. All experiments use frozen split v1, sample-wise metrics, seed 42 for first run, and the standard artifact folder unless otherwise stated.
 
+Whenever a trainable ID contains `bestimage`, `bestpool`, `besttext`, `besttextpool`, `bestfusion`, or `bestloss`, the placeholder must be replaced in `config.yaml` and the experiment `README.md` with the exact winning upstream experiment ID before launch. If a reference run is identical to an already completed earlier run, the later experiment folder may point to the earlier artifacts instead of retraining the same configuration.
+
 ### EXP_010_text_only_baseline
 
 Research question: How strong is review text alone for predicting the five targets?
 
+- Trainable configuration ID: `EXP_010_text_only_xlmr_mse`
 - Image branch: disabled.
 - Image internal variant: not applicable.
-- Text branch: `xlm-roberta-base` or current text baseline.
-- Text internal variant: first-token or `pooler_output` pooling, max length from config.
+- Text branch: `xlm-roberta-base`.
+- Text internal variant: first-token pooling, max length 256.
 - Fusion method: none.
 - Loss function: MSE.
 - Fixed components: frozen split v1, AdamW, scheduler, early stopping, seed 42.
 - Variable component: modality is text only.
 - Training settings: 20 epochs maximum, patience 3-5, batch size based on GPU memory, gradient clipping 1.0.
+- Motivation: establish the current-code multilingual text anchor before any Vietnamese-specific backbone changes.
 - Expected artifacts: `config.yaml`, `metrics.json`, `predictions.csv`, `train.log`, loss curve, checkpoint link.
 - Evaluation metrics: MAE, RMSE, R2, per-target metrics.
-- Selection criterion: establishes baseline, not selected against another text model yet.
+- Selection criterion: establishes the official text-only reference for all later comparisons.
 - Expected conclusion: text should be a strong unimodal signal for Vietnamese reviews.
 
 ### EXP_011_image_only_baseline
 
 Research question: How much predictive signal exists in review images alone?
 
-- Image branch: ConvNeXt current baseline.
-- Image internal variant: backbone pooled features plus multi-image mean pooling.
+- Trainable configuration ID: `EXP_011_image_only_convnext_meanpool_mse`
+- Image branch: `convnext_base_in22k` or its resolved timm equivalent recorded in `config.yaml`.
+- Image internal variant: timm pooled ConvNeXt features plus masked multi-image mean pooling over up to 4 images.
 - Text branch: disabled.
 - Text internal variant: not applicable.
 - Fusion method: none.
@@ -766,6 +818,7 @@ Research question: How much predictive signal exists in review images alone?
 - Fixed components: frozen split v1, AdamW, scheduler, early stopping, seed 42.
 - Variable component: modality is image only.
 - Training settings: use smaller batch size if GPU memory requires it.
+- Motivation: quantify the standalone value of the noisy image modality using the most stable current visual baseline.
 - Expected artifacts: same standard experiment files plus image failure summary.
 - Evaluation metrics: sample-wise MAE, RMSE, R2, per-target metrics.
 - Selection criterion: compare against text-only and multimodal baseline.
@@ -775,15 +828,17 @@ Research question: How much predictive signal exists in review images alone?
 
 Research question: Does simple multimodal fusion improve over text-only and image-only baselines?
 
-- Image branch: ConvNeXt current baseline.
-- Image internal variant: multi-image mean pooling.
-- Text branch: XLM-R current baseline.
-- Text internal variant: first-token or pooler pooling.
+- Trainable configuration ID: `EXP_012_multimodal_convnext_xlmr_concat_mse`
+- Image branch: `convnext_base_in22k` or its resolved timm equivalent recorded in `config.yaml`.
+- Image internal variant: pooled ConvNeXt features plus masked multi-image mean pooling.
+- Text branch: `xlm-roberta-base`.
+- Text internal variant: first-token pooling, max length 256.
 - Fusion method: concatenation + MLP.
 - Loss function: MSE.
 - Fixed components: frozen split v1, seed 42, same training infrastructure.
 - Variable component: fusion of both modalities.
 - Training settings: staged or joint training must be recorded exactly.
+- Motivation: create the official multimodal anchor that later ablations will inherit and compare against.
 - Expected artifacts: standard experiment files.
 - Evaluation metrics: sample-wise MAE, RMSE, R2, per-target metrics.
 - Selection criterion: should beat or complement unimodal baselines.
@@ -793,15 +848,22 @@ Research question: Does simple multimodal fusion improve over text-only and imag
 
 Research question: Which image encoder gives the best visual representation under fixed text, fusion, and loss settings?
 
-- Image branch: ConvNeXt, Swin-B, EfficientNet-B3, CLIP visual encoder, SigLIP/SigLIP2, EVA-CLIP if feasible, ViT-L if feasible, MobileViT if resource-constrained.
-- Image internal variant: correct backbone-specific preprocessing and pooled feature extraction.
-- Text branch: best Phase 1 text branch.
-- Text internal variant: fixed.
-- Fusion method: concatenation + MLP.
-- Loss function: MSE or current selected baseline loss.
-- Fixed components: frozen split v1, seed 42, same training settings.
-- Variable component: image backbone.
-- Training settings: same epochs and early stopping; adjust batch size only if documented.
+- Shared fixed components for all `EXP_020*` runs:
+  - Text branch: `xlm-roberta-base`, first-token pooling, max length 256, inherited from `EXP_012`.
+  - Fusion method: concatenation + MLP.
+  - Loss function: MSE.
+  - Frozen split v1, seed 42, same optimizer/scheduler/early stopping, sample-wise metrics, and backbone-specific preprocessing registry.
+- Variable component: image backbone only.
+- Concrete trainable experiments:
+
+| Trainable ID | Image branch | Image internal variant | Motivation | Expected claim |
+|---|---|---|---|---|
+| `EXP_020A_convnext_xlmr_concat_mse` | `convnext_base_in22k` | pooled CNN features + masked multi-image mean pooling | reference run; same family as `EXP_012` | stable visual anchor for later comparison |
+| `EXP_020B_swinb_xlmr_concat_mse` | `swin_base_patch4_window7_224` | pooled transformer features + masked multi-image mean pooling | test hierarchical transformer features for atmosphere and scene context | Swin-B may help when environment cues matter |
+| `EXP_020C_siglip_xlmr_concat_mse` | `vit_base_patch16_siglip_224` | pooled ViT features + masked multi-image mean pooling | test image-text-pretrained visual features under the same text branch | SigLIP may help when semantic visual alignment matters |
+| `EXP_020D_efficientnetb3_xlmr_concat_mse` | `efficientnet_b3` | pooled CNN features + masked multi-image mean pooling | add a cheaper strong CNN alternative for Colab | EfficientNet-B3 may approach stronger backbones at lower cost |
+
+- Training settings: same epochs and early stopping across all runs; adjust batch size only if documented in `config.yaml`.
 - Expected artifacts: standard files plus `image_preprocessing_report.md`.
 - Evaluation metrics: sample-wise MAE, RMSE, R2, resource usage.
 - Selection criterion: validation mean MAE with resource-aware tie breaker.
@@ -811,15 +873,21 @@ Research question: Which image encoder gives the best visual representation unde
 
 Research question: Does attention pooling across review images outperform simple mean pooling?
 
-- Image branch: selected Phase 2 backbone.
-- Image internal variant: multi-image mean pooling, multi-image attention pooling, optional top-k image pooling.
-- Text branch: fixed selected text branch.
-- Text internal variant: fixed.
-- Fusion method: concatenation + MLP.
-- Loss function: fixed.
-- Fixed components: dataset, seed, optimizer, metrics.
-- Variable component: review-level image aggregation.
-- Training settings: identical where possible.
+- Shared fixed components for all `EXP_021*` runs:
+  - Image backbone: the winning `EXP_020*` backbone.
+  - Text branch: `xlm-roberta-base`, first-token pooling, max length 256.
+  - Fusion method: concatenation + MLP.
+  - Loss function: MSE.
+  - Frozen split v1, seed 42, same optimizer/scheduler/metrics.
+- Variable component: review-level image aggregation only.
+- Concrete trainable experiments:
+
+| Trainable ID | Image internal variant | Motivation | Expected claim |
+|---|---|---|---|
+| `EXP_021A_bestimage_meanpool_xlmr_concat_mse` | masked mean pooling over valid image embeddings | reference policy already closest to current code | establishes whether simple averaging is sufficient |
+| `EXP_021B_bestimage_attentionpool_xlmr_concat_mse` | learned attention pooling over valid image embeddings using the `num_images` mask | one review may contain both useful and irrelevant photos | attention pooling is adopted only if it learns better review-level image selection |
+
+- Training settings: identical where possible. If `EXP_021A` is identical to the winning `EXP_020*` run, reuse earlier artifacts rather than retraining.
 - Expected artifacts: standard files plus pooling weight visualizations.
 - Evaluation metrics: per-target MAE/RMSE and high-error subset analysis.
 - Selection criterion: validation mean MAE and interpretability of image weights.
@@ -829,14 +897,23 @@ Research question: Does attention pooling across review images outperform simple
 
 Research question: Does filtering low-quality or irrelevant images improve multimodal regression?
 
-- Image branch: selected image backbone and pooling.
-- Image internal variant: no filtering, failed-image exclusion, blur/size filtering, optional menu/receipt heuristic filtering.
-- Text branch: fixed selected text branch.
-- Fusion method: fixed.
-- Loss function: fixed.
-- Fixed components: split identity must remain auditable.
-- Variable component: image quality filtering policy.
-- Training settings: same as selected architecture.
+- Shared fixed components for all `EXP_022*` runs:
+  - Image backbone: winning `EXP_020*` backbone.
+  - Image pooling: winning `EXP_021*` strategy.
+  - Text branch: `xlm-roberta-base`, first-token pooling, max length 256.
+  - Fusion method: concatenation + MLP.
+  - Loss function: MSE.
+  - Split identity and review row count must remain unchanged.
+- Variable component: image filtering policy only.
+- Concrete trainable experiments:
+
+| Trainable ID | Filtering policy | Motivation | Expected claim |
+|---|---|---|---|
+| `EXP_022A_bestimage_bestpool_xlmr_concat_mse_nofilter` | no extra image filtering beyond the frozen dataset and existing decode behavior | reference policy | establishes whether filtering is needed at all |
+| `EXP_022B_bestimage_bestpool_xlmr_concat_mse_decodefilter` | mask only missing, undecodable, or zero-byte images while keeping the review row | remove obviously broken visual evidence without changing the split | broken-image masking may reduce avoidable noise |
+| `EXP_022C_bestimage_bestpool_xlmr_concat_mse_decode_sizefilter` | apply `EXP_022B` plus mask images with very small resolution, for example short side below 96 pixels | test a conservative quality threshold without semantic heuristics | conservative quality filtering may help if tiny images are mostly noise |
+
+- Training settings: same as the selected architecture. Every per-image removal must be logged to `image_failure_manifest.csv`.
 - Expected artifacts: `image_failure_manifest.csv`, `filtering_report.md`, standard files.
 - Evaluation metrics: sample-wise metrics plus performance on reviews with many images.
 - Selection criterion: improved validation MAE without silently changing sample counts.
@@ -846,14 +923,23 @@ Research question: Does filtering low-quality or irrelevant images improve multi
 
 Research question: Do Vietnamese-specific or social-media-oriented language models improve over XLM-R?
 
-- Image branch: selected Phase 2 branch.
-- Image internal variant: fixed.
-- Text branch: XLM-RoBERTa, PhoBERT, ViDeBERTa/ViBERT if available, ViSoBERT, mDeBERTa-v3, RoBERTa reference.
-- Text internal variant: fixed pooling and length.
-- Fusion method: concatenation + MLP.
-- Loss function: fixed baseline loss.
-- Fixed components: split, image branch, fusion, optimizer, metrics.
-- Variable component: text backbone.
+- Shared fixed components for all `EXP_030*` runs:
+  - Image branch: winning `EXP_020*` backbone, winning `EXP_021*` pooling, and winning `EXP_022*` filtering policy.
+  - Fusion method: concatenation + MLP.
+  - Loss function: MSE.
+  - Text internal variant: first-token pooling, max length 256.
+  - Frozen split v1, seed 42, same optimizer/scheduler/metrics.
+- Variable component: text backbone only.
+- Concrete trainable experiments:
+
+| Trainable ID | Text branch | Motivation | Expected claim |
+|---|---|---|---|
+| `EXP_030A_bestimage_bestpool_xlmr_concat_mse` | `xlm-roberta-base` | reference multilingual baseline; may reuse the winning `EXP_022*` run if identical | preserves continuity with Phase 2 |
+| `EXP_030B_bestimage_bestpool_phobert_concat_mse` | PhoBERT, exact checkpoint to be verified in codebase/environment and recorded in `config.yaml` | Vietnamese-specific pretraining should better match restaurant-review language | PhoBERT may improve local lexical and sentiment cues |
+| `EXP_030C_bestimage_bestpool_vibert_concat_mse` | `FPTAI/vibert-base-cased` | existing notebook evidence already uses this Vietnamese checkpoint | ViBERT may offer a practical Vietnamese-focused alternative |
+| `EXP_030D_bestimage_bestpool_visobert_concat_mse` | `uitnlp/visobert` | social-media pretraining matches informal Foody-style text | ViSoBERT may help on slang and casual review phrasing |
+| `EXP_030E_bestimage_bestpool_mdebertav3_concat_mse` | `microsoft/mdeberta-v3-base` | strong multilingual DeBERTa-family reference already seen in historical runs | mDeBERTa-v3 may improve robustness even without Vietnamese-only pretraining |
+
 - Training settings: same maximum epochs, memory-adjusted batch size documented.
 - Expected artifacts: standard files plus `tokenization_report.md`.
 - Evaluation metrics: sample-wise metrics and high-error text analysis.
@@ -864,14 +950,23 @@ Research question: Do Vietnamese-specific or social-media-oriented language mode
 
 Research question: Does pooling strategy or longer text length improve text representation?
 
-- Image branch: selected image branch.
-- Text branch: selected text backbone.
-- Text internal variant: first-token/CLS pooling, mean pooling, attention pooling, layer aggregation, max length 128 vs 256.
-- Fusion method: fixed.
-- Loss function: fixed.
-- Fixed components: split, seed, optimizer.
-- Variable component: text feature extraction.
-- Training settings: same except sequence length and memory-adjusted batch size.
+- Shared fixed components for all `EXP_031*` runs:
+  - Image branch: winning Phase 2 image branch.
+  - Text backbone: winning `EXP_030*` backbone.
+  - Fusion method: concatenation + MLP.
+  - Loss function: MSE.
+  - Frozen split v1, seed 42, same optimizer/scheduler/metrics.
+- Variable component: text pooling strategy and sequence length only.
+- Concrete trainable experiments:
+
+| Trainable ID | Text internal variant | Motivation | Expected claim |
+|---|---|---|---|
+| `EXP_031A_bestimage_besttext_firsttoken_len256_concat_mse` | first-token pooling, max length 256 | reference configuration closest to the current code path | establishes the controlled text-feature baseline |
+| `EXP_031B_bestimage_besttext_meanpool_len256_concat_mse` | masked mean pooling over non-padding tokens, max length 256 | test whether whole-sequence averaging captures review context better | mean pooling may reduce overreliance on the first token |
+| `EXP_031C_bestimage_besttext_attentionpool_len256_concat_mse` | learned attention pooling over non-padding tokens, max length 256 | let the model learn which tokens matter most | attention pooling is useful only if it improves enough to justify extra complexity |
+| `EXP_031D_bestimage_besttext_bestpool_len128_concat_mse` | winning pooling from `EXP_031A` to `EXP_031C`, max length 128 | explicitly test whether shorter input can match performance at lower cost | 128 tokens may be enough, or 256 may be justified for long reviews |
+
+- Training settings: run `EXP_031A` to `EXP_031C` first, then launch `EXP_031D` using the winning pooling from the first three runs. Layer aggregation remains optional future work if pooling results remain ambiguous.
 - Expected artifacts: standard files plus `text_length_coverage.json`.
 - Evaluation metrics: sample-wise metrics and subset analysis by comment length.
 - Selection criterion: validation mean MAE with special attention to long reviews.
@@ -881,14 +976,22 @@ Research question: Does pooling strategy or longer text length improve text repr
 
 Research question: Does controlled Vietnamese text normalization improve noisy user-generated review modeling?
 
-- Image branch: fixed selected branch.
-- Text branch: fixed selected backbone.
-- Text internal variant: raw `comment_clean`, light Unicode/whitespace normalization, slang dictionary variant.
-- Fusion method: fixed.
-- Loss function: fixed.
-- Fixed components: split, seed, metrics.
-- Variable component: normalization strategy.
-- Training settings: same.
+- Shared fixed components for all `EXP_032*` runs:
+  - Image branch: winning Phase 2 image branch.
+  - Text backbone and pooling/length: winning `EXP_030*` and `EXP_031*` settings.
+  - Fusion method: concatenation + MLP.
+  - Loss function: MSE.
+  - Frozen split v1, seed 42, same optimizer/scheduler/metrics.
+- Variable component: normalization strategy only.
+- Concrete trainable experiments:
+
+| Trainable ID | Normalization strategy | Motivation | Expected claim |
+|---|---|---|---|
+| `EXP_032A_bestimage_besttext_bestpool_rawtext_concat_mse` | use current `comment_clean` exactly as stored | reference policy; may reuse the winning `EXP_031*` run if identical | establishes whether extra normalization is needed |
+| `EXP_032B_bestimage_besttext_bestpool_unicode_whitespace_concat_mse` | apply Unicode normalization and whitespace collapsing only | test a minimal cleanup that should not alter sentiment content | minimal normalization may remove harmless noise |
+| `EXP_032C_bestimage_besttext_bestpool_light_slangmap_concat_mse` | apply `EXP_032B` plus a conservative fixed slang map; preserve negation, intensifiers, and sentiment-bearing tokens | test whether a small domain lexicon helps with Foody-style text | light slang handling may improve robustness without over-cleaning |
+
+- Training settings: same across all runs. The slang map must be versioned and saved with the experiment artifacts.
 - Expected artifacts: `normalization_examples.csv`, standard files.
 - Evaluation metrics: sample-wise metrics and noisy-text subset metrics.
 - Selection criterion: validation mean MAE and qualitative inspection.
@@ -898,13 +1001,21 @@ Research question: Does controlled Vietnamese text normalization improve noisy u
 
 Research question: Can adaptive fusion learn when to trust text more than images?
 
-- Image branch: selected branch.
-- Text branch: selected branch.
-- Fusion method: concat MLP, late weighted averaging, GMU, gated cross-modal fusion.
-- Loss function: fixed baseline loss.
-- Fixed components: split, encoders, optimizer.
-- Variable component: fusion mechanism.
-- Training settings: same fusion-stage budget; record trainable parameters.
+- Shared fixed components for all `EXP_040*` runs:
+  - Image branch: winning Phase 2 image branch.
+  - Text branch: winning Phase 3 text backbone, pooling/length, and normalization.
+  - Loss function: MSE.
+  - Frozen split v1, seed 42, same optimizer/scheduler/metrics.
+- Variable component: gating-oriented fusion mechanism only.
+- Concrete trainable experiments:
+
+| Trainable ID | Fusion method | Motivation | Expected claim |
+|---|---|---|---|
+| `EXP_040A_bestimage_besttext_besttextpool_concat_mse` | concatenation + MLP | reference fusion; may reuse the winning `EXP_032*` run if identical | preserves the simple controlled baseline |
+| `EXP_040B_bestimage_besttext_besttextpool_gmu_mse` | GMU | allow sample-level gating when image reliability varies | GMU may improve robustness to noisy or irrelevant photos |
+| `EXP_040C_bestimage_besttext_besttextpool_gatedcrossmodal_mse` | gated cross-modal fusion | test a stronger reliability-aware interaction than plain concat | gated cross-modal fusion may outperform concat when modalities disagree |
+
+- Training settings: same fusion-stage budget across runs; record trainable parameter count and gate statistics.
 - Expected artifacts: `fusion_gate_statistics.csv`, modality weight plots, standard files.
 - Evaluation metrics: sample-wise metrics plus modality ablation on validation.
 - Selection criterion: validation mean MAE and no unexplained branch collapse.
@@ -914,13 +1025,20 @@ Research question: Can adaptive fusion learn when to trust text more than images
 
 Research question: Do richer cross-modal interactions improve over gated or concatenation fusion?
 
-- Image branch: selected branch, possibly patch features for cross-attention.
-- Text branch: selected branch, token features required for cross-attention.
-- Fusion method: FiLM and cross-attention.
-- Loss function: fixed baseline loss.
-- Fixed components: split, selected encoders, metrics.
-- Variable component: interaction mechanism.
-- Training settings: memory-managed batch size; document compute cost.
+- Shared fixed components for all `EXP_041*` runs:
+  - Image branch: same winning Phase 2 image branch used in `EXP_040*`.
+  - Text branch: same winning Phase 3 text branch used in `EXP_040*`.
+  - Loss function: MSE.
+  - Frozen split v1, seed 42, same optimizer/scheduler/metrics.
+- Variable component: richer interaction mechanism only.
+- Concrete trainable experiments:
+
+| Trainable ID | Fusion method | Motivation | Expected claim |
+|---|---|---|---|
+| `EXP_041A_bestimage_besttext_besttextpool_film_mse` | FiLM | let one modality modulate the other with moderate complexity | FiLM may capture useful conditioning without full cross-attention cost |
+| `EXP_041B_bestimage_besttext_besttextpool_crossattention_mse` | cross-attention with token-level text features and patch-level image features | test the strongest fine-grained interaction idea from the literature | cross-attention is justified only if its gain clearly exceeds its implementation and memory cost |
+
+- Training settings: memory-managed batch size; document compute cost. `EXP_041B` is high risk and should not proceed until token and patch features are verified in code.
 - Expected artifacts: attention maps if available, resource usage, standard files.
 - Evaluation metrics: sample-wise metrics and hard-case analysis.
 - Selection criterion: improvement large enough to justify complexity.
@@ -930,13 +1048,22 @@ Research question: Do richer cross-modal interactions improve over gated or conc
 
 Research question: Are robust losses better than MSE for noisy multi-target review scores?
 
-- Image branch: selected architecture.
-- Text branch: selected architecture.
-- Fusion method: selected architecture.
-- Loss function: MSE, MAE, Huber, SmoothL1, Log-Cosh.
-- Fixed components: split, model, optimizer, seed.
-- Variable component: scalar regression loss.
-- Training settings: same.
+- Shared fixed components for all `EXP_050*` runs:
+  - Image branch: winning Phase 2 image branch.
+  - Text branch: winning Phase 3 text branch.
+  - Fusion method: winning Phase 4 fusion method.
+  - Frozen split v1, seed 42, same optimizer/scheduler/metrics.
+- Variable component: scalar regression loss only.
+- Concrete trainable experiments:
+
+| Trainable ID | Loss function | Motivation | Expected claim |
+|---|---|---|---|
+| `EXP_050A_bestimage_besttext_bestfusion_mse` | MSE | reference loss; may reuse the winning MSE-based Phase 4 run | preserves the baseline objective |
+| `EXP_050B_bestimage_besttext_bestfusion_huber` | Huber | robust alternative expected to handle outliers better | Huber may reduce large errors without losing smooth optimization |
+| `EXP_050C_bestimage_besttext_bestfusion_smoothl1` | SmoothL1 | PyTorch-native Huber-like alternative | SmoothL1 may match Huber with simpler implementation |
+| `EXP_050D_bestimage_besttext_bestfusion_logcosh` | Log-Cosh | smooth robust loss retained from the original proposal | Log-Cosh may offer another stable robust-loss option |
+
+- Training settings: same across all runs. MAE is left out of the minimum trainable set because it changes optimization dynamics while usually overlapping conceptually with smoother robust losses.
 - Expected artifacts: standard files plus `outlier_error_analysis.csv`.
 - Evaluation metrics: MAE, RMSE, R2, tail-error percentiles.
 - Selection criterion: validation mean MAE and reduced large-error tail.
@@ -946,13 +1073,23 @@ Research question: Are robust losses better than MSE for noisy multi-target revi
 
 Research question: Does explicit task balancing improve five-target prediction?
 
-- Image branch: selected architecture.
-- Text branch: selected architecture.
-- Fusion method: selected architecture.
-- Loss function: equal weights, manual target weights, weighted Huber, homoscedastic uncertainty weighting.
-- Fixed components: split, model, optimizer, seed.
-- Variable component: target weighting.
-- Training settings: monitor learned weights and per-target loss.
+- Shared fixed components for all `EXP_051*` runs:
+  - Image branch: winning Phase 2 image branch.
+  - Text branch: winning Phase 3 text branch.
+  - Fusion method: winning Phase 4 fusion method.
+  - Frozen split v1, seed 42, same optimizer/scheduler/metrics.
+  - Manual target weights, when used, must be fixed once from the inverse per-target MAE of the Phase 5 reference run and normalized to mean 1.0.
+- Variable component: target weighting strategy.
+- Concrete trainable experiments:
+
+| Trainable ID | Loss and weighting strategy | Motivation | Expected claim |
+|---|---|---|---|
+| `EXP_051A_bestimage_besttext_bestfusion_bestloss_equalweights` | winning `EXP_050*` scalar loss with equal target weights | reference policy; may reuse the winning `EXP_050*` run | isolates weighting from scalar-loss choice |
+| `EXP_051B_bestimage_besttext_bestfusion_bestloss_manualtaskweights` | winning `EXP_050*` scalar loss plus fixed manual target weights | test whether explicit balancing helps without changing the scalar loss family | task weighting may improve weak targets without architectural changes |
+| `EXP_051C_bestimage_besttext_bestfusion_huber_manualtaskweights` | Huber plus the same fixed manual target weights | explicit weighted-Huber candidate from the original proposal | weighted Huber may combine robustness and balancing effectively |
+| `EXP_051D_bestimage_besttext_bestfusion_uncertaintyweighted` | homoscedastic uncertainty-weighted multitask loss | test learnable target balancing | uncertainty weighting may help if it stays well behaved |
+
+- Training settings: monitor learned weights and per-target loss. If `EXP_050` already selects Huber as the best scalar loss, `EXP_051B` becomes the weighted-Huber run and `EXP_051C` can be marked skipped as redundant.
 - Expected artifacts: `loss_weight_history.csv`, `per_target_tradeoff.md`, standard files.
 - Evaluation metrics: per-target MAE/RMSE and overall mean MAE.
 - Selection criterion: balanced improvement without hiding target degradation.
@@ -962,15 +1099,21 @@ Research question: Does explicit task balancing improve five-target prediction?
 
 Research question: Do alternative full configurations outperform the greedy sequential best model?
 
-- Image branch: selected and promising alternatives.
-- Image internal variant: correct preprocessing and pooling per backbone.
-- Text branch: selected and promising alternatives.
-- Text internal variant: best pooling/length per candidate where feasible.
-- Fusion method: selected, GMU, FiLM, or cross-attention.
-- Loss function: selected robust or weighted loss.
-- Fixed components: frozen split v1, sample-wise metrics, artifact template.
-- Variable component: full model combination.
-- Training settings: matched budget where feasible; document deviations.
+- Shared fixed components for all `EXP_060*` runs:
+  - Frozen split v1, sample-wise metrics, artifact template, and standardized training infrastructure.
+  - Use the best pooling and normalization setting already selected for each text backbone, and the best image pooling/filtering setting already selected for each image backbone when that backbone appeared in Phase 2.
+- Variable component: full architecture combination.
+- Concrete trainable experiments:
+
+| Trainable ID | Image branch | Text branch | Fusion | Loss | Motivation | Expected claim |
+|---|---|---|---|---|---|---|
+| `EXP_060A_bestsequential_full_configuration` | exact Phase 2 winner | exact Phase 3 winner | exact Phase 4 winner | exact Phase 5 winner | validate the greedy sequential winner as a complete system | confirms whether the sequential path already found the strongest practical model |
+| `EXP_060B_convnext_phobert_film_huber` | `convnext_base_in22k` | PhoBERT, exact checkpoint verified in `config.yaml` | FiLM | Huber | keep a stable CNN image branch while pairing it with Vietnamese-specific text and moderate cross-modal conditioning | this combination may be stronger than the official baseline without large complexity jump |
+| `EXP_060C_swinb_vibert_gmu_huber` | `swin_base_patch4_window7_224` | `FPTAI/vibert-base-cased` | GMU | Huber | combine hierarchical scene-aware image features with a Vietnamese-focused text encoder and adaptive gating | this pair may be especially useful when image reliability varies across reviews |
+| `EXP_060D_efficientnetb3_visobert_film_huber` | `efficientnet_b3` | `uitnlp/visobert` | FiLM | Huber | preserve the original proposal's efficient social-text candidate | this run tests whether domain-matched text can offset a cheaper image encoder |
+| `EXP_060E_siglip_mdebertav3_gmu_weightedhuber` | `vit_base_patch16_siglip_224` | `microsoft/mdeberta-v3-base` | GMU | Weighted Huber | convert the historically attempted SigLIP plus mDeBERTa direction into a stronger final-form candidate | this run checks whether image-text-pretrained vision plus robust gated fusion shows better synergy |
+
+- Training settings: matched budget where feasible; document any deviations. `EXP_012_multimodal_convnext_xlmr_concat_mse` must still appear in the final comparison table as the official baseline anchor even though it is not retrained here.
 - Expected artifacts: combination folders and `combination_leaderboard.csv`.
 - Evaluation metrics: sample-wise metrics, resource usage, stability notes.
 - Selection criterion: top validation mean MAE and feasible training cost.
@@ -980,13 +1123,23 @@ Research question: Do alternative full configurations outperform the greedy sequ
 
 Research question: Is the selected final model stable across random seeds?
 
-- Image branch: top candidate(s).
-- Text branch: top candidate(s).
-- Fusion method: top candidate(s).
-- Loss function: top candidate(s).
-- Fixed components: frozen split v1 and infrastructure.
-- Variable component: seed.
-- Training settings: seeds 42, 123, 2026 if compute allows.
+- Shared fixed components for all `EXP_070*` runs:
+  - Frozen split v1 and finalized infrastructure.
+  - Candidate 1: best validation model from `EXP_060*`.
+  - Candidate 2: strongest non-identical `EXP_060*` alternative that differs in backbone or fusion, not just a small loss variant.
+- Variable component: random seed.
+- Concrete trainable experiments:
+
+| Trainable ID | Candidate | Seed | Motivation | Expected claim |
+|---|---|---:|---|---|
+| `EXP_070A_candidate1_seed42` | Candidate 1 | 42 | reference rerun | establishes the first point for stability |
+| `EXP_070B_candidate1_seed123` | Candidate 1 | 123 | second seed for candidate 1 | checks whether performance holds beyond the original seed |
+| `EXP_070C_candidate1_seed2026` | Candidate 1 | 2026 | third seed for candidate 1 | completes the minimal variance estimate |
+| `EXP_070D_candidate2_seed42` | Candidate 2 | 42 | reference rerun | keeps the comparison symmetric |
+| `EXP_070E_candidate2_seed123` | Candidate 2 | 123 | second seed for candidate 2 | tests robustness for the strongest alternative |
+| `EXP_070F_candidate2_seed2026` | Candidate 2 | 2026 | third seed for candidate 2 | completes the minimal variance estimate for candidate 2 |
+
+- Training settings: use the exact frozen config of each Phase 6 candidate and change only the seed. Extend the same template to a third candidate only if Phase 6 leaves the decision genuinely ambiguous.
 - Expected artifacts: per-seed folders and `final_leaderboard.csv`.
 - Evaluation metrics: mean and standard deviation of validation metrics.
 - Selection criterion: best mean validation MAE with acceptable variance.
