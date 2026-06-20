@@ -21,7 +21,7 @@ def main():
     try:
         image_processor = AutoImageProcessor.from_pretrained(args.image_model_name)
     except:
-        image_processor = AutoImageProcessor.from_pretrained('facebook/convnext-base-224-22k')
+        image_processor = AutoImageProcessor.from_pretrained('google/siglip-base-patch16-256')
 
     # Data
     print("Loading Dataset...")

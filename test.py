@@ -20,7 +20,7 @@ def test():
     try:
         image_processor = AutoImageProcessor.from_pretrained(args.image_model_name)
     except:
-        image_processor = AutoImageProcessor.from_pretrained('facebook/convnext-base-224-22k')
+        image_processor = AutoImageProcessor.from_pretrained('google/siglip-base-patch16-256')
 
     print("Loading Test Dataset...")
     test_dataset = MultimodalDataset(args.test_path, tokenizer, image_processor, max_length=args.max_length, image_dir=args.image_dir)
