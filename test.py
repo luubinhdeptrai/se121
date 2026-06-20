@@ -70,12 +70,14 @@ def test():
                 pred_factors, _ = model(input_ids, attention_mask)
             elif args.mode == 'train_image':
                 pixel_values = batch['pixel_values'].to(device)
-                pred_factors, _ = model(pixel_values)
+                num_images = batch['num_images'].to(device)
+                pred_factors, _ = model(pixel_values, num_images)
             else:
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
                 pixel_values = batch['pixel_values'].to(device)
-                pred_factors = model(input_ids, attention_mask, pixel_values)
+                num_images = batch['num_images'].to(device)
+                pred_factors = model(input_ids, attention_mask, pixel_values, num_images)
             
             true_factors = batch['factor_scores'].to(device)
             
