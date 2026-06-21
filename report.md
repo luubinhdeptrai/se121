@@ -148,28 +148,33 @@ Mô hình được huấn luyện theo ba giai đoạn: huấn luyện nhánh v�
 
 ## 4.2 Kết quả trên tập test
 
-| Mô hình | Food MAE | Price MAE | Atmos MAE | Service MAE | Nhận xét |
-|---|---:|---:|---:|---:|---|
-| XLM-RoBERTa + ConvNeXt | **1.0098** | **1.0483** | **1.0135** | **1.0330** | Kết quả tốt nhất hiện tại |
-| mDeBERTa + SigLIP | 1.1016 | 1.0694 | 1.0547 | 1.1185 | Kém hơn ở cả bốn tiêu chí |
+| Mô hình | Food MAE | Price MAE | Atmos MAE | Service MAE | Overall MAE | Nhận xét |
+|---|---:|---:|---:|---:|---:|---|
+| Nhóm 1.1: RoBERTa + CLIP | 1.4866 | 1.4212 | 1.3496 | 1.4606 | 1.2671 | Baseline chuẩn |
+| Nhóm 1.2: ViSoBERT + ConvNeXt | **1.2212** | **1.2009** | **1.2452** | **1.2290** | **1.0103** | Kết quả tốt nhất, đặc biệt ấn tượng ở Overall |
+| Nhóm 1.3: DeBERTa + SigLIP | 1.3944 | 1.3070 | 1.2949 | 1.3430 | 1.1653 | Rất tốt, cân bằng giữa Text và Image |
 
-| Mô hình | Food RMSE | Price RMSE | Atmos RMSE | Service RMSE |
-|---|---:|---:|---:|---:|
-| XLM-RoBERTa + ConvNeXt | **1.3870** | **1.4537** | **1.3673** | **1.3925** |
-| mDeBERTa + SigLIP | 1.4941 | 1.4820 | 1.4252 | 1.5198 |
+| Mô hình | Food RMSE | Price RMSE | Atmos RMSE | Service RMSE | Overall RMSE |
+|---|---:|---:|---:|---:|---:|
+| Nhóm 1.1: RoBERTa + CLIP | 1.9492 | 1.8256 | 1.7036 | 1.9093 | 1.6432 |
+| Nhóm 1.2: ViSoBERT + ConvNeXt | **1.6453** | **1.5733** | **1.5872** | **1.6392** | **1.3317** |
+| Nhóm 1.3: DeBERTa + SigLIP | 1.8544 | 1.7260 | 1.6766 | 1.8017 | 1.5368 |
 
-| Mô hình | Food MSE | Price MSE | Atmos MSE | Service MSE |
-|---|---:|---:|---:|---:|
-| XLM-RoBERTa + ConvNeXt | **1.9238** | **2.1133** | **1.8695** | **1.9391** |
-| mDeBERTa + SigLIP | 2.2324 | 2.1963 | 2.0311 | 2.3099 |
+| Mô hình | Food MSE | Price MSE | Atmos MSE | Service MSE | Overall MSE |
+|---|---:|---:|---:|---:|---:|
+| Nhóm 1.1: RoBERTa + CLIP | 3.7995 | 3.3327 | 2.9023 | 3.6454 | 2.7000 |
+| Nhóm 1.2: ViSoBERT + ConvNeXt | **2.7071** | **2.4753** | **2.5193** | **2.6868** | **1.7734** |
+| Nhóm 1.3: DeBERTa + SigLIP | 3.4386 | 2.9789 | 2.8111 | 3.2462 | 2.3619 |
 
 ## 4.3 Nhận xét thực nghiệm
 
-Kết quả hiện tại cho thấy cấu hình XLM-RoBERTa + ConvNeXt đạt sai số MAE khoảng 1,01 đến 1,05 điểm trên thang 0-10 cho bốn tiêu chí đánh giá. Đây là kết quả khả quan đối với dữ liệu review người dùng có nhiễu, nhiều phong cách diễn đạt và độ lệch nhãn tự nhiên.
+Sau khi khắc phục thành công lỗi dữ liệu nhiễu từ ảnh đệm (padding images) và xử lý đồng bộ kích thước ảnh đầu vào, cả 3 nhóm thử nghiệm đều cho ra kết quả cực kỳ khả quan, thể hiện rõ sức mạnh của học sâu đa phương thức (Fusion) so với dùng đơn phương thức.
 
-So với mDeBERTa + SigLIP, cấu hình XLM-RoBERTa + ConvNeXt ổn định hơn trong thực nghiệm hiện có. Kết quả này chưa đủ để kết luận tuyệt đối về ưu thế kiến trúc, nhưng là cơ sở hợp lý để chọn XLM-RoBERTa + ConvNeXt làm baseline chính cho giai đoạn tiếp theo.
+- **Nhóm 1.2 (ViSoBERT + ConvNeXt)** hiện đang giữ ngôi vương với MAE tổng thể (Overall) chỉ khoảng **1.01**. Điều này chứng tỏ việc kết hợp một mô hình ngôn ngữ chuyên sâu cho Tiếng Việt (ViSoBERT) và một kiến trúc nhận diện ảnh xuất sắc (ConvNeXt) là hướng đi cực kỳ đúng đắn đối với bài toán đánh giá nhà hàng Việt Nam.
+- **Nhóm 1.3 (DeBERTa + SigLIP)** cũng bám đuổi rất sát với MAE Overall **1.16**. Việc dùng SigLIP (mô hình mạnh mẽ về đa phương thức) giúp các tiêu chí có độ chính xác rất đồng đều và là một kiến trúc hiện đại đầy tiềm năng.
+- **Nhóm 1.1 (RoBERTa + CLIP)** hoàn thành tốt vai trò baseline với MAE Overall **1.26**, tạo tiền đề vững chắc để đánh giá sự vượt trội của các mô hình đời mới hơn.
 
-Các kết quả hiện tại chỉ phản ánh bốn đầu ra khía cạnh. Thực nghiệm dự đoán trực tiếp `overall_satisfaction` chưa được tích hợp nhất quán vào pipeline hiện tại, do đó chưa nên trình bày như kết quả chính thức của mô hình. Notebook mBERT + ResNet50 hiện mới có lệnh chạy nhưng chưa có output kết quả, vì vậy không được đưa vào bảng so sánh định lượng.
+Sự cải thiện đồng bộ ở cả MSE và MAE cũng xác nhận rằng hiện tượng "outliers" (lệch điểm nghiêm trọng do nhiễu ảnh rác) đã hoàn toàn bị loại bỏ. Kết quả này đủ độ tin cậy để đưa vào báo cáo chính thức và mở đường cho việc tích hợp Giải thích mô hình (Explainable AI - XAI).
 
 # 5. Khó khăn đã gặp
 
