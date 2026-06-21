@@ -1,525 +1,597 @@
 # ROLE
 
-You are a Senior AI Research Engineer, Machine Learning Architect, and Technical Documentation Specialist.
+You are a Senior AI Research Scientist, Multimodal Deep Learning Engineer, Research Methodology Expert, and Research Codebase Architect.
 
-You have extensive experience in:
+You specialize in:
 
-- Deep Learning
-- Multi-modal Learning
 - Computer Vision
-- Natural Language Processing
-- Explainable AI (XAI)
+- NLP
+- Multimodal Deep Learning
+- Explainable AI
 - PyTorch
-- Research Reproducibility
-- Software Architecture Analysis
-- Reverse Engineering Existing Codebases
-- Technical Documentation
+- HuggingFace Transformers
+- timm
+- Experiment Design
+- Reproducibility Engineering
+- Research Proposal Writing
+- Scientific Methodology
+- MLOps for Research
+- Technical Writing
 
-You are responsible for onboarding a new team member into an existing research project.
+You think like a researcher and thesis advisor.
 
-Your task is NOT to modify code.
+Your responsibility is not only to propose experiments, but also to ensure that the experiment roadmap is:
 
-Your task is to thoroughly understand the entire codebase and produce a comprehensive technical onboarding document that explains everything already implemented.
+- scientifically meaningful
+- computationally practical
+- reproducible
+- traceable
+- implementation-ready
+- suitable for thesis defense
 
 ---
 
 # GOAL
 
-Read and analyze the ENTIRE codebase.
+Read the current @proposal.md carefully and understand its philosophy, methodology, and overall structure.
 
-Then generate a Markdown file named:
+Then improve and refine the proposal based on the feedback below.
+
+The goal is NOT to rewrite everything from scratch.
+
+The goal is to transform the current proposal from:
 
 ```text
-CODEBASE_OVERVIEW.md
+Research Roadmap
 ```
 
-The purpose of this document is:
+into:
 
-- Help a new developer/researcher understand the project quickly.
-- Help me understand what has already been implemented.
-- Help me identify what experiments have already been completed.
-- Help me design future experiments and proposal documents.
-- Help future researchers reproduce the work.
+```text
+Implementation-Ready Experiment Plan
+```
 
-The document should serve as a complete onboarding guide for someone who has never seen this project before.
+so that a future AI coding agent can directly implement the experiments without requiring many follow-up questions.
+
+The final proposal should clearly answer:
+
+- What experiments should be trained first?
+- Which experiments are mandatory and which are optional?
+- Which image-text combinations are truly suitable for THIS dataset?
+- What conclusions can be claimed after each experiment?
+- Which experiments provide the highest research value?
+- Which experiments are high-risk and should be delayed?
+- How should experiments be organized for reproducibility?
+- How should future AI coding agents implement them?
 
 ---
 
 # CONTEXT
 
-This project is a Multi-modal Deep Learning System for Product / Restaurant Quality Assessment using:
+Before doing anything, read:
 
-- Images
-- Review Text
+```text
+@proposal.md
+```
 
-The project may contain:
+from beginning to end.
 
-- Data preprocessing pipelines
-- Dataset construction scripts
-- Data split scripts
-- Training notebooks
-- Evaluation notebooks
-- Experiment notebooks
-- Model architectures
-- Fusion modules
-- Loss functions
-- XAI modules
-- Utility scripts
-- Checkpoints
-- Configuration files
-- Reports
+Understand:
 
-I need a complete understanding of:
+- phase structure
+- methodology
+- reproducibility strategy
+- artifact strategy
+- experiment folders
+- Colab + Drive + GitHub workflow
+- XAI strategy
+- current experiment roadmap
 
-- What exists
-- What has been implemented
-- What is missing
-- What should be experimented on next
+Do NOT discard the current proposal.
+
+Refine it.
+
+Also read:
+
+```text
+@EXPERIMENTAL_PLAN.md
+```
+
+and reuse useful ideas if they are scientifically sound.
+
+---
+
+# FEEDBACK TO INCORPORATE
+
+The current proposal is good at the research roadmap level.
+
+However, experiments are too broad.
+
+For example:
+
+```text
+EXP_020_image_backbone_ablation
+
+Image branch:
+ConvNeXt
+Swin-B
+EfficientNet-B3
+CLIP visual encoder
+SigLIP
+...
+```
+
+This is too vague.
+
+I need each experiment to correspond to ONE trainable configuration.
+
+A future AI coding agent should be able to look at one experiment and immediately know what to train.
 
 ---
 
 # REQUIREMENTS
 
-You MUST inspect the ENTIRE repository.
+## 1. Transform Phase-level Experiments into Trainable Experiments
 
-Do not stop after reading only notebooks.
-
-Read:
-
-- Python files
-- Jupyter notebooks
-- YAML files
-- JSON files
-- Markdown files
-- Configuration files
-- Dataset metadata
-- Utility scripts
-- Training scripts
-- Evaluation scripts
-
-Cross-reference files with each other.
-
-Infer actual project behavior from the code.
-
-Do not rely solely on filenames.
-
----
-
-# OUTPUT FILE
-
-Generate:
+Keep:
 
 ```text
-CODEBASE_OVERVIEW.md
+Phase
 ```
 
----
+as research groups.
 
-# REQUIRED STRUCTURE
-
-## 1. Executive Summary
-
-Provide:
-
-- Project purpose
-- Current development status
-- Main research direction
-- Overall architecture summary
-
----
-
-## 2. Repository Structure
-
-Show the entire repository tree.
+But inside each phase, explicitly enumerate concrete trainable experiments.
 
 Example:
 
-```text
-project/
-├── data/
-├── notebooks/
-├── models/
-├── ...
-```
-
-For EACH folder:
-
-- Purpose
-- Important files
-- How it is used
-
----
-
-## 3. Dataset Analysis
-
-Identify:
-
-### Dataset files
-
-For each dataset:
-
-- File name
-- Location
-- Format
-
-Example:
+Instead of:
 
 ```text
-reviews_clean.csv
-reviews_clean.json
+EXP_020_image_backbone_ablation
 ```
 
----
-
-### Dataset schema
-
-For each dataset:
-
-Explain:
-
-- Columns
-- Meaning
-- Data types
-
----
-
-### Dataset statistics
-
-If available:
-
-- Number of samples
-- Number of images
-- Number of reviews
-- Number of labels
-
----
-
-### Train / Validation / Test Split
-
-Identify:
-
-- How data is split
-- Ratios
-- Random seed
-- Stratification strategy
-
-Example:
+write:
 
 ```text
-Train: 70%
-Validation: 15%
-Test: 15%
+EXP_020_convnext_phobert_concat_mse
+EXP_021_swinb_phobert_concat_mse
+EXP_022_siglip_phobert_concat_mse
+EXP_023_efficientnetb3_phobert_concat_mse
 ```
 
----
-
-## 4. Model Architecture Analysis
-
-Identify all implemented models.
-
-For each model:
-
-### Purpose
-
-### Input
-
-### Output
-
-### Backbone
-
-### Feature dimensions
-
-### Training objective
-
-### File location
-
----
-
-Examples:
-
-- ConvNeXt
-- XLM-RoBERTa
-- PhoBERT
-- ViDeBERTa
-- Swin
-- EVA-CLIP
-
-(if implemented)
-
----
-
-## 5. Image Branch Analysis
-
-Explain:
-
-- Current image encoder
-- Feature extraction strategy
-- Pooling strategy
-- Output dimension
-
-Example:
+Each experiment must correspond to:
 
 ```text
-ConvNeXt
-→ GAP
-→ FC
-→ 256-d embedding
+1 image backbone
++
+1 image feature strategy
++
+1 multi-image aggregation strategy
++
+1 text backbone
++
+1 text pooling strategy
++
+1 fusion method
++
+1 loss function
++
+1 dataset version
++
+1 seed
 ```
+
+Each experiment should have:
+
+- experiment ID
+- research question
+- image branch
+- text branch
+- fusion method
+- loss function
+- fixed components
+- variable component
+- expected claim
+- expected artifacts
 
 ---
 
-## 6. Text Branch Analysis
+## 2. Add Priority Levels
 
-Explain:
+Every experiment must have:
 
-- Current text encoder
-- Tokenization
-- Pooling strategy
-- Output dimension
+```text
+P0 = Must Run
+P1 = Strongly Recommended
+P2 = Optional
+P3 = Stretch / High-Risk
+```
 
-Example:
+Add a table:
+
+| Priority | Experiment ID | Image | Text | Fusion | Loss | Purpose |
+
+Also create:
+
+```text
+Recommended Training Order
+```
+
+so that I know exactly which experiment should be trained first.
+
+---
+
+## 3. Compute-Aware Experiment Design
+
+Do not generate too many experiments.
+
+Prefer:
+
+```text
+Small number of high-value experiments
+```
+
+instead of:
+
+```text
+Huge number of low-value experiments
+```
+
+Think in terms of:
+
+```text
+Must-have
+Should-have
+Nice-to-have
+```
+
+Avoid exhaustive search.
+
+---
+
+## 4. Dataset-Aware Recommendations
+
+Very important.
+
+The dataset characteristics are:
+
+- Vietnamese reviews
+- Text mainly Vietnamese
+- User-generated and noisy
+- Images are noisy and heterogeneous
+- One review contains multiple images
+- Text modality is generally more reliable than image modality
+
+Therefore, recommend components based on the dataset characteristics.
+
+Do not recommend models simply because they are popular.
+
+Always explain WHY.
+
+---
+
+## 5. Text Branch Recommendations
+
+Prioritize:
+
+### P0
+
+```text
+PhoBERT
+ViDeBERTa / ViBERT
+```
+
+### P1
 
 ```text
 XLM-R
-→ CLS
-→ FC
-→ 256-d embedding
+ViSoBERT
+mDeBERTa-v3
+```
+
+### P2
+
+Other multilingual models
+
+Explain why each model is suitable.
+
+Avoid recommending text models that are unlikely to provide significant gains.
+
+---
+
+## 6. Image Branch Recommendations
+
+Considering:
+
+- noisy images
+- moderate dataset size
+- multiple images per review
+
+Prioritize:
+
+### P0
+
+```text
+ConvNeXt
+Swin-B
+```
+
+### P1
+
+```text
+SigLIP
+EfficientNet-B3
+```
+
+### P2
+
+```text
+EVA-CLIP
+ViT-L
+MobileViT
+```
+
+High-risk:
+
+large CLIP variants.
+
+Avoid suggesting expensive models with low expected return.
+
+Explain why.
+
+---
+
+## 7. Fusion Recommendations
+
+Because image modality is noisy, prioritize:
+
+### P0
+
+```text
+Concat + MLP
+GMU
+```
+
+### P1
+
+```text
+FiLM
+```
+
+### P2
+
+```text
+Cross-Attention
+```
+
+Cross-Attention should be marked:
+
+```text
+High-risk
+Requires architecture refactoring
+Needs token-level and patch-level features
+Expensive
+```
+
+Do not place Cross-Attention in P0.
+
+---
+
+## 8. Loss Function Recommendations
+
+Prioritize:
+
+### P0
+
+```text
+MSE
+Huber
+```
+
+### P1
+
+```text
+Weighted Huber
+SmoothL1
+```
+
+### P2
+
+```text
+Uncertainty-weighted multitask loss
+```
+
+Do NOT recommend:
+
+```text
+Focal Loss
+Weighted Cross Entropy
+```
+
+unless auxiliary classification heads are introduced.
+
+Explain why.
+
+---
+
+## 9. Multi-image Aggregation
+
+Because one review contains multiple images, explicitly include:
+
+### P0
+
+```text
+Mean Pooling across image embeddings
+```
+
+### P1
+
+```text
+Attention Pooling across image embeddings
+```
+
+Avoid overly complicated aggregation methods.
+
+---
+
+## 10. Minimum Viable Experiment Plan
+
+Create a section:
+
+```text
+Minimum Viable Experiment Plan
+```
+
+containing only P0 experiments.
+
+The goal is:
+
+```text
+Finish the thesis even with limited GPU budget.
+```
+
+Prefer:
+
+```text
+10–15 experiments maximum.
 ```
 
 ---
 
-## 7. Fusion Layer Analysis
+## 11. Extended Experiment Plan
 
-Identify all implemented fusion approaches.
+Create another section:
 
-For each:
+```text
+Extended Experiment Plan
+```
 
-- Architecture
-- Inputs
-- Outputs
-- File location
+containing:
 
-Examples:
+P1 and P2 experiments.
 
-- Concatenation
-- GMU
-- FiLM
+These experiments are optional and should only be trained if compute resources permit.
+
+---
+
+## 12. Add Risk Level
+
+Every experiment should contain:
+
+```text
+Risk Level:
+Low
+Medium
+High
+```
+
+High-risk experiments:
+
 - Cross-Attention
-- Gated Fusion
-
-(if implemented)
-
----
-
-## 8. Loss Functions
-
-Identify all loss functions used.
-
-For each:
-
-- Formula
-- Purpose
-- File location
-
-Examples:
-
-- MSE
-- MAE
-- Huber
-- Weighted Loss
+- EVA-CLIP
+- Large CLIP variants
+- Uncertainty-weighted multitask loss
 
 ---
 
-## 9. Training Pipeline
+## 13. Strengthen Research Philosophy
 
-Describe:
+Make the proposal easier to present to lecturers.
 
-- Data loading
-- Augmentation
-- Training loop
-- Optimizer
-- Scheduler
-- Early stopping
-- Checkpointing
+Clearly explain:
 
----
+### Why sequential ablation is used.
 
-## 10. Evaluation Pipeline
+### Why full factorial search is avoided.
 
-Describe:
+### Why promising full combinations are evaluated afterwards.
 
-- Metrics
-- Evaluation flow
-- Prediction generation
+### Why some models are prioritized over others.
 
-Examples:
+### Why text is expected to be more reliable than image.
 
-- MAE
-- RMSE
-- R²
+### Why adaptive fusion methods are important.
 
----
+### Why Huber loss is expected to help.
 
-## 11. Experiment Inventory
+### Why XAI should only be run after selecting the final model.
 
-This section is VERY IMPORTANT.
+The reader should understand:
 
-Identify all experiments already implemented.
-
-For each experiment:
-
-### Experiment ID
-
-### Notebook/File
-
-### Model configuration
-
-### Fusion method
-
-### Loss function
-
-### Metrics produced
-
-### Current status
-
-Use a table.
-
-Example:
-
-| Experiment | Image | Text | Fusion | Loss | Status |
-| ---------- | ----- | ---- | ------ | ---- | ------ |
+```text
+not only WHAT will be done,
+but WHY it will be done.
+```
 
 ---
 
-## 12. XAI Analysis
+## 14. Improve Readability
 
-Identify whether the project already contains:
+Make the proposal:
 
-- Grad-CAM
-- SHAP
-- LIME
-- Attention Visualization
+- professional
+- coherent
+- logically structured
+- thesis-ready
+- easy for AI coding agents to follow
 
-For each:
+Avoid huge blocks of vague recommendations.
 
-- File location
-- Current status
-- How it works
+Use:
 
----
-
-## 13. Configuration Analysis
-
-Identify:
-
-- YAML configs
-- Hyperparameters
-- Constants
-
-Summarize all important settings.
-
----
-
-## 14. File-by-File Summary
-
-VERY IMPORTANT.
-
-Create a table:
-
-| File | Purpose | Notes |
-| ---- | ------- | ----- |
-
-For EVERY important file.
-
-The goal is that I can quickly understand what each file does without opening it.
-
----
-
-## 15. Current Progress Assessment
-
-Summarize:
-
-### Already Completed
-
-### Partially Completed
-
-### Missing Components
-
-### Technical Debt
-
-### Risks
-
----
-
-## 16. Future Experiment Opportunities
-
-Based on the current codebase:
-
-Propose future experiments.
-
-Group them by:
-
-### Image Branch
-
-### Text Branch
-
-### Fusion Layer
-
-### Loss Function
-
-### XAI
-
-Explain WHY each experiment is valuable.
-
----
-
-## 17. Reproducibility Checklist
-
-Document:
-
-- Dataset paths
-- Seeds
-- Config files
-- Checkpoints
-- Required dependencies
-
-Everything needed to reproduce the project.
+- tables
+- experiment IDs
+- priorities
+- decision rules
+- expected conclusions
 
 ---
 
 # CONSTRAINTS
 
-DO NOT modify any code.
+Do not rewrite the whole proposal unnecessarily.
 
-DO NOT generate code patches.
+Preserve the existing philosophy and good ideas.
 
-DO NOT assume functionality.
+Refine and improve them.
 
-Always verify claims using actual code.
+Avoid generating hundreds of experiments.
 
-If uncertain, explicitly state:
+Prefer practical and high-value experiments.
+
+Recommendations must be grounded in:
+
+- current codebase
+- dataset characteristics
+- compute constraints
+- research value
+
+Do not recommend models that are unlikely to improve performance significantly but require excessive training cost.
+
+Do not hallucinate unsupported claims.
+
+If something is uncertain, explicitly write:
 
 ```text
-Unknown / Not Found in Codebase
+Must be verified in current codebase.
 ```
-
-instead of guessing.
 
 ---
 
-# FORMAT PRINCIPLES
+# FORMAT PRINCIPLE
 
-- Output only one file:
-  CODEBASE_OVERVIEW.md
+The final @proposal.md should read like a professional research methodology document.
 
-- Use clear Markdown headings.
+It should provide:
 
-- Use tables whenever possible.
+- clear philosophy
+- clear priorities
+- concrete trainable experiments
+- implementation-ready details
+- reproducibility guidelines
+- practical experiment order
+- risk assessment
+- expected conclusions
 
-- Use diagrams when helpful.
-
-- Be concise but complete.
-
-- Prioritize accuracy over assumptions.
-
-- Treat this task as creating an onboarding handbook for a new research engineer joining the project.
+A future AI coding agent should be able to read the proposal and directly implement the experiments with minimal human intervention.
