@@ -25,7 +25,7 @@ def get_args():
     parser.add_argument('--epochs', type=int, default=5, help='Số epochs')
     parser.add_argument('--lr', type=float, default=1e-5, help='Learning rate')
     parser.add_argument('--weight_decay', type=float, default=1e-2, help='Weight decay cho AdamW')
-    parser.add_argument('--loss_fn', type=str, default='mse', choices=['mse', 'huber', 'uncertainty'], help='Hàm Loss: mse, huber, uncertainty')
+    parser.add_argument('--loss_fn', type=str, default='mse', choices=['mse', 'huber', 'auto_weight'], help='Hàm Loss: mse, huber, auto_weight')
     
     # New Advanced Training parameters
     parser.add_argument('--grad_accum_steps', type=int, default=1, help='Số bước tích lũy gradient (Gradient Accumulation)')

@@ -30,14 +30,14 @@ class Trainer:
         loss_fn_str = getattr(args, 'loss_fn', 'mse')
         if loss_fn_str == 'huber':
             self.criterion = nn.HuberLoss()
-        elif loss_fn_str == 'uncertainty':
+        elif loss_fn_str == 'auto_weight':
             self.criterion = HomoscedasticUncertaintyLoss(num_tasks=5).to(device)
         else:
             self.criterion = nn.MSELoss()
         
         # Setup Optimizer
         params = list(filter(lambda p: p.requires_grad, model.parameters()))
-        if loss_fn_str == 'uncertainty':
+        if loss_fn_str == 'auto_weight':
             params += list(self.criterion.parameters())
             
         self.optimizer = torch.optim.AdamW(params, lr=args.lr, weight_decay=args.weight_decay)
