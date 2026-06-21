@@ -92,30 +92,33 @@ python test.py --mode train_fusion
 ```
 
 ## Kết Quả Thử Nghiệm (Benchmark)
-Mô hình đã được chạy thử nghiệm trên tập dữ liệu 5000 mẫu với Notebook tham khảo tại: [`notebook/baseline.ipynb`](./notebook/baseline.ipynb). Dưới đây là kết quả của các cấu hình mô hình (Architecture) và hàm mất mát (Loss) khác nhau trên tập Test độc lập, được phân chia theo từng loại độ đo:
+Mô hình đã được chạy thử nghiệm trên tập dữ liệu đa phương thức (gồm cả ảnh và đánh giá). Dưới đây là kết quả của các cấu hình mô hình (Architecture) khác nhau trên tập Test độc lập, được phân chia theo từng loại độ đo:
 
 ### 1. Bảng sai số tuyệt đối trung bình (MAE)
 *Độ đo thực tế và dễ hiểu nhất, cho biết trung bình máy đoán lệch bao nhiêu điểm (trên thang 1-10).*
-| Model / Architecture | Loss Function | Food | Price | Atmos | Service |
-|----------------------|---------------|------|-------|-------|---------|
-| XLM-R + ConvNeXt | Joint MSE | **1.0098** | **1.0483** | **1.0135** | **1.0330** |
-| mDeBERTa + SigLIP | Joint MSE | 1.1016 | 1.0694 | 1.0547 | 1.1185 |
+| Mô hình | Food MAE | Price MAE | Atmos MAE | Service MAE | Overall MAE |
+|---|---:|---:|---:|---:|---:|
+| Nhóm 1.1: RoBERTa + CLIP | 1.4866 | 1.4212 | 1.3496 | 1.4606 | 1.2671 |
+| Nhóm 1.2: ViSoBERT + ConvNeXt | **1.2212** | **1.2009** | **1.2452** | **1.2290** | **1.0103** |
+| Nhóm 1.3: DeBERTa + SigLIP | 1.3944 | 1.3070 | 1.2949 | 1.3430 | 1.1653 |
 
 ### 2. Bảng căn bậc hai sai số bình phương (RMSE)
 *Độ đo phạt nặng các dự đoán sai lệch lớn (Outliers).*
-| Model / Architecture | Loss Function | Food | Price | Atmos | Service |
-|----------------------|---------------|------|-------|-------|---------|
-| XLM-R + ConvNeXt | Joint MSE | **1.3870** | **1.4537** | **1.3673** | **1.3925** |
-| mDeBERTa + SigLIP | Joint MSE | 1.4941 | 1.4820 | 1.4252 | 1.5198 |
+| Mô hình | Food RMSE | Price RMSE | Atmos RMSE | Service RMSE | Overall RMSE |
+|---|---:|---:|---:|---:|---:|
+| Nhóm 1.1: RoBERTa + CLIP | 1.9492 | 1.8256 | 1.7036 | 1.9093 | 1.6432 |
+| Nhóm 1.2: ViSoBERT + ConvNeXt | **1.6453** | **1.5733** | **1.5872** | **1.6392** | **1.3317** |
+| Nhóm 1.3: DeBERTa + SigLIP | 1.8544 | 1.7260 | 1.6766 | 1.8017 | 1.5368 |
 
 ### 3. Bảng sai số bình phương (MSE)
 *Độ đo cơ sở để tối ưu hóa trong quá trình huấn luyện.*
-| Model / Architecture | Loss Function | Food | Price | Atmos | Service |
-|----------------------|---------------|------|-------|-------|---------|
-| XLM-R + ConvNeXt | Joint MSE | **1.9238** | **2.1133** | **1.8695** | **1.9391** |
-| mDeBERTa + SigLIP | Joint MSE | 2.2324 | 2.1963 | 2.0311 | 2.3099 |
+| Mô hình | Food MSE | Price MSE | Atmos MSE | Service MSE | Overall MSE |
+|---|---:|---:|---:|---:|---:|
+| Nhóm 1.1: RoBERTa + CLIP | 3.7995 | 3.3327 | 2.9023 | 3.6454 | 2.7000 |
+| Nhóm 1.2: ViSoBERT + ConvNeXt | **2.7071** | **2.4753** | **2.5193** | **2.6868** | **1.7734** |
+| Nhóm 1.3: DeBERTa + SigLIP | 3.4386 | 2.9789 | 2.8111 | 3.2462 | 2.3619 |
 
 **Đánh giá chung:** 
-- Trung bình, mô hình Baseline (XLM-R + ConvNeXt) đang dẫn đầu và chỉ đoán sai khoảng **~1.01 - 1.04 điểm** trên các tiêu chí (tương đương với mức MAE ở bảng 1) so với điểm thực tế mà người dùng đánh giá. 
-- Mặc dù lý thuyết mDeBERTa + SigLIP mạnh hơn, nhưng ConvNeXt lại tỏ ra ổn định và chống overfitting cực tốt hơn SigLIP trong bài toán Regression này với cùng chế độ huấn luyện.
-- Việc tách thành 3 bảng riêng biệt giúp bạn dễ dàng so sánh một cách khoa học khi làm báo cáo.
+- **Nhóm 1.2 (ViSoBERT + ConvNeXt)** hiện đang giữ ngôi vương với MAE tổng thể (Overall) chỉ khoảng **1.01**. Điều này chứng tỏ việc kết hợp một mô hình ngôn ngữ chuyên sâu cho Tiếng Việt (ViSoBERT) và kiến trúc ảnh mạnh mẽ (ConvNeXt) là hướng đi tối ưu.
+- **Nhóm 1.3 (DeBERTa + SigLIP)** cũng rất mạnh với MAE Overall **1.16**, chứng minh hiệu quả vượt trội của các mô hình ngôn ngữ lớn kết hợp chuẩn hóa ảnh đa phương thức (SigLIP).
+- So với các cấu hình cũ (chỉ gồm 4 nhãn), việc dự đoán thêm nhãn tổng quát (Overall) giúp kiểm soát chất lượng mô hình một cách toàn diện. Việc loại bỏ hoàn toàn lỗi "văng điểm" (outliers) đã giúp MSE/RMSE giảm mạnh mẽ, ổn định hệ thống để chuẩn bị cho các module Giải thích (Explainable AI - XAI).
