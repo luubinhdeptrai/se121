@@ -784,6 +784,26 @@ The following specifications define the minimum required details for implementat
 
 Whenever a trainable ID contains `bestimage`, `bestpool`, `besttext`, `besttextpool`, `bestfusion`, or `bestloss`, the placeholder must be replaced in `config.yaml` and the experiment `README.md` with the exact winning upstream experiment ID before launch. If a reference run is identical to an already completed earlier run, the later experiment folder may point to the earlier artifacts instead of retraining the same configuration.
 
+If a lower-priority ablation phase is intentionally skipped in the chosen execution tier, the carried-forward upstream default becomes the winner by default for later placeholders. Example: if Phase 4 fusion ablations are skipped, `bestfusion` remains `concatenation + MLP`; if Phase 5 multitask weighting is skipped, `bestloss` remains the selected scalar loss from `EXP_050*`.
+
+Priority levels used below:
+
+- `P0 - Must Do`: critical for a defensible thesis.
+- `P1 - High Value`: strongly recommended because the research value per GPU hour is high.
+- `P2 - Nice To Have`: useful but not essential.
+- `P3 - Optional`: lower expected gain or higher implementation risk.
+- `P4 - Stretch Goal`: high-risk, high-cost, uncertain ROI.
+
+Execution recommendations assume a Google Colab workflow, moderate dataset size, noisy multi-image reviews, and a thesis timeline where research value per GPU hour matters more than exhaustive coverage.
+
+### Phase 0 Execution Priorities
+
+| Experiment ID | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|
+| `EXP_000_infrastructure_rebuild` | `P0` | Must run first. | Without deterministic training, logging, checkpoints, and exact preprocessing, all later comparisons are weak. | Very high | Medium |
+| `EXP_001_frozen_dataset_artifact` | `P0` | Must run first. | Split drift and image-cache drift would invalidate ablation fairness. | Very high | Low to medium |
+| `EXP_002_metric_export_validation` | `P0` | Must run first. | Sample-wise metrics and prediction export are required for thesis tables, error analysis, and reproducibility. | Very high | Low to medium |
+
 ### EXP_010_text_only_baseline
 
 Research question: How strong is review text alone for predicting the five targets?
@@ -803,6 +823,11 @@ Research question: How strong is review text alone for predicting the five targe
 - Evaluation metrics: MAE, RMSE, R2, per-target metrics.
 - Selection criterion: establishes the official text-only reference for all later comparisons.
 - Expected conclusion: text should be a strong unimodal signal for Vietnamese reviews.
+- Priority: `P0`
+- Execution recommendation: Must run.
+- Reason: This is the most important unimodal baseline because text is expected to be the strongest signal on Vietnamese user reviews.
+- Estimated ROI: Very high.
+- Estimated complexity: Low.
 
 ### EXP_011_image_only_baseline
 
@@ -823,6 +848,11 @@ Research question: How much predictive signal exists in review images alone?
 - Evaluation metrics: sample-wise MAE, RMSE, R2, per-target metrics.
 - Selection criterion: compare against text-only and multimodal baseline.
 - Expected conclusion: image-only may be weaker because images are heterogeneous, but it quantifies visual contribution.
+- Priority: `P0`
+- Execution recommendation: Must run.
+- Reason: Even if image-only is weaker, the thesis needs a visual-only baseline to justify later multimodal and fusion claims.
+- Estimated ROI: High.
+- Estimated complexity: Low.
 
 ### EXP_012_multimodal_concat_baseline
 
@@ -843,6 +873,11 @@ Research question: Does simple multimodal fusion improve over text-only and imag
 - Evaluation metrics: sample-wise MAE, RMSE, R2, per-target metrics.
 - Selection criterion: should beat or complement unimodal baselines.
 - Expected conclusion: concatenation becomes the main reference for later fusion experiments.
+- Priority: `P0`
+- Execution recommendation: Must run.
+- Reason: This is the official multimodal anchor for all later ablations and final thesis comparisons.
+- Estimated ROI: Very high.
+- Estimated complexity: Low.
 
 ### EXP_020_image_backbone_ablation
 
@@ -856,12 +891,12 @@ Research question: Which image encoder gives the best visual representation unde
 - Variable component: image backbone only.
 - Concrete trainable experiments:
 
-| Trainable ID | Image branch | Image internal variant | Motivation | Expected claim |
-|---|---|---|---|---|
-| `EXP_020A_convnext_xlmr_concat_mse` | `convnext_base_in22k` | pooled CNN features + masked multi-image mean pooling | reference run; same family as `EXP_012` | stable visual anchor for later comparison |
-| `EXP_020B_swinb_xlmr_concat_mse` | `swin_base_patch4_window7_224` | pooled transformer features + masked multi-image mean pooling | test hierarchical transformer features for atmosphere and scene context | Swin-B may help when environment cues matter |
-| `EXP_020C_siglip_xlmr_concat_mse` | `vit_base_patch16_siglip_224` | pooled ViT features + masked multi-image mean pooling | test image-text-pretrained visual features under the same text branch | SigLIP may help when semantic visual alignment matters |
-| `EXP_020D_efficientnetb3_xlmr_concat_mse` | `efficientnet_b3` | pooled CNN features + masked multi-image mean pooling | add a cheaper strong CNN alternative for Colab | EfficientNet-B3 may approach stronger backbones at lower cost |
+| Trainable ID | Image branch | Image internal variant | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|---|
+| `EXP_020A_convnext_xlmr_concat_mse` | `convnext_base_in22k` | pooled CNN features + masked multi-image mean pooling | reference run; same family as `EXP_012` | stable visual anchor for later comparison | `P0` | Must run or reuse from `EXP_012` if identical. | This is the control row for the image-backbone study. | Very high | Low |
+| `EXP_020B_swinb_xlmr_concat_mse` | `swin_base_patch4_window7_224` | pooled transformer features + masked multi-image mean pooling | test hierarchical transformer features for atmosphere and scene context | Swin-B may help when environment cues matter | `P0` | Must run. | Swin-B is the highest-value non-baseline image challenger for noisy restaurant scenes. | High | Medium |
+| `EXP_020C_siglip_xlmr_concat_mse` | `vit_base_patch16_siglip_224` | pooled ViT features + masked multi-image mean pooling | test image-text-pretrained visual features under the same text branch | SigLIP may help when semantic visual alignment matters | `P2` | Run only if time and compute allow after P0 and P1. | Interesting candidate, but preprocessing mismatch risk and Colab cost are higher than ConvNeXt or Swin-B. | Medium | Medium to high |
+| `EXP_020D_efficientnetb3_xlmr_concat_mse` | `efficientnet_b3` | pooled CNN features + masked multi-image mean pooling | add a cheaper strong CNN alternative for Colab | EfficientNet-B3 may approach stronger backbones at lower cost | `P1` | Strongly recommended. | This is a good compute-efficient challenger with solid thesis value per GPU hour. | High | Low to medium |
 
 - Training settings: same epochs and early stopping across all runs; adjust batch size only if documented in `config.yaml`.
 - Expected artifacts: standard files plus `image_preprocessing_report.md`.
@@ -882,10 +917,10 @@ Research question: Does attention pooling across review images outperform simple
 - Variable component: review-level image aggregation only.
 - Concrete trainable experiments:
 
-| Trainable ID | Image internal variant | Motivation | Expected claim |
-|---|---|---|---|
-| `EXP_021A_bestimage_meanpool_xlmr_concat_mse` | masked mean pooling over valid image embeddings | reference policy already closest to current code | establishes whether simple averaging is sufficient |
-| `EXP_021B_bestimage_attentionpool_xlmr_concat_mse` | learned attention pooling over valid image embeddings using the `num_images` mask | one review may contain both useful and irrelevant photos | attention pooling is adopted only if it learns better review-level image selection |
+| Trainable ID | Image internal variant | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|
+| `EXP_021A_bestimage_meanpool_xlmr_concat_mse` | masked mean pooling over valid image embeddings | reference policy already closest to current code | establishes whether simple averaging is sufficient | `P1` | Reuse and document if identical to the winning `EXP_020*` run. | This is the required control if the pooling phase is executed. | Medium | Low |
+| `EXP_021B_bestimage_attentionpool_xlmr_concat_mse` | learned attention pooling over valid image embeddings using the `num_images` mask | one review may contain both useful and irrelevant photos | attention pooling is adopted only if it learns better review-level image selection | `P1` | Strongly recommended. | The dataset contains multiple images per review, so this ablation answers a dataset-specific question with good thesis value. | High | Medium |
 
 - Training settings: identical where possible. If `EXP_021A` is identical to the winning `EXP_020*` run, reuse earlier artifacts rather than retraining.
 - Expected artifacts: standard files plus pooling weight visualizations.
@@ -907,11 +942,11 @@ Research question: Does filtering low-quality or irrelevant images improve multi
 - Variable component: image filtering policy only.
 - Concrete trainable experiments:
 
-| Trainable ID | Filtering policy | Motivation | Expected claim |
-|---|---|---|---|
-| `EXP_022A_bestimage_bestpool_xlmr_concat_mse_nofilter` | no extra image filtering beyond the frozen dataset and existing decode behavior | reference policy | establishes whether filtering is needed at all |
-| `EXP_022B_bestimage_bestpool_xlmr_concat_mse_decodefilter` | mask only missing, undecodable, or zero-byte images while keeping the review row | remove obviously broken visual evidence without changing the split | broken-image masking may reduce avoidable noise |
-| `EXP_022C_bestimage_bestpool_xlmr_concat_mse_decode_sizefilter` | apply `EXP_022B` plus mask images with very small resolution, for example short side below 96 pixels | test a conservative quality threshold without semantic heuristics | conservative quality filtering may help if tiny images are mostly noise |
+| Trainable ID | Filtering policy | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|
+| `EXP_022A_bestimage_bestpool_xlmr_concat_mse_nofilter` | no extra image filtering beyond the frozen dataset and existing decode behavior | reference policy | establishes whether filtering is needed at all | `P2` | Reuse only if the filtering phase is entered. | This is the control row for filtering and usually adds no new research by itself. | Low to medium | Low |
+| `EXP_022B_bestimage_bestpool_xlmr_concat_mse_decodefilter` | mask only missing, undecodable, or zero-byte images while keeping the review row | remove obviously broken visual evidence without changing the split | broken-image masking may reduce avoidable noise | `P2` | Run only if time allows after core ablations. | Practical and low-risk, but the expected gain is usually modest compared with backbone or fusion changes. | Medium | Low to medium |
+| `EXP_022C_bestimage_bestpool_xlmr_concat_mse_decode_sizefilter` | apply `EXP_022B` plus mask images with very small resolution, for example short side below 96 pixels | test a conservative quality threshold without semantic heuristics | conservative quality filtering may help if tiny images are mostly noise | `P2` | Run only if the simpler filtering result is promising. | This can help, but it adds threshold tuning and usually produces less insight than model-side ablations. | Medium to low | Medium |
 
 - Training settings: same as the selected architecture. Every per-image removal must be logged to `image_failure_manifest.csv`.
 - Expected artifacts: `image_failure_manifest.csv`, `filtering_report.md`, standard files.
@@ -932,13 +967,13 @@ Research question: Do Vietnamese-specific or social-media-oriented language mode
 - Variable component: text backbone only.
 - Concrete trainable experiments:
 
-| Trainable ID | Text branch | Motivation | Expected claim |
-|---|---|---|---|
-| `EXP_030A_bestimage_bestpool_xlmr_concat_mse` | `xlm-roberta-base` | reference multilingual baseline; may reuse the winning `EXP_022*` run if identical | preserves continuity with Phase 2 |
-| `EXP_030B_bestimage_bestpool_phobert_concat_mse` | PhoBERT, exact checkpoint to be verified in codebase/environment and recorded in `config.yaml` | Vietnamese-specific pretraining should better match restaurant-review language | PhoBERT may improve local lexical and sentiment cues |
-| `EXP_030C_bestimage_bestpool_vibert_concat_mse` | `FPTAI/vibert-base-cased` | existing notebook evidence already uses this Vietnamese checkpoint | ViBERT may offer a practical Vietnamese-focused alternative |
-| `EXP_030D_bestimage_bestpool_visobert_concat_mse` | `uitnlp/visobert` | social-media pretraining matches informal Foody-style text | ViSoBERT may help on slang and casual review phrasing |
-| `EXP_030E_bestimage_bestpool_mdebertav3_concat_mse` | `microsoft/mdeberta-v3-base` | strong multilingual DeBERTa-family reference already seen in historical runs | mDeBERTa-v3 may improve robustness even without Vietnamese-only pretraining |
+| Trainable ID | Text branch | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|
+| `EXP_030A_bestimage_bestpool_xlmr_concat_mse` | `xlm-roberta-base` | reference multilingual baseline; may reuse the winning `EXP_022*` run if identical | preserves continuity with Phase 2 | `P0` | Must run or reuse. | This is the control text row needed before claiming any Vietnamese-specific gain. | Very high | Low |
+| `EXP_030B_bestimage_bestpool_phobert_concat_mse` | PhoBERT, exact checkpoint to be verified in codebase/environment and recorded in `config.yaml` | Vietnamese-specific pretraining should better match restaurant-review language | PhoBERT may improve local lexical and sentiment cues | `P0` | Must run. | PhoBERT is the single highest-ROI Vietnamese text challenger for this dataset. | Very high | Medium |
+| `EXP_030C_bestimage_bestpool_vibert_concat_mse` | `FPTAI/vibert-base-cased` | existing notebook evidence already uses this Vietnamese checkpoint | ViBERT may offer a practical Vietnamese-focused alternative | `P1` | Strongly recommended. | Existing notebook precedent lowers risk, and it gives a second strong Vietnamese comparison point. | High | Medium |
+| `EXP_030D_bestimage_bestpool_visobert_concat_mse` | `uitnlp/visobert` | social-media pretraining matches informal Foody-style text | ViSoBERT may help on slang and casual review phrasing | `P1` | Strongly recommended if P0 runs finish cleanly. | Domain match to informal social text gives good thesis value, though the expected gain is less certain than PhoBERT. | High | Medium |
+| `EXP_030E_bestimage_bestpool_mdebertav3_concat_mse` | `microsoft/mdeberta-v3-base` | strong multilingual DeBERTa-family reference already seen in historical runs | mDeBERTa-v3 may improve robustness even without Vietnamese-only pretraining | `P1` | Strongly recommended if compute permits. | It is a credible multilingual reference with historical codebase evidence, but less dataset-matched than Vietnamese-specific models. | High | Medium |
 
 - Training settings: same maximum epochs, memory-adjusted batch size documented.
 - Expected artifacts: standard files plus `tokenization_report.md`.
@@ -959,12 +994,12 @@ Research question: Does pooling strategy or longer text length improve text repr
 - Variable component: text pooling strategy and sequence length only.
 - Concrete trainable experiments:
 
-| Trainable ID | Text internal variant | Motivation | Expected claim |
-|---|---|---|---|
-| `EXP_031A_bestimage_besttext_firsttoken_len256_concat_mse` | first-token pooling, max length 256 | reference configuration closest to the current code path | establishes the controlled text-feature baseline |
-| `EXP_031B_bestimage_besttext_meanpool_len256_concat_mse` | masked mean pooling over non-padding tokens, max length 256 | test whether whole-sequence averaging captures review context better | mean pooling may reduce overreliance on the first token |
-| `EXP_031C_bestimage_besttext_attentionpool_len256_concat_mse` | learned attention pooling over non-padding tokens, max length 256 | let the model learn which tokens matter most | attention pooling is useful only if it improves enough to justify extra complexity |
-| `EXP_031D_bestimage_besttext_bestpool_len128_concat_mse` | winning pooling from `EXP_031A` to `EXP_031C`, max length 128 | explicitly test whether shorter input can match performance at lower cost | 128 tokens may be enough, or 256 may be justified for long reviews |
+| Trainable ID | Text internal variant | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|
+| `EXP_031A_bestimage_besttext_firsttoken_len256_concat_mse` | first-token pooling, max length 256 | reference configuration closest to the current code path | establishes the controlled text-feature baseline | `P1` | Reuse or run when entering the text-pooling phase. | This is the control row needed for a fair pooling comparison. | Medium | Low |
+| `EXP_031B_bestimage_besttext_meanpool_len256_concat_mse` | masked mean pooling over non-padding tokens, max length 256 | test whether whole-sequence averaging captures review context better | mean pooling may reduce overreliance on the first token | `P1` | Strongly recommended. | Mean pooling is cheap to implement and often one of the best ROI text-feature changes. | High | Low to medium |
+| `EXP_031C_bestimage_besttext_attentionpool_len256_concat_mse` | learned attention pooling over non-padding tokens, max length 256 | let the model learn which tokens matter most | attention pooling is useful only if it improves enough to justify extra complexity | `P2` | Run only if P1 results leave uncertainty. | Useful, but the gain over mean pooling is often modest relative to the added complexity. | Medium | Medium |
+| `EXP_031D_bestimage_besttext_bestpool_len128_concat_mse` | winning pooling from `EXP_031A` to `EXP_031C`, max length 128 | explicitly test whether shorter input can match performance at lower cost | 128 tokens may be enough, or 256 may be justified for long reviews | `P2` | Run if efficiency becomes important for Colab retraining. | This is valuable for deployment and rerun cost planning, but it is less central than backbone and loss ablations. | Medium | Low |
 
 - Training settings: run `EXP_031A` to `EXP_031C` first, then launch `EXP_031D` using the winning pooling from the first three runs. Layer aggregation remains optional future work if pooling results remain ambiguous.
 - Expected artifacts: standard files plus `text_length_coverage.json`.
@@ -985,11 +1020,11 @@ Research question: Does controlled Vietnamese text normalization improve noisy u
 - Variable component: normalization strategy only.
 - Concrete trainable experiments:
 
-| Trainable ID | Normalization strategy | Motivation | Expected claim |
-|---|---|---|---|
-| `EXP_032A_bestimage_besttext_bestpool_rawtext_concat_mse` | use current `comment_clean` exactly as stored | reference policy; may reuse the winning `EXP_031*` run if identical | establishes whether extra normalization is needed |
-| `EXP_032B_bestimage_besttext_bestpool_unicode_whitespace_concat_mse` | apply Unicode normalization and whitespace collapsing only | test a minimal cleanup that should not alter sentiment content | minimal normalization may remove harmless noise |
-| `EXP_032C_bestimage_besttext_bestpool_light_slangmap_concat_mse` | apply `EXP_032B` plus a conservative fixed slang map; preserve negation, intensifiers, and sentiment-bearing tokens | test whether a small domain lexicon helps with Foody-style text | light slang handling may improve robustness without over-cleaning |
+| Trainable ID | Normalization strategy | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|
+| `EXP_032A_bestimage_besttext_bestpool_rawtext_concat_mse` | use current `comment_clean` exactly as stored | reference policy; may reuse the winning `EXP_031*` run if identical | establishes whether extra normalization is needed | `P2` | Reuse only if the normalization phase is entered. | This is the control row for normalization and does not add standalone novelty. | Low to medium | Low |
+| `EXP_032B_bestimage_besttext_bestpool_unicode_whitespace_concat_mse` | apply Unicode normalization and whitespace collapsing only | test a minimal cleanup that should not alter sentiment content | minimal normalization may remove harmless noise | `P2` | Run only if time allows after stronger ablations. | Minimal normalization is practical, but its effect is usually smaller than model or loss changes. | Medium | Low |
+| `EXP_032C_bestimage_besttext_bestpool_light_slangmap_concat_mse` | apply `EXP_032B` plus a conservative fixed slang map; preserve negation, intensifiers, and sentiment-bearing tokens | test whether a small domain lexicon helps with Foody-style text | light slang handling may improve robustness without over-cleaning | `P3` | Optional; skip if time is limited. | This can become annotation-heavy and brittle, and the gain is uncertain compared with the engineering effort. | Medium to low | Medium |
 
 - Training settings: same across all runs. The slang map must be versioned and saved with the experiment artifacts.
 - Expected artifacts: `normalization_examples.csv`, standard files.
@@ -1009,11 +1044,11 @@ Research question: Can adaptive fusion learn when to trust text more than images
 - Variable component: gating-oriented fusion mechanism only.
 - Concrete trainable experiments:
 
-| Trainable ID | Fusion method | Motivation | Expected claim |
-|---|---|---|---|
-| `EXP_040A_bestimage_besttext_besttextpool_concat_mse` | concatenation + MLP | reference fusion; may reuse the winning `EXP_032*` run if identical | preserves the simple controlled baseline |
-| `EXP_040B_bestimage_besttext_besttextpool_gmu_mse` | GMU | allow sample-level gating when image reliability varies | GMU may improve robustness to noisy or irrelevant photos |
-| `EXP_040C_bestimage_besttext_besttextpool_gatedcrossmodal_mse` | gated cross-modal fusion | test a stronger reliability-aware interaction than plain concat | gated cross-modal fusion may outperform concat when modalities disagree |
+| Trainable ID | Fusion method | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|
+| `EXP_040A_bestimage_besttext_besttextpool_concat_mse` | concatenation + MLP | reference fusion; may reuse the winning `EXP_032*` run if identical | preserves the simple controlled baseline | `P1` | Reuse or run when entering the fusion phase. | This is the control row required before claiming an adaptive-fusion gain. | Medium | Low |
+| `EXP_040B_bestimage_besttext_besttextpool_gmu_mse` | GMU | allow sample-level gating when image reliability varies | GMU may improve robustness to noisy or irrelevant photos | `P1` | Strongly recommended. | GMU directly matches the dataset condition that image reliability varies sharply across samples. | High | Medium |
+| `EXP_040C_bestimage_besttext_besttextpool_gatedcrossmodal_mse` | gated cross-modal fusion | test a stronger reliability-aware interaction than plain concat | gated cross-modal fusion may outperform concat when modalities disagree | `P3` | Optional; skip if time is limited. | It is more complex than GMU and often gives less clear incremental insight per GPU hour. | Medium to low | Medium to high |
 
 - Training settings: same fusion-stage budget across runs; record trainable parameter count and gate statistics.
 - Expected artifacts: `fusion_gate_statistics.csv`, modality weight plots, standard files.
@@ -1033,10 +1068,10 @@ Research question: Do richer cross-modal interactions improve over gated or conc
 - Variable component: richer interaction mechanism only.
 - Concrete trainable experiments:
 
-| Trainable ID | Fusion method | Motivation | Expected claim |
-|---|---|---|---|
-| `EXP_041A_bestimage_besttext_besttextpool_film_mse` | FiLM | let one modality modulate the other with moderate complexity | FiLM may capture useful conditioning without full cross-attention cost |
-| `EXP_041B_bestimage_besttext_besttextpool_crossattention_mse` | cross-attention with token-level text features and patch-level image features | test the strongest fine-grained interaction idea from the literature | cross-attention is justified only if its gain clearly exceeds its implementation and memory cost |
+| Trainable ID | Fusion method | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|
+| `EXP_041A_bestimage_besttext_besttextpool_film_mse` | FiLM | let one modality modulate the other with moderate complexity | FiLM may capture useful conditioning without full cross-attention cost | `P2` | Run after GMU if compute still permits. | FiLM is a credible fusion alternative, but GMU usually answers the noisier-modality question more directly. | Medium | Medium |
+| `EXP_041B_bestimage_besttext_besttextpool_crossattention_mse` | cross-attention with token-level text features and patch-level image features | test the strongest fine-grained interaction idea from the literature | cross-attention is justified only if its gain clearly exceeds its implementation and memory cost | `P4` | Stretch goal only. | Cross-attention requires architecture refactoring, token-patch features, more memory, and has uncertain ROI on noisy moderate-size data. | Medium to low | High |
 
 - Training settings: memory-managed batch size; document compute cost. `EXP_041B` is high risk and should not proceed until token and patch features are verified in code.
 - Expected artifacts: attention maps if available, resource usage, standard files.
@@ -1056,12 +1091,12 @@ Research question: Are robust losses better than MSE for noisy multi-target revi
 - Variable component: scalar regression loss only.
 - Concrete trainable experiments:
 
-| Trainable ID | Loss function | Motivation | Expected claim |
-|---|---|---|---|
-| `EXP_050A_bestimage_besttext_bestfusion_mse` | MSE | reference loss; may reuse the winning MSE-based Phase 4 run | preserves the baseline objective |
-| `EXP_050B_bestimage_besttext_bestfusion_huber` | Huber | robust alternative expected to handle outliers better | Huber may reduce large errors without losing smooth optimization |
-| `EXP_050C_bestimage_besttext_bestfusion_smoothl1` | SmoothL1 | PyTorch-native Huber-like alternative | SmoothL1 may match Huber with simpler implementation |
-| `EXP_050D_bestimage_besttext_bestfusion_logcosh` | Log-Cosh | smooth robust loss retained from the original proposal | Log-Cosh may offer another stable robust-loss option |
+| Trainable ID | Loss function | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|
+| `EXP_050A_bestimage_besttext_bestfusion_mse` | MSE | reference loss; may reuse the winning MSE-based Phase 4 run | preserves the baseline objective | `P0` | Must run or reuse. | This is the baseline loss needed before claiming that robust losses help. | Very high | Low |
+| `EXP_050B_bestimage_besttext_bestfusion_huber` | Huber | robust alternative expected to handle outliers better | Huber may reduce large errors without losing smooth optimization | `P0` | Must run. | Huber is the highest-ROI robust loss candidate for noisy regression on a limited compute budget. | Very high | Low |
+| `EXP_050C_bestimage_besttext_bestfusion_smoothl1` | SmoothL1 | PyTorch-native Huber-like alternative | SmoothL1 may match Huber with simpler implementation | `P2` | Run only if the Huber result is ambiguous. | SmoothL1 is useful, but it often overlaps conceptually and empirically with Huber. | Medium | Low |
+| `EXP_050D_bestimage_besttext_bestfusion_logcosh` | Log-Cosh | smooth robust loss retained from the original proposal | Log-Cosh may offer another stable robust-loss option | `P2` | Nice to have; skip if time is limited. | Log-Cosh is scientifically reasonable, but it is usually lower ROI than Huber for thesis-stage experimentation. | Medium to low | Medium |
 
 - Training settings: same across all runs. MAE is left out of the minimum trainable set because it changes optimization dynamics while usually overlapping conceptually with smoother robust losses.
 - Expected artifacts: standard files plus `outlier_error_analysis.csv`.
@@ -1082,12 +1117,12 @@ Research question: Does explicit task balancing improve five-target prediction?
 - Variable component: target weighting strategy.
 - Concrete trainable experiments:
 
-| Trainable ID | Loss and weighting strategy | Motivation | Expected claim |
-|---|---|---|---|
-| `EXP_051A_bestimage_besttext_bestfusion_bestloss_equalweights` | winning `EXP_050*` scalar loss with equal target weights | reference policy; may reuse the winning `EXP_050*` run | isolates weighting from scalar-loss choice |
-| `EXP_051B_bestimage_besttext_bestfusion_bestloss_manualtaskweights` | winning `EXP_050*` scalar loss plus fixed manual target weights | test whether explicit balancing helps without changing the scalar loss family | task weighting may improve weak targets without architectural changes |
-| `EXP_051C_bestimage_besttext_bestfusion_huber_manualtaskweights` | Huber plus the same fixed manual target weights | explicit weighted-Huber candidate from the original proposal | weighted Huber may combine robustness and balancing effectively |
-| `EXP_051D_bestimage_besttext_bestfusion_uncertaintyweighted` | homoscedastic uncertainty-weighted multitask loss | test learnable target balancing | uncertainty weighting may help if it stays well behaved |
+| Trainable ID | Loss and weighting strategy | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|
+| `EXP_051A_bestimage_besttext_bestfusion_bestloss_equalweights` | winning `EXP_050*` scalar loss with equal target weights | reference policy; may reuse the winning `EXP_050*` run | isolates weighting from scalar-loss choice | `P1` | Reuse or run when entering the weighting phase. | This is the control row for weighting and often costs no extra GPU if reused. | Medium | Low |
+| `EXP_051B_bestimage_besttext_bestfusion_bestloss_manualtaskweights` | winning `EXP_050*` scalar loss plus fixed manual target weights | test whether explicit balancing helps without changing the scalar loss family | task weighting may improve weak targets without architectural changes | `P1` | Strongly recommended. | Manual task balancing is relatively cheap and can produce strong discussion material around target trade-offs. | High | Medium |
+| `EXP_051C_bestimage_besttext_bestfusion_huber_manualtaskweights` | Huber plus the same fixed manual target weights | explicit weighted-Huber candidate from the original proposal | weighted Huber may combine robustness and balancing effectively | `P1` | Strongly recommended unless redundant with `EXP_051B`. | Weighted Huber combines the two strongest loss ideas and is one of the best cost/value extensions after plain Huber. | High | Medium |
+| `EXP_051D_bestimage_besttext_bestfusion_uncertaintyweighted` | homoscedastic uncertainty-weighted multitask loss | test learnable target balancing | uncertainty weighting may help if it stays well behaved | `P3` | Optional; run only after all core results are stable. | Interesting academically, but it is more fragile and harder to defend under a limited-thesis timeline. | Medium to low | Medium to high |
 
 - Training settings: monitor learned weights and per-target loss. If `EXP_050` already selects Huber as the best scalar loss, `EXP_051B` becomes the weighted-Huber run and `EXP_051C` can be marked skipped as redundant.
 - Expected artifacts: `loss_weight_history.csv`, `per_target_tradeoff.md`, standard files.
@@ -1105,13 +1140,13 @@ Research question: Do alternative full configurations outperform the greedy sequ
 - Variable component: full architecture combination.
 - Concrete trainable experiments:
 
-| Trainable ID | Image branch | Text branch | Fusion | Loss | Motivation | Expected claim |
-|---|---|---|---|---|---|---|
-| `EXP_060A_bestsequential_full_configuration` | exact Phase 2 winner | exact Phase 3 winner | exact Phase 4 winner | exact Phase 5 winner | validate the greedy sequential winner as a complete system | confirms whether the sequential path already found the strongest practical model |
-| `EXP_060B_convnext_phobert_film_huber` | `convnext_base_in22k` | PhoBERT, exact checkpoint verified in `config.yaml` | FiLM | Huber | keep a stable CNN image branch while pairing it with Vietnamese-specific text and moderate cross-modal conditioning | this combination may be stronger than the official baseline without large complexity jump |
-| `EXP_060C_swinb_vibert_gmu_huber` | `swin_base_patch4_window7_224` | `FPTAI/vibert-base-cased` | GMU | Huber | combine hierarchical scene-aware image features with a Vietnamese-focused text encoder and adaptive gating | this pair may be especially useful when image reliability varies across reviews |
-| `EXP_060D_efficientnetb3_visobert_film_huber` | `efficientnet_b3` | `uitnlp/visobert` | FiLM | Huber | preserve the original proposal's efficient social-text candidate | this run tests whether domain-matched text can offset a cheaper image encoder |
-| `EXP_060E_siglip_mdebertav3_gmu_weightedhuber` | `vit_base_patch16_siglip_224` | `microsoft/mdeberta-v3-base` | GMU | Weighted Huber | convert the historically attempted SigLIP plus mDeBERTa direction into a stronger final-form candidate | this run checks whether image-text-pretrained vision plus robust gated fusion shows better synergy |
+| Trainable ID | Image branch | Text branch | Fusion | Loss | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `EXP_060A_bestsequential_full_configuration` | exact Phase 2 winner | exact Phase 3 winner | exact Phase 4 winner | exact Phase 5 winner | validate the greedy sequential winner as a complete system | confirms whether the sequential path already found the strongest practical model | `P0` | Must run. | This is the main validation that the sequential ablation path leads to a viable full system. | Very high | Medium |
+| `EXP_060B_convnext_phobert_film_huber` | `convnext_base_in22k` | PhoBERT, exact checkpoint verified in `config.yaml` | FiLM | Huber | keep a stable CNN image branch while pairing it with Vietnamese-specific text and moderate cross-modal conditioning | this combination may be stronger than the official baseline without large complexity jump | `P0` | Must run unless it is identical to `EXP_060A`; if identical, promote `EXP_060C`. | This is the cheapest strong alternative full combination built from high-ROI components. | High | Medium |
+| `EXP_060C_swinb_vibert_gmu_huber` | `swin_base_patch4_window7_224` | `FPTAI/vibert-base-cased` | GMU | Huber | combine hierarchical scene-aware image features with a Vietnamese-focused text encoder and adaptive gating | this pair may be especially useful when image reliability varies across reviews | `P1` | Strongly recommended, or promote to P0 if `EXP_060B` duplicates `EXP_060A`. | This is one of the strongest synergy hypotheses in the whole proposal. | High | Medium to high |
+| `EXP_060D_efficientnetb3_visobert_film_huber` | `efficientnet_b3` | `uitnlp/visobert` | FiLM | Huber | preserve the original proposal's efficient social-text candidate | this run tests whether domain-matched text can offset a cheaper image encoder | `P2` | Run only if P0 and P1 phases are complete. | Useful candidate, but its expected ceiling is a bit lower than the stronger backbone and fusion alternatives. | Medium | Medium |
+| `EXP_060E_siglip_mdebertav3_gmu_weightedhuber` | `vit_base_patch16_siglip_224` | `microsoft/mdeberta-v3-base` | GMU | Weighted Huber | convert the historically attempted SigLIP plus mDeBERTa direction into a stronger final-form candidate | this run checks whether image-text-pretrained vision plus robust gated fusion shows better synergy | `P2` | Run only if compute remains after core synergy checks. | This is scientifically interesting, but it is more expensive and less dataset-matched than the top Vietnamese-first candidates. | Medium | Medium to high |
 
 - Training settings: matched budget where feasible; document any deviations. `EXP_012_multimodal_convnext_xlmr_concat_mse` must still appear in the final comparison table as the official baseline anchor even though it is not retrained here.
 - Expected artifacts: combination folders and `combination_leaderboard.csv`.
@@ -1130,14 +1165,14 @@ Research question: Is the selected final model stable across random seeds?
 - Variable component: random seed.
 - Concrete trainable experiments:
 
-| Trainable ID | Candidate | Seed | Motivation | Expected claim |
-|---|---|---:|---|---|
-| `EXP_070A_candidate1_seed42` | Candidate 1 | 42 | reference rerun | establishes the first point for stability |
-| `EXP_070B_candidate1_seed123` | Candidate 1 | 123 | second seed for candidate 1 | checks whether performance holds beyond the original seed |
-| `EXP_070C_candidate1_seed2026` | Candidate 1 | 2026 | third seed for candidate 1 | completes the minimal variance estimate |
-| `EXP_070D_candidate2_seed42` | Candidate 2 | 42 | reference rerun | keeps the comparison symmetric |
-| `EXP_070E_candidate2_seed123` | Candidate 2 | 123 | second seed for candidate 2 | tests robustness for the strongest alternative |
-| `EXP_070F_candidate2_seed2026` | Candidate 2 | 2026 | third seed for candidate 2 | completes the minimal variance estimate for candidate 2 |
+| Trainable ID | Candidate | Seed | Motivation | Expected claim | Priority | Execution recommendation | Reason | Estimated ROI | Estimated complexity |
+|---|---|---:|---|---|---|---|---|---|---|
+| `EXP_070A_candidate1_seed42` | Candidate 1 | 42 | reference rerun | establishes the first point for stability | `P0` | Must run. | Multi-seed stability is essential for a defensible final thesis claim. | Very high | Medium |
+| `EXP_070B_candidate1_seed123` | Candidate 1 | 123 | second seed for candidate 1 | checks whether performance holds beyond the original seed | `P0` | Must run. | One seed is not enough for a noisy multimodal regression setting. | Very high | Medium |
+| `EXP_070C_candidate1_seed2026` | Candidate 1 | 2026 | third seed for candidate 1 | completes the minimal variance estimate | `P0` | Must run. | Three seeds provide the minimum stable variance picture for the finalist. | Very high | Medium |
+| `EXP_070D_candidate2_seed42` | Candidate 2 | 42 | reference rerun | keeps the comparison symmetric | `P0` | Must run. | The alternative finalist needs the same stability treatment to avoid a biased final choice. | Very high | Medium |
+| `EXP_070E_candidate2_seed123` | Candidate 2 | 123 | second seed for candidate 2 | tests robustness for the strongest alternative | `P0` | Must run. | This seed helps determine whether candidate 2 is consistently weaker or genuinely competitive. | Very high | Medium |
+| `EXP_070F_candidate2_seed2026` | Candidate 2 | 2026 | third seed for candidate 2 | completes the minimal variance estimate for candidate 2 | `P0` | Must run. | Final model selection should be based on stability, not a single lucky checkpoint. | Very high | Medium |
 
 - Training settings: use the exact frozen config of each Phase 6 candidate and change only the seed. Extend the same template to a third candidate only if Phase 6 leaves the decision genuinely ambiguous.
 - Expected artifacts: per-seed folders and `final_leaderboard.csv`.
@@ -1160,6 +1195,11 @@ Research question: What is the final honest test performance of the selected mod
 - Evaluation metrics: all required sample-wise metrics.
 - Selection criterion: no selection after this point.
 - Expected conclusion: final thesis performance result.
+- Priority: `P0`
+- Execution recommendation: Must run exactly once after final model selection.
+- Reason: Without a locked final test evaluation, the thesis cannot report an honest final generalization result.
+- Estimated ROI: Very high.
+- Estimated complexity: Low.
 
 ### EXP_080_xai_sanity_checks
 
@@ -1176,6 +1216,11 @@ Research question: Are the XAI methods attached to the correct model tensors and
 - Evaluation metrics: qualitative and shape/sanity checks.
 - Selection criterion: XAI wrappers must be correct before final analysis.
 - Expected conclusion: XAI tooling is usable and target-specific.
+- Priority: `P1`
+- Execution recommendation: Strongly recommended.
+- Reason: This is a cheap insurance step that prevents late-stage XAI failures before the final explainability chapter.
+- Estimated ROI: High.
+- Estimated complexity: Low to medium.
 
 ### EXP_081_final_xai_analysis
 
@@ -1192,6 +1237,11 @@ Research question: How does the final model use image, text, and fusion evidence
 - Evaluation metrics: explanation stability, modality contribution, failure taxonomy.
 - Selection criterion: supports thesis interpretation, not model selection.
 - Expected conclusion: final model is inspectable across modalities with stated limitations.
+- Priority: `P0`
+- Execution recommendation: Must run.
+- Reason: The thesis theme includes Explainable AI, so the final model needs a full explanation study, not only performance numbers.
+- Estimated ROI: Very high.
+- Estimated complexity: Medium.
 
 ### EXP_090_thesis_ready_packaging
 
@@ -1208,6 +1258,11 @@ Research question: Can the full experiment record be audited and reproduced?
 - Evaluation metrics: completeness of reproduction checklist.
 - Selection criterion: all required files exist or have documented Drive links.
 - Expected conclusion: project is ready for lecturer review.
+- Priority: `P0`
+- Execution recommendation: Must run.
+- Reason: Final packaging is required for lecturer audit, reproducibility, and defense preparation.
+- Estimated ROI: Very high.
+- Estimated complexity: Low to medium.
 
 ## 10. Image Branch Candidate Table
 
@@ -1629,3 +1684,123 @@ Claims must be phrased defensibly. For example:
 - Too strong: "Model A is universally better for Vietnamese multimodal regression."
 
 The final conclusion should distinguish prediction performance from explanation quality. XAI should be presented as architecture-aligned evidence for inspection and debugging, not proof of causality.
+
+## 23. Recommended Execution Schedule
+
+This schedule translates the experiment priorities above into a practical thesis plan. Counts below refer to experiment IDs, not always fresh GPU jobs. Several control rows can reuse earlier artifacts when the configuration is identical.
+
+### Tier 1: Minimum Thesis
+
+Run `P0` experiments only.
+
+Recommended experiment IDs:
+
+- Phase 0: `EXP_000_infrastructure_rebuild`, `EXP_001_frozen_dataset_artifact`, `EXP_002_metric_export_validation`
+- Phase 1: `EXP_010_text_only_xlmr_mse`, `EXP_011_image_only_convnext_meanpool_mse`, `EXP_012_multimodal_convnext_xlmr_concat_mse`
+- Phase 2: `EXP_020A_convnext_xlmr_concat_mse`, `EXP_020B_swinb_xlmr_concat_mse`
+- Phase 3: `EXP_030A_bestimage_bestpool_xlmr_concat_mse`, `EXP_030B_bestimage_bestpool_phobert_concat_mse`
+- Phase 5: `EXP_050A_bestimage_besttext_bestfusion_mse`, `EXP_050B_bestimage_besttext_bestfusion_huber`
+- Phase 6: `EXP_060A_bestsequential_full_configuration`, `EXP_060B_convnext_phobert_film_huber`
+- Phase 7: `EXP_070A_candidate1_seed42`, `EXP_070B_candidate1_seed123`, `EXP_070C_candidate1_seed2026`, `EXP_070D_candidate2_seed42`, `EXP_070E_candidate2_seed123`, `EXP_070F_candidate2_seed2026`, `EXP_071_locked_test_evaluation`
+- Phase 8: `EXP_081_final_xai_analysis`
+- Phase 9: `EXP_090_thesis_ready_packaging`
+
+Tier summary:
+
+| Tier | Included priorities | Experiment count | Relative GPU cost | Relative implementation difficulty | Thesis value |
+|---|---|---:|---|---|---|
+| Tier 1 | `P0` only | 23 | Medium to high | Medium | Complete and defensible minimum thesis |
+
+Interpretation:
+
+- This is the smallest plan that still delivers reproducibility, unimodal and multimodal baselines, one serious image challenger, one serious Vietnamese text challenger, one robust-loss comparison, full-combination validation, multi-seed stability, locked test results, and final XAI.
+- If `EXP_060B_convnext_phobert_film_huber` is identical to `EXP_060A_bestsequential_full_configuration`, promote `EXP_060C_swinb_vibert_gmu_huber` into Tier 1 as the second finalist candidate.
+
+### Tier 2: Strong Thesis
+
+Run `P0 + P1` experiments.
+
+Additional `P1` experiment IDs beyond Tier 1:
+
+- Phase 2: `EXP_020D_efficientnetb3_xlmr_concat_mse`, `EXP_021A_bestimage_meanpool_xlmr_concat_mse`, `EXP_021B_bestimage_attentionpool_xlmr_concat_mse`
+- Phase 3: `EXP_030C_bestimage_bestpool_vibert_concat_mse`, `EXP_030D_bestimage_bestpool_visobert_concat_mse`, `EXP_030E_bestimage_bestpool_mdebertav3_concat_mse`, `EXP_031A_bestimage_besttext_firsttoken_len256_concat_mse`, `EXP_031B_bestimage_besttext_meanpool_len256_concat_mse`
+- Phase 4: `EXP_040A_bestimage_besttext_besttextpool_concat_mse`, `EXP_040B_bestimage_besttext_besttextpool_gmu_mse`
+- Phase 5: `EXP_051A_bestimage_besttext_bestfusion_bestloss_equalweights`, `EXP_051B_bestimage_besttext_bestfusion_bestloss_manualtaskweights`, `EXP_051C_bestimage_besttext_bestfusion_huber_manualtaskweights`
+- Phase 6: `EXP_060C_swinb_vibert_gmu_huber`
+- Phase 8: `EXP_080_xai_sanity_checks`
+
+Tier summary:
+
+| Tier | Included priorities | Experiment count | Relative GPU cost | Relative implementation difficulty | Thesis value |
+|---|---|---:|---|---|---|
+| Tier 2 | `P0 + P1` | 38 | High | Medium to high | Strong thesis with clear ablation depth |
+
+Interpretation:
+
+- This is the most realistic target for a Google Colab based university thesis.
+- Tier 2 adds the best value-per-GPU extensions: EfficientNet-B3 as a cheaper image challenger, multi-image pooling, ViBERT and related text challengers, mean-pooled text features, GMU, weighted losses, and lightweight XAI validation.
+- GMU is `P1` because it directly addresses modality reliability, which is one of the most important dataset-specific issues in this project.
+
+### Tier 3: Excellent Thesis
+
+Run `P0 + P1 + P2` experiments.
+
+Additional `P2` experiment IDs beyond Tier 2:
+
+- Phase 2: `EXP_020C_siglip_xlmr_concat_mse`, `EXP_022A_bestimage_bestpool_xlmr_concat_mse_nofilter`, `EXP_022B_bestimage_bestpool_xlmr_concat_mse_decodefilter`, `EXP_022C_bestimage_bestpool_xlmr_concat_mse_decode_sizefilter`
+- Phase 3: `EXP_031C_bestimage_besttext_attentionpool_len256_concat_mse`, `EXP_031D_bestimage_besttext_bestpool_len128_concat_mse`, `EXP_032A_bestimage_besttext_bestpool_rawtext_concat_mse`, `EXP_032B_bestimage_besttext_bestpool_unicode_whitespace_concat_mse`
+- Phase 4: `EXP_041A_bestimage_besttext_besttextpool_film_mse`
+- Phase 5: `EXP_050C_bestimage_besttext_bestfusion_smoothl1`, `EXP_050D_bestimage_besttext_bestfusion_logcosh`
+- Phase 6: `EXP_060D_efficientnetb3_visobert_film_huber`, `EXP_060E_siglip_mdebertav3_gmu_weightedhuber`
+
+Tier summary:
+
+| Tier | Included priorities | Experiment count | Relative GPU cost | Relative implementation difficulty | Thesis value |
+|---|---|---:|---|---|---|
+| Tier 3 | `P0 + P1 + P2` | 51 | Very high | High | Excellent thesis if time and compute are unusually favorable |
+
+Interpretation:
+
+- Tier 3 is ambitious on Colab, but it produces a very rich ablation story.
+- Text normalization and image quality filtering are `P2` because they are scientifically useful yet usually lower-yield than backbone, fusion, and loss changes.
+- Log-Cosh is `P2` because it is valid and interesting, but Huber already covers the highest-ROI robust-loss question more directly.
+- FiLM is `P2` because it is a good fusion alternative, but GMU is usually the clearer first answer for noisy-modality reliability.
+
+### Tier 4: Research Extension
+
+Run `P3 + P4` experiments only after Tier 3 is complete.
+
+Extension experiment IDs:
+
+- `EXP_032C_bestimage_besttext_bestpool_light_slangmap_concat_mse`
+- `EXP_040C_bestimage_besttext_besttextpool_gatedcrossmodal_mse`
+- `EXP_051D_bestimage_besttext_bestfusion_uncertaintyweighted`
+- `EXP_041B_bestimage_besttext_besttextpool_crossattention_mse`
+
+Tier summary:
+
+| Tier | Included priorities | Experiment count | Relative GPU cost | Relative implementation difficulty | Thesis value |
+|---|---|---:|---|---|---|
+| Tier 4 | `P3 + P4` | 4 | High marginal cost | Very high | Research extension, not thesis core |
+
+Interpretation:
+
+- Cross-attention is `P4` because it needs token-level and patch-level features, memory-heavy refactoring, and has uncertain payoff on noisy moderate-size data.
+- Uncertainty-weighted multitask loss is `P3` because it is academically interesting but more fragile, harder to monitor, and less straightforward to defend than fixed weighted Huber.
+- No explicit EVA-CLIP experiment is scheduled in the current proposal. That is appropriate for this thesis budget; if it were added later, it would also be treated as `P4` because of high compute cost and uncertain return on Colab.
+
+### Tier Comparison
+
+| Tier | Count of experiment IDs | Fresh GPU jobs likely lower because of reused controls? | Relative GPU cost | Relative implementation difficulty | Recommendation |
+|---|---:|---|---|---|---|
+| Tier 1 | 23 | Yes | Medium to high | Medium | Safe fallback if thesis time becomes tight |
+| Tier 2 | 38 | Yes | High | Medium to high | Most realistic and best-balanced target |
+| Tier 3 | 51 | Yes | Very high | High | Excellent but ambitious for Colab |
+| Tier 4 | 4 additional | No, most are genuinely new and complex | High marginal cost | Very high | Only after all thesis goals are already secured |
+
+Most realistic recommendation:
+
+- Aim for **Tier 2: Strong Thesis**.
+- Treat **Tier 1** as the minimum guaranteed completion plan.
+- Enter **Tier 3** only if training is stable, artifact management is working, and Colab sessions are not becoming the main bottleneck.
+- Treat **Tier 4** as research extension work, not a thesis requirement.
