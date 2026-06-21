@@ -40,7 +40,8 @@ Mỗi combo được thiết kế theo tư duy **multimodal-first**: text encode
   - **HuggingFace/Timm ID:** `microsoft/deberta-v3-base` | `vit_base_patch16_siglip2_256` (timm)
 
 ### Nhóm 2: Thử nghiệm Hàm Mất Mát (Loss Functions)
-Giữ nguyên kiến trúc mạng, chỉ thay đổi hàm tính Loss ở khâu cuối để cải thiện trọng số tự động:
+Giữ nguyên kiến trúc mạng Baseline (ViSoBERT + ConvNeXt), chỉ thay đổi hàm tính Loss ở khâu cuối để cải thiện khả năng học:
+- **Thử nghiệm 2.0 (Baseline):** Sử dụng **Joint MSE Loss** (trung bình cộng MSE của 5 nhãn). Đây là loss mặc định đã dùng ở Nhóm 1, dễ cài đặt nhưng bị hạn chế khi gặp review ngoại lai và không tự động cân bằng các nhãn.
 - **Thử nghiệm 2.1 (Kháng ngoại lai):** Thay thế toàn bộ MSE bằng **Huber Loss** hoặc **Log-Cosh Loss** cho từng nhãn mục tiêu để tránh gradient bùng nổ khi gặp dữ liệu nhiễu.
 - **Thử nghiệm 2.2 (Cân bằng Đa tác vụ):** Áp dụng **Homoscedastic Task Uncertainty Loss**. Thay vì fix cứng trọng số $1:1:1:1:1$, mô hình sẽ tự định nghĩa 5 tham số phương sai ($s_1 \dots s_5$) để tự động giảm trọng số của các nhãn khó đoán (như overall_satisfaction) và tăng trọng lượng cho các nhãn dễ đoán (như food).
 

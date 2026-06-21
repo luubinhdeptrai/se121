@@ -4,6 +4,18 @@ from tqdm import tqdm
 import os
 from transformers import get_cosine_schedule_with_warmup
 
+class HomoscedasticUncertaintyLoss(nn.Module):
+    def __init__(self, num_tasks=5):
+        super(HomoscedasticUncertaintyLoss, self).__init__()
+        self.log_vars = nn.Parameter(torch.zeros(num_tasks))
+        self.mse = nn.MSELoss(reduction='none')
+
+    def forward(self, preds, targets):
+        mse = self.mse(preds, targets)
+        precision = torch.exp(-self.log_vars)
+        loss = precision * mse + self.log_vars
+        return loss.mean()
+
 class Trainer:
     def __init__(self, model, train_loader, val_loader, device, args):
         self.model = model
@@ -12,11 +24,23 @@ class Trainer:
         self.device = device
         self.args = args
         
-        self.criterion = nn.MSELoss()
+        self.mse_criterion = nn.MSELoss()
         self.mae_criterion = nn.L1Loss()
         
+        loss_fn_str = getattr(args, 'loss_fn', 'mse')
+        if loss_fn_str == 'huber':
+            self.criterion = nn.HuberLoss()
+        elif loss_fn_str == 'uncertainty':
+            self.criterion = HomoscedasticUncertaintyLoss(num_tasks=5).to(device)
+        else:
+            self.criterion = nn.MSELoss()
+        
         # Setup Optimizer
-        self.optimizer = torch.optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr, weight_decay=args.weight_decay)
+        params = list(filter(lambda p: p.requires_grad, model.parameters()))
+        if loss_fn_str == 'uncertainty':
+            params += list(self.criterion.parameters())
+            
+        self.optimizer = torch.optim.AdamW(params, lr=args.lr, weight_decay=args.weight_decay)
         
         # Setup Gradient Accumulation
         self.grad_accum_steps = getattr(args, 'grad_accum_steps', 1)
@@ -91,7 +115,7 @@ class Trainer:
                 val_loss += loss.item()
                 
                 for i in range(5):
-                    val_loss_factors[i] += self.criterion(pred_factors[:, i], true_factors[:, i]).item()
+                    val_loss_factors[i] += self.mse_criterion(pred_factors[:, i], true_factors[:, i]).item()
                     val_mae_factors[i] += self.mae_criterion(pred_factors[:, i], true_factors[:, i]).item()
                 
         num_batches = len(self.val_loader)
