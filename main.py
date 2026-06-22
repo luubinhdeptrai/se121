@@ -1,7 +1,6 @@
 import torch
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, AutoImageProcessor
-
 from Config import get_args
 from src.dataset import MultimodalDataset
 from Models.TextModel import TextModel
@@ -10,67 +9,104 @@ from Models.FusionModel import FusionModel
 from Trainer import Trainer
 import os
 
+
+def set_seed(seed: int):
+    import random
+    import numpy as np
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+
+def seed_worker(worker_id):
+    import random
+    import numpy as np
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
+
+
 def main():
     args = get_args()
-    device = torch.device('cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu'))
+
+    # ---- reproducibility ----
+    set_seed(args.seed)
+
+    device = torch.device(
+        'cuda' if torch.cuda.is_available()
+        else ('mps' if torch.backends.mps.is_available() else 'cpu')
+    )
     print(f"====== MODE: {args.mode.upper()} ======")
     print(f"Using device: {device}")
+    print(f"Seed: {args.seed} | Experiment: {args.exp_id}")
 
-    # Processors
+    # ---- tokenizer / image processor ----
     tokenizer = AutoTokenizer.from_pretrained(args.text_model_name)
     try:
         image_processor = AutoImageProcessor.from_pretrained(args.image_model_name)
-    except:
+    except Exception:
         image_processor = AutoImageProcessor.from_pretrained('google/siglip-base-patch16-256')
 
-    # Data
-    print("Loading Dataset...")
-    train_dataset = MultimodalDataset(args.train_path, tokenizer, image_processor, max_length=args.max_length, image_dir=args.image_dir)
-    val_dataset = MultimodalDataset(args.val_path, tokenizer, image_processor, max_length=args.max_length, image_dir=args.image_dir)
-    
-    print(f"Đã nạp {len(train_dataset)} mẫu cho Train và {len(val_dataset)} mẫu cho Val")
+    # ---- datasets ----
+    train_dataset = MultimodalDataset(
+        args.train_path, tokenizer, image_processor,
+        max_length=args.max_length, image_dir=args.image_dir,
+    )
+    val_dataset = MultimodalDataset(
+        args.val_path, tokenizer, image_processor,
+        max_length=args.max_length, image_dir=args.image_dir,
+    )
 
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
-    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
+    # ---- reproducible data loaders ----
+    g = torch.Generator()
+    g.manual_seed(args.seed)
 
-    # Model Initialization
-    print("Initializing Model...")
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=args.batch_size,
+        shuffle=True,
+        num_workers=0,
+        worker_init_fn=seed_worker,
+        generator=g,
+    )
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=0,
+        worker_init_fn=seed_worker,
+        generator=g,
+    )
+
+    # ---- model ----
     if args.mode == 'train_text':
         model = TextModel(model_name=args.text_model_name)
     elif args.mode == 'train_image':
         model = ImageModel(model_name=args.image_model_name)
     elif args.mode == 'train_fusion':
-        # Khởi tạo và load trọng số đã train
         text_model = TextModel(model_name=args.text_model_name)
         image_model = ImageModel(model_name=args.image_model_name)
-        
         text_weights = os.path.join(args.save_path, 'best_model_train_text.pth')
         image_weights = os.path.join(args.save_path, 'best_model_train_image.pth')
-        
         if os.path.exists(text_weights):
             text_model.load_state_dict(torch.load(text_weights, map_location=device))
-            print(f"Loaded Text Model weights from {text_weights}")
-        else:
-            print("WARNING: Text Model weights not found! Training fusion with untrained text features.")
-            
         if os.path.exists(image_weights):
             image_model.load_state_dict(torch.load(image_weights, map_location=device))
-            print(f"Loaded Image Model weights from {image_weights}")
-        else:
-            print("WARNING: Image Model weights not found! Training fusion with untrained image features.")
-            
         model = FusionModel(
-            text_model, 
-            image_model,
+            text_model, image_model,
             unfreeze_text_layers=args.unfreeze_text_layers,
-            unfreeze_image_layers=args.unfreeze_image_layers
+            unfreeze_image_layers=args.unfreeze_image_layers,
         )
 
     model.to(device)
-
-    # Training
     trainer = Trainer(model, train_loader, val_loader, device, args)
     trainer.run()
+
 
 if __name__ == '__main__':
     main()
