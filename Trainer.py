@@ -196,7 +196,7 @@ class Trainer:
         # Keep save_path for backward compat
         os.makedirs(args.save_path, exist_ok=True)
 
-        checkpoint_path = os.path.join(exp_dir, 'best_model.pth')
+        checkpoint_path = os.path.join(exp_dir, f'best_model_{args.mode}.pth')
 
         # ---- logging (console + file) ----
         log_path = os.path.join(exp_dir, 'train.log')
@@ -273,6 +273,12 @@ class Trainer:
                     },
                     checkpoint_path,
                 )
+                
+                # Backward compat: also save to args.save_path
+                import shutil
+                compat_path = os.path.join(args.save_path, f'best_model_{args.mode}.pth')
+                shutil.copy(checkpoint_path, compat_path)
+                
                 log(f"*** Saved best model to {checkpoint_path} (mean_mae={mean_mae:.4f}) ***")
             else:
                 patience_counter += 1

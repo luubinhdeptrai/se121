@@ -10,16 +10,17 @@ Establishing ground-truth performance to demonstrate the superiority of the Mult
 - `EXP_011_image_only_convnext_meanpool_mse`: Image-only baseline (ConvNeXt).
 - `EXP_012_multimodal_convnext_xlmr_concat_mse`: Multimodal baseline (XLM-R + ConvNeXt + Concat + MSE).
 
-## Phase 2 & 3: Backbone Ablation (Condensed) - 4 Runs
+## Phase 2 & 3: Backbone Ablation (Condensed) - 5 Runs
 Instead of testing 10 different backbones, we focus on the most promising architectures backed by recent scientific literature:
 - **Image Branch (Keeping XLM-R):**
   - `EXP_020B_swinb_xlmr_concat_mse`: Swin-B (Hierarchical Vision Transformer, highly effective for complex scenes).
   - `EXP_020D_efficientnetb3_xlmr_concat_mse`: EfficientNet-B3 (Based on the IJACSA 2024 paper showing strong synergy with text).
+  - `EXP_020E_siglip_xlmr_concat_mse`: SigLIP (State-of-the-art vision encoder trained with sigmoid loss, exceptionally robust for zero-shot and transfer learning on real-world images).
 - **Text Branch (Keeping the best Image backbone from above):**
   - `EXP_030B_bestimage_phobert_concat_mse`: PhoBERT (The gold standard for Vietnamese NLP).
   - `EXP_030D_bestimage_visobert_concat_mse`: ViSoBERT (Optimized for Vietnamese social media text, perfectly matching the Foody domain).
 
-*(Excluded: SigLIP, ViBERT, mDeBERTa, and various Pooling/Filtering experiments to save 12+ runs).*
+*(Excluded: ViBERT, mDeBERTa, and various Pooling/Filtering experiments to save runs).*
 
 ## Phase 4: Fusion Upgrades - 4 Runs
 Replacing the rudimentary Concatenation with advanced cross-modal interaction mechanisms.

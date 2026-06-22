@@ -93,10 +93,14 @@ def main():
         image_model = ImageModel(model_name=args.image_model_name)
         text_weights = os.path.join(args.save_path, 'best_model_train_text.pth')
         image_weights = os.path.join(args.save_path, 'best_model_train_image.pth')
+        
         if os.path.exists(text_weights):
-            text_model.load_state_dict(torch.load(text_weights, map_location=device))
+            ckpt = torch.load(text_weights, map_location=device)
+            text_model.load_state_dict(ckpt['model_state_dict'] if 'model_state_dict' in ckpt else ckpt)
         if os.path.exists(image_weights):
-            image_model.load_state_dict(torch.load(image_weights, map_location=device))
+            ckpt = torch.load(image_weights, map_location=device)
+            image_model.load_state_dict(ckpt['model_state_dict'] if 'model_state_dict' in ckpt else ckpt)
+            
         model = FusionModel(
             text_model, image_model,
             unfreeze_text_layers=args.unfreeze_text_layers,
