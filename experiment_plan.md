@@ -30,20 +30,20 @@ Replacing the rudimentary Concatenation with advanced cross-modal interaction me
 - `EXP_041A_bestimage_besttext_film_mse`: FiLM (Feature-wise Linear Modulation).
 - `EXP_041B_bestimage_besttext_crossattention_mse`: Cross-Attention.
 
-## Phase 5: Robust Loss & Task Balancing - 2 Runs
+## Phase 5: Robust Loss & Task Balancing - 3 Runs
 Mitigating outliers and resolving imbalance across the 5 target criteria.
 - `EXP_050B_bestfusion_huber`: Huber Loss (Less sensitive to extreme outliers).
+- `EXP_050C_bestfusion_logcosh`: Log-Cosh Loss (Smoother than Huber, twice-differentiable).
 - `EXP_051D_bestfusion_uncertaintyweighted`: Homoscedastic Task Uncertainty.
 
-## Phase 6: Promising Combinations - 3 Runs
-Evaluating combinations of the absolute best components and alternative synergies.
-- `EXP_060A_bestsequential`: Greedy combination of Phase 1->5 winners.
+## Phase 6: Promising Combinations - 2 Runs
+Evaluating alternative synergies outside of the greedy sequential path.
 - `EXP_060B_swinb_visobert_gmu_uncertainty`: Alternative Candidate 1.
 - `EXP_060C_efficientnetb3_phobert_film_huber`: Alternative Candidate 2.
 
 ## Phase 7: Final Test Evaluation - 1 Run
-Evaluate the best trained model from Phase 6 on the locked Test Set.
-- `EXP_071_locked_test_evaluation`: (This is NOT a training run. It loads the best model and runs inference to get the final MAE/RMSE/R2 for the thesis report).
+Evaluate the best overall trained model (from Phase 5 or 6) on the locked Test Set.
+- `EXP_071_locked_test_evaluation`: (This is NOT a training run. It loads the final chosen checkpoint and runs inference to get the final MAE/RMSE/R2 for the thesis report).
 
 ---
 ## COST & TIME ESTIMATION SUMMARY
