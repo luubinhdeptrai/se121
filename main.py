@@ -10,6 +10,17 @@ from Trainer import Trainer
 import os
 
 
+class TimmProcessor:
+    """Wrapper to make timm transforms behave like HuggingFace AutoImageProcessor."""
+    def __init__(self, model_name):
+        import timm
+        data_config = timm.data.resolve_model_data_config(model_name)
+        self.transform = timm.data.create_transform(**data_config, is_training=False)
+
+    def __call__(self, images, return_tensors="pt"):
+        pixel_values = torch.stack([self.transform(img.convert('RGB')) for img in images])
+        return {'pixel_values': pixel_values}
+
 def set_seed(seed: int):
     import random
     import numpy as np
@@ -50,7 +61,8 @@ def main():
     try:
         image_processor = AutoImageProcessor.from_pretrained(args.image_model_name)
     except Exception:
-        image_processor = AutoImageProcessor.from_pretrained('google/siglip-base-patch16-256')
+        image_processor = TimmProcessor(args.image_model_name)
+        print(f"Loaded timm processor for {args.image_model_name}")
 
     # ---- datasets ----
     train_dataset = MultimodalDataset(
