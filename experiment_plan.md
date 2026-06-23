@@ -48,8 +48,8 @@ Proving that the final model's success is not due to random seed variance. (Note
 
 ---
 ## COST ESTIMATION SUMMARY
-- **Total Training Runs:** 19 Runs (Reduced significantly from the original proposal while keeping core contributions).
-- **Estimated Time (A100 + AMP):** $\approx$ 45 minutes/Run $\rightarrow$ Total ~14 hours (Can be completed in < 1 day).
-- **Estimated Time (T4 + AMP):** $\approx$ 3.5 hours/Run $\rightarrow$ Total ~66.5 hours (Can be completed in ~3 days, costing ~133 Compute Units).
+- **Total Training Runs:** 18 Runs (Reduced significantly from the original proposal while keeping core contributions).
+- **Estimated Time (A100 + AMP):** $\approx$ 45 minutes/Run $\rightarrow$ Total ~13.5 hours (Can be completed in < 1 day).
+- **Estimated Time (T4 + AMP):** $\approx$ 3.5 hours/Run $\rightarrow$ Total ~63 hours (Can be completed in ~3 days, costing ~126 Compute Units).
 
 *The theoretical background and citations from the original document (ViSoBERT, EfficientNet, GMU, FiLM) remain fully valid and should be included in the final thesis report.*
