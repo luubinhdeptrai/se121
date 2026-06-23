@@ -61,8 +61,12 @@ def main():
     try:
         image_processor = AutoImageProcessor.from_pretrained(args.image_model_name)
     except Exception:
-        image_processor = TimmProcessor(args.image_model_name)
-        print(f"Loaded timm processor for {args.image_model_name}")
+        if 'siglip' in args.image_model_name.lower():
+            image_processor = AutoImageProcessor.from_pretrained('google/siglip-base-patch16-256')
+            print(f"Loaded HuggingFace processor for {args.image_model_name}")
+        else:
+            image_processor = TimmProcessor(args.image_model_name)
+            print(f"Loaded timm processor for {args.image_model_name}")
 
     # ---- datasets ----
     train_dataset = MultimodalDataset(
