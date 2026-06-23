@@ -26,10 +26,16 @@ class HomoscedasticUncertaintyLoss(nn.Module):
         return loss.mean()
 
 
+import math
+
 class LogCoshLoss(nn.Module):
     def forward(self, pred, target):
         diff = pred - target
-        return torch.mean(torch.log(torch.cosh(diff + 1e-12)))
+        # Numerically stable version of log(cosh(x)):
+        # log(cosh(x)) = |x| - log(2) + softplus(-2|x|)
+        # This prevents float16 overflow in AMP when diff > 11
+        abs_diff = torch.abs(diff)
+        return torch.mean(abs_diff + torch.nn.functional.softplus(-2.0 * abs_diff) - math.log(2.0))
 
 
 # ---------------------------------------------------------------------------
