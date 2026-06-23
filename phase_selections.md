@@ -56,3 +56,32 @@ Tài liệu này ghi nhận kết quả đánh giá và quyết định lựa ch
 👉 **CHỐT:** Chọn cặp bài trùng **`Swin-B` + `PhoBERT`** làm kiến trúc cốt lõi (Best Image + Best Text) cho toàn bộ các thử nghiệm từ Phase 4 trở về sau.
 
 Các thử nghiệm ở Phase 4 (Advanced Fusion như GMU, FiLM, Cross-Attention) sẽ kế thừa trực tiếp cặp đôi vô địch này.
+
+---
+
+# Báo cáo Lựa chọn Fusion Architecture - Phase 4
+
+Tài liệu này ghi nhận kết quả đánh giá các cơ chế kết hợp đặc trưng (Fusion Mechanisms) phức tạp hơn so với Concatenation đơn thuần. Nhánh Image được cố định là `Swin-B`, nhánh Text được cố định là `PhoBERT`.
+
+## 1. Kết quả thử nghiệm (Metrics)
+
+| Tiêu chí / Fusion | Baseline (Concat) | GMU (`EXP_040B`) | Gated Cross (`EXP_040C`) | FiLM (`EXP_041A`) | Cross-Attention (`EXP_041B`) 🏆 |
+|-------------------|-------------------|------------------|--------------------------|-------------------|---------------------------------|
+| **Mean MAE** | 1.1145 | 1.1160 | 1.1082 | 1.1195 | **1.1079** |
+| **Overall MAE** | 0.9300 | 0.9289 | 0.9198 | 0.9278 | **0.9143** |
+| **Aspect MAE** | 1.1607 | 1.1628 | 1.1553 | 1.1675 | **1.1563** |
+| **R² Overall** | 0.6220 | 0.6246 | 0.6309 | 0.6215 | **0.6335** |
+| **Loss** (MSE) | 2.2034 | 2.2047 | 2.1740 | 2.2243 | 2.1750 |
+
+## 2. Phân tích & Lựa chọn
+
+1. **Cross-Attention lên ngôi vô địch:** Bằng cách cho phép Text và Image liên tục rà soát đặc trưng của nhau thông qua thuật toán Attention, mô hình đã tìm được những liên kết ngầm sâu sắc nhất. Chỉ số Overall MAE giảm kỷ lục xuống còn **0.9143**, và R² đạt đỉnh **0.6335**. Đây là kiến trúc tối ưu nhất trong toàn bộ 4 Phase.
+2. **Gated Cross-Modal bám sát:** Kiến trúc "Lọc nhiễu chéo" này cũng thể hiện sức mạnh rất tốt (Mean MAE 1.1082), bám đuổi sát nút Cross-Attention và vượt xa Baseline.
+3. **GMU và FiLM gây thất vọng:** Có vẻ như việc chia tỷ lệ (GMU) hoặc dùng chữ để xoay/tịnh tiến ảnh (FiLM) không hoạt động tốt trên bộ dữ liệu review ăn uống này, khiến kết quả thậm chí còn thụt lùi hoặc chỉ ngang ngửa so với việc ghép nối (Concat) thô sơ ban đầu.
+
+## 3. Quyết định cho Phase tiếp theo
+
+👉 **CHỐT:** Chọn **`Cross-Attention`** làm kiến trúc Fusion chính thức. 
+
+Đội hình hoàn hảo nhất hiện tại: **`Swin-B` + `PhoBERT` + `Cross-Attention`**.
+Đội hình này sẽ được đem đi thử lửa với các hàm Loss chống nhiễu (Huber, Log-Cosh, Uncertainty Weighted) tại Phase 5.
