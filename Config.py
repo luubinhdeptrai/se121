@@ -33,5 +33,8 @@ def get_args():
                         help='Path to a checkpoint .pth file to resume training from')
     parser.add_argument('--use_amp', action='store_true',
                         help='Enable Automatic Mixed Precision (AMP) training')
+    parser.add_argument('--fusion_type', type=str, default='concat',
+                        choices=['concat', 'gmu', 'gated_cross', 'film', 'cross_attention'],
+                        help='Fusion architecture: concat | gmu | gated_cross | film | cross_attention')
     args = parser.parse_args()
     return args

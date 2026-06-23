@@ -93,19 +93,35 @@ def main():
         image_model = ImageModel(model_name=args.image_model_name)
         text_weights = os.path.join(args.save_path, 'best_model_train_text.pth')
         image_weights = os.path.join(args.save_path, 'best_model_train_image.pth')
-        
+
         if os.path.exists(text_weights):
             ckpt = torch.load(text_weights, map_location=device)
             text_model.load_state_dict(ckpt['model_state_dict'] if 'model_state_dict' in ckpt else ckpt)
         if os.path.exists(image_weights):
             ckpt = torch.load(image_weights, map_location=device)
             image_model.load_state_dict(ckpt['model_state_dict'] if 'model_state_dict' in ckpt else ckpt)
-            
-        model = FusionModel(
-            text_model, image_model,
+
+        fusion_kwargs = dict(
+            text_model=text_model,
+            image_model=image_model,
             unfreeze_text_layers=args.unfreeze_text_layers,
             unfreeze_image_layers=args.unfreeze_image_layers,
         )
+        fusion_type = getattr(args, 'fusion_type', 'concat')
+        if fusion_type == 'gmu':
+            from Models.GMUFusion import GMUFusion
+            model = GMUFusion(**fusion_kwargs)
+        elif fusion_type == 'gated_cross':
+            from Models.GatedCrossModalFusion import GatedCrossModalFusion
+            model = GatedCrossModalFusion(**fusion_kwargs)
+        elif fusion_type == 'film':
+            from Models.FiLMFusion import FiLMFusion
+            model = FiLMFusion(**fusion_kwargs)
+        elif fusion_type == 'cross_attention':
+            from Models.CrossAttentionFusion import CrossAttentionFusion
+            model = CrossAttentionFusion(**fusion_kwargs)
+        else:  # concat (default)
+            model = FusionModel(**fusion_kwargs)
 
     model.to(device)
     trainer = Trainer(model, train_loader, val_loader, device, args)

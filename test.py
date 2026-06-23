@@ -1,7 +1,7 @@
 import torch
+import numpy as np
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, AutoImageProcessor
-import torch.nn as nn
 
 from Config import get_args
 from src.dataset import MultimodalDataset
@@ -9,108 +9,142 @@ from Models.TextModel import TextModel
 from Models.ImageModel import ImageModel
 from Models.FusionModel import FusionModel
 import os
+import json
+
+
+def load_ckpt(model, path, device):
+    ckpt = torch.load(path, map_location=device)
+    state_dict = ckpt['model_state_dict'] if 'model_state_dict' in ckpt else ckpt
+    model.load_state_dict(state_dict)
+    print(f"Loaded weights: {path}")
+
 
 def test():
     args = get_args()
-    device = torch.device('cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu'))
-    
-    print(f"====== TESTING MODE: {args.mode.upper()} ======")
-    
+    device = torch.device(
+        'cuda' if torch.cuda.is_available()
+        else ('mps' if torch.backends.mps.is_available() else 'cpu')
+    )
+    print(f"====== TESTING: {args.mode.upper()} ======")
+    print(f"Device: {device}")
+
     tokenizer = AutoTokenizer.from_pretrained(args.text_model_name)
     try:
         image_processor = AutoImageProcessor.from_pretrained(args.image_model_name)
-    except:
+    except Exception:
         image_processor = AutoImageProcessor.from_pretrained('google/siglip-base-patch16-256')
 
-    print("Loading Test Dataset...")
-    test_dataset = MultimodalDataset(args.test_path, tokenizer, image_processor, max_length=args.max_length, image_dir=args.image_dir)
+    test_dataset = MultimodalDataset(
+        args.test_path, tokenizer, image_processor,
+        max_length=args.max_length, image_dir=args.image_dir,
+    )
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
-    print(f"Đã nạp {len(test_dataset)} mẫu Test")
+    print(f"Test samples: {len(test_dataset)}")
+
+    # ── Build model ────────────────────────────────────────────────────────────
+    fusion_type = getattr(args, 'fusion_type', 'concat')
 
     if args.mode == 'train_text':
         model = TextModel(model_name=args.text_model_name)
         weight_path = os.path.join(args.save_path, 'best_model_train_text.pth')
+
     elif args.mode == 'train_image':
         model = ImageModel(model_name=args.image_model_name)
         weight_path = os.path.join(args.save_path, 'best_model_train_image.pth')
-    else:
-        text_model = TextModel(model_name=args.text_model_name)
+
+    else:  # train_fusion
+        text_model  = TextModel(model_name=args.text_model_name)
         image_model = ImageModel(model_name=args.image_model_name)
-        model = FusionModel(text_model, image_model)
+
+        fusion_kwargs = dict(text_model=text_model, image_model=image_model)
+        if fusion_type == 'gmu':
+            from Models.GMUFusion import GMUFusion
+            model = GMUFusion(**fusion_kwargs)
+        elif fusion_type == 'gated_cross':
+            from Models.GatedCrossModalFusion import GatedCrossModalFusion
+            model = GatedCrossModalFusion(**fusion_kwargs)
+        elif fusion_type == 'film':
+            from Models.FiLMFusion import FiLMFusion
+            model = FiLMFusion(**fusion_kwargs)
+        elif fusion_type == 'cross_attention':
+            from Models.CrossAttentionFusion import CrossAttentionFusion
+            model = CrossAttentionFusion(**fusion_kwargs)
+        else:
+            model = FusionModel(**fusion_kwargs)
+
         weight_path = os.path.join(args.save_path, 'best_model_train_fusion.pth')
 
     if not os.path.exists(weight_path):
-        print(f"LỖI: Không tìm thấy file trọng số {weight_path}. Bạn cần train mô hình này trước!")
+        print(f"ERROR: checkpoint not found at {weight_path}")
         return
 
-    model.load_state_dict(torch.load(weight_path, map_location=device))
+    load_ckpt(model, weight_path, device)
     model.to(device)
     model.eval()
 
-    criterion = nn.MSELoss()
-    mae_criterion = nn.L1Loss()
-    
-    test_loss_food = 0.0
-    test_loss_price = 0.0
-    test_loss_atmosphere = 0.0
-    test_loss_service = 0.0
-    test_loss_overall = 0.0
-    
-    test_mae_food = 0.0
-    test_mae_price = 0.0
-    test_mae_atmosphere = 0.0
-    test_mae_service = 0.0
-    test_mae_overall = 0.0
-    
+    # ── Inference ──────────────────────────────────────────────────────────────
+    all_preds   = []
+    all_targets = []
+
+    use_amp = getattr(args, 'use_amp', False)
+
     with torch.no_grad():
         for batch in test_loader:
             if args.mode == 'train_text':
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                pred_factors, _ = model(input_ids, attention_mask)
+                inputs = {k: batch[k].to(device) for k in ['input_ids', 'attention_mask']}
             elif args.mode == 'train_image':
-                pixel_values = batch['pixel_values'].to(device)
-                num_images = batch['num_images'].to(device)
-                pred_factors, _ = model(pixel_values, num_images)
+                inputs = {k: batch[k].to(device) for k in ['pixel_values', 'num_images']}
             else:
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                pixel_values = batch['pixel_values'].to(device)
-                num_images = batch['num_images'].to(device)
-                pred_factors = model(input_ids, attention_mask, pixel_values, num_images)
-            
-            true_factors = batch['factor_scores'].to(device)
-            
-            # Tính riêng từng tiêu chí cho MSE
-            test_loss_food += criterion(pred_factors[:, 0], true_factors[:, 0]).item()
-            test_loss_price += criterion(pred_factors[:, 1], true_factors[:, 1]).item()
-            test_loss_atmosphere += criterion(pred_factors[:, 2], true_factors[:, 2]).item()
-            test_loss_service += criterion(pred_factors[:, 3], true_factors[:, 3]).item()
-            test_loss_overall += criterion(pred_factors[:, 4], true_factors[:, 4]).item()
-            
-            # Tính MAE
-            test_mae_food += mae_criterion(pred_factors[:, 0], true_factors[:, 0]).item()
-            test_mae_price += mae_criterion(pred_factors[:, 1], true_factors[:, 1]).item()
-            test_mae_atmosphere += mae_criterion(pred_factors[:, 2], true_factors[:, 2]).item()
-            test_mae_service += mae_criterion(pred_factors[:, 3], true_factors[:, 3]).item()
-            test_mae_overall += mae_criterion(pred_factors[:, 4], true_factors[:, 4]).item()
-            
-    mse_food = test_loss_food / len(test_loader)
-    mse_price = test_loss_price / len(test_loader)
-    mse_atmosphere = test_loss_atmosphere / len(test_loader)
-    mse_service = test_loss_service / len(test_loader)
-    mse_overall = test_loss_overall / len(test_loader)
-    
-    mae_food = test_mae_food / len(test_loader)
-    mae_price = test_mae_price / len(test_loader)
-    mae_atmosphere = test_mae_atmosphere / len(test_loader)
-    mae_service = test_mae_service / len(test_loader)
-    mae_overall = test_mae_overall / len(test_loader)
-    
-    print("\n[EVALUATION METRICS ON INDEPENDENT TEST SET]")
-    print(f"MSE  | Food: {mse_food:.4f} | Price: {mse_price:.4f} | Atmos: {mse_atmosphere:.4f} | Service: {mse_service:.4f} | Overall: {mse_overall:.4f}")
-    print(f"RMSE | Food: {mse_food**0.5:.4f} | Price: {mse_price**0.5:.4f} | Atmos: {mse_atmosphere**0.5:.4f} | Service: {mse_service**0.5:.4f} | Overall: {mse_overall**0.5:.4f}")
-    print(f"MAE  | Food: {mae_food:.4f} | Price: {mae_price:.4f} | Atmos: {mae_atmosphere:.4f} | Service: {mae_service:.4f} | Overall: {mae_overall:.4f}")
+                inputs = {k: batch[k].to(device) for k in ['input_ids', 'attention_mask', 'pixel_values', 'num_images'] if k in batch}
+
+            with torch.cuda.amp.autocast(enabled=use_amp):
+                output = model(**inputs)
+                preds  = output[0] if isinstance(output, tuple) else output
+
+            all_preds.append(preds.cpu())
+            all_targets.append(batch['factor_scores'])
+
+    all_preds   = torch.cat(all_preds,   dim=0).numpy()  # (N, 5)
+    all_targets = torch.cat(all_targets, dim=0).numpy()  # (N, 5)
+
+    # ── Sample-wise metrics ────────────────────────────────────────────────────
+    factor_names = ['food', 'price', 'atmos', 'service', 'overall']
+    metrics = {}
+    mae_list = []
+
+    for i, name in enumerate(factor_names):
+        mae  = float(np.mean(np.abs(all_preds[:, i] - all_targets[:, i])))
+        rmse = float(np.sqrt(np.mean((all_preds[:, i] - all_targets[:, i]) ** 2)))
+        ss_res = np.sum((all_targets[:, i] - all_preds[:, i]) ** 2)
+        ss_tot = np.sum((all_targets[:, i] - np.mean(all_targets[:, i])) ** 2)
+        r2   = float(1 - ss_res / (ss_tot + 1e-10))
+        metrics[f'mae_{name}']  = mae
+        metrics[f'rmse_{name}'] = rmse
+        metrics[f'r2_{name}']   = r2
+        mae_list.append(mae)
+
+    metrics['mean_mae']    = float(np.mean(mae_list))
+    metrics['overall_mae'] = metrics['mae_overall']
+    metrics['aspect_mae']  = float(np.mean([metrics[f'mae_{n}'] for n in ['food', 'price', 'atmos', 'service']]))
+
+    # ── Print ──────────────────────────────────────────────────────────────────
+    print(f"\n=== TEST SET RESULTS ===")
+    print(f"             MAE      RMSE      R2")
+    for name in factor_names:
+        print(f"  {name:<8} : {metrics[f'mae_{name}']:.4f}   {metrics[f'rmse_{name}']:.4f}   {metrics[f'r2_{name}']:.4f}")
+    print()
+    print(f"  mean_mae   : {metrics['mean_mae']:.4f}")
+    print(f"  aspect_mae : {metrics['aspect_mae']:.4f}")
+    print(f"  overall_mae: {metrics['overall_mae']:.4f}")
+
+    # ── Save ───────────────────────────────────────────────────────────────────
+    exp_dir = os.path.join(getattr(args, 'exp_dir', './experiments'), args.exp_id)
+    os.makedirs(exp_dir, exist_ok=True)
+    out_path = os.path.join(exp_dir, 'test_metrics.json')
+    with open(out_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    print(f"\nSaved test metrics to {out_path}")
+
 
 if __name__ == '__main__':
     test()
