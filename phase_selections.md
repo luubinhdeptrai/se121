@@ -85,3 +85,35 @@ Tài liệu này ghi nhận kết quả đánh giá các cơ chế kết hợp �
 
 Đội hình hoàn hảo nhất hiện tại: **`Swin-B` + `PhoBERT` + `Cross-Attention`**.
 Đội hình này sẽ được đem đi thử lửa với các hàm Loss chống nhiễu (Huber, Log-Cosh, Uncertainty Weighted) tại Phase 5.
+
+---
+
+# Báo cáo Lựa chọn Loss Function - Phase 5
+
+Tài liệu này ghi nhận kết quả đánh giá các hàm Loss Function phức tạp nhằm xử lý nhiễu (outliers) tốt hơn MSE truyền thống. Nhánh Image cố định là `Swin-B`, nhánh Text cố định là `PhoBERT`, Fusion cố định là `Cross-Attention`.
+
+## 1. Kết quả thử nghiệm (Metrics)
+
+| Tiêu chí | Baseline (MSE) 🏆 Mean | Huber (`EXP_050B`) | Log-Cosh (`EXP_050C`) 🏆 Overall | Uncertainty Weighted (`EXP_051D`) 🏆 R² |
+|---|---|---|---|---|
+| **Mean MAE** | **1.1078** | 1.1085 | 1.1079 | 1.1080 |
+| **Overall MAE** | 0.9142 | 0.9131 | **0.9130** | 0.9143 |
+| **R² Overall** | 0.6335 | 0.6307 | 0.6312 | **0.6336** |
+
+## 2. Phân tích & Lựa chọn
+
+1. Mặc dù **MSE** vẫn giữ được Mean MAE thấp nhất (1.1078), tuy nhiên **Log-Cosh** đã cho thấy khả năng vượt trội ở **Overall MAE** (0.9130). 
+2. Trong bối cảnh review nhà hàng, điểm số đánh giá tổng thể (Overall) mang tính chất quyết định nhất đối với trải nghiệm người dùng, do đó việc tối ưu tốt nhất cho Overall được ưu tiên.
+3. Chênh lệch Mean MAE giữa Log-Cosh và MSE là vô cùng nhỏ (0.0001), hoàn toàn có thể chấp nhận đánh đổi.
+
+## 3. Quyết định cho Phase tiếp theo
+
+👉 **CHỐT:** Chọn **`Log-Cosh`** làm hàm Loss cuối cùng.
+
+Cấu hình "Vô địch" (Best Sequential Full Configuration) sẽ là:
+- **Image:** Swin-B
+- **Text:** PhoBERT
+- **Fusion:** Cross-Attention
+- **Loss:** Log-Cosh
+
+Cấu hình này sẽ được chạy tại notebook `EXP_060A_bestsequential_full_configuration.ipynb` ở Phase 6.
