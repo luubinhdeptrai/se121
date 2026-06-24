@@ -152,7 +152,7 @@ def test():
     print(f"  overall_mae: {metrics['overall_mae']:.4f}")
 
     # ── Save ───────────────────────────────────────────────────────────────────
-    exp_dir = os.path.join(getattr(args, 'exp_dir', './experiments'), args.exp_id)
+    exp_dir = getattr(args, 'save_path', './checkpoints')
     os.makedirs(exp_dir, exist_ok=True)
     
     # ---- 1. Save Metrics ----
