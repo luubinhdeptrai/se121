@@ -36,18 +36,20 @@ Mitigating outliers and resolving imbalance across the 5 target criteria.
 - `EXP_050C_bestfusion_logcosh`: Log-Cosh Loss (Smoother than Huber, twice-differentiable).
 - `EXP_051D_bestfusion_uncertaintyweighted`: Homoscedastic Task Uncertainty.
 
-## Phase 6: Promising Combinations - 2 Runs
+## Phase 6: Promising Combinations - 4 Runs
 Evaluating alternative synergies outside of the greedy sequential path.
 - `EXP_060B_swinb_visobert_gmu_uncertainty`: Alternative Candidate 1.
 - `EXP_060C_efficientnetb3_phobert_film_huber`: Alternative Candidate 2.
+- `EXP_060D_siglip_visobert_crossattention_logcosh`: Alternative Candidate 3 (SigLIP + ViSoBERT + Cross-Attention + Log-Cosh).
+- `EXP_060E_convnext_phobert_gatedcrossmodal_autoweight`: Alternative Candidate 4 (ConvNeXt + PhoBERT + Gated Cross-Modal + Auto-Weight).
 
-## Phase 7: Final Test Evaluation - 1 Run
-Evaluate the best overall trained model (from Phase 5 or 6) on the locked Test Set.
-- `EXP_071_locked_test_evaluation`: (This is NOT a training run. It loads the final chosen checkpoint and runs inference to get the final MAE/RMSE/R2 for the thesis report).
+## Phase 7: Multi-Seed Stability Validation - 1 Run
+To ensure the robustness of the final model, the best chosen architecture (from Phase 5 or 6) will be re-trained with a different random seed.
+- `EXP_070_bestmodel_seed123`: Train best model with `--seed 123`.
 
 ---
 ## COST & TIME ESTIMATION SUMMARY
-- **Total Training Runs:** 17 Training Runs + 1 Evaluation Run.
+- **Total Training Runs:** 20 Training Runs (19 architecture runs + 1 seed variant).
 - **Total Estimated Epochs:** ~360 epochs (including independent 20-epoch pre-training steps in Phase 2/3 and 15-epoch fusion steps).
 - **Estimated Compute Time (A100 + AMP):** $\approx$ 1.5 - 2 minutes/epoch $\rightarrow$ ~9 hours of pure compute. With `patience=5` Early Stopping, realistic runtime is **5-6 hours**.
 
