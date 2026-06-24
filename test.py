@@ -140,11 +140,82 @@ def test():
     # ── Save ───────────────────────────────────────────────────────────────────
     exp_dir = os.path.join(getattr(args, 'exp_dir', './experiments'), args.exp_id)
     os.makedirs(exp_dir, exist_ok=True)
+    
+    # ---- 1. Save Metrics ----
     out_path = os.path.join(exp_dir, 'test_metrics.json')
     with open(out_path, 'w') as f:
         json.dump(metrics, f, indent=2)
     print(f"\nSaved test metrics to {out_path}")
 
+    # ---- 2. Save Predictions CSV ----
+    import csv
+    pred_path = os.path.join(exp_dir, 'test_predictions.csv')
+    header = ['index', 'split']
+    for n in factor_names:
+        header.append(f'y_true_{n}')
+    for n in factor_names:
+        header.append(f'y_pred_{n}')
+    for n in factor_names:
+        header.append(f'absolute_error_{n}')
+
+    with open(pred_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        for idx in range(len(all_preds)):
+            row = [idx, 'test']
+            row += [f'{all_targets[idx, j]:.6f}' for j in range(5)]
+            row += [f'{all_preds[idx, j]:.6f}' for j in range(5)]
+            row += [f'{abs(all_targets[idx, j] - all_preds[idx, j]):.6f}' for j in range(5)]
+            writer.writerow(row)
+    print(f"Saved test predictions to {pred_path}")
+
+    # ---- 3. Save Plots ----
+    try:
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        sns.set_theme(style="whitegrid")
+        
+        # Plot 1: Bar chart of MAE per aspect
+        plt.figure(figsize=(8, 5))
+        maes = [metrics[f'mae_{n}'] for n in factor_names]
+        sns.barplot(x=[n.capitalize() for n in factor_names], y=maes, palette='viridis')
+        plt.title('Test Set - Mean Absolute Error (MAE) per Aspect')
+        plt.ylabel('MAE')
+        for i, v in enumerate(maes):
+            plt.text(i, v + 0.02, f"{v:.3f}", color='black', ha='center')
+        plt.tight_layout()
+        plt.savefig(os.path.join(exp_dir, 'test_mae_aspects.png'), dpi=150)
+        plt.close()
+        
+        # Plot 2: Scatter plots of Pred vs True for each aspect
+        fig, axes = plt.subplots(1, 5, figsize=(25, 5))
+        for i, n in enumerate(factor_names):
+            axes[i].scatter(all_targets[:, i], all_preds[:, i], alpha=0.3, color='steelblue')
+            axes[i].plot([1, 5], [1, 5], 'r--', linewidth=2)  # Perfect prediction line
+            axes[i].set_title(f'{n.capitalize()} (R²: {metrics[f"r2_{n}"]:.2f})', fontsize=14)
+            axes[i].set_xlabel('True Score')
+            axes[i].set_ylabel('Predicted Score')
+            axes[i].set_xlim(0.5, 5.5)
+            axes[i].set_ylim(0.5, 5.5)
+        plt.tight_layout()
+        plt.savefig(os.path.join(exp_dir, 'test_scatter_pred_vs_true.png'), dpi=150)
+        plt.close()
+        
+        # Plot 3: Histogram of Errors
+        fig, axes = plt.subplots(1, 5, figsize=(25, 5))
+        for i, n in enumerate(factor_names):
+            errors = all_preds[:, i] - all_targets[:, i]
+            sns.histplot(errors, bins=20, kde=True, ax=axes[i], color='mediumpurple')
+            axes[i].axvline(x=0, color='red', linestyle='--', linewidth=2)
+            axes[i].set_title(f'{n.capitalize()} Error Dist', fontsize=14)
+            axes[i].set_xlabel('Prediction Error (Pred - True)')
+        plt.tight_layout()
+        plt.savefig(os.path.join(exp_dir, 'test_error_distributions.png'), dpi=150)
+        plt.close()
+        
+        print(f"Saved test visualizations as PNGs in {exp_dir}")
+    except ImportError:
+        print("matplotlib or seaborn not installed, skipping visualizations. Install with: pip install matplotlib seaborn")
 
 if __name__ == '__main__':
     test()
