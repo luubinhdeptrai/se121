@@ -38,9 +38,10 @@ Mitigating outliers and resolving imbalance across the 5 target criteria.
 
 ## Phase 6: Promising Combinations - 4 Runs
 Evaluating alternative synergies outside of the greedy sequential path.
+- `EXP_060A_bestsequential_full_configuration`: Baseline Candidate (Evaluates the Phase 5 winner on the Test Set, 0 additional training runs).
 - `EXP_060B_swinb_visobert_gmu_uncertainty`: Alternative Candidate 1.
 - `EXP_060C_efficientnetb3_phobert_film_huber`: Alternative Candidate 2.
-- `EXP_060D_siglip_visobert_crossattention_logcosh`: Alternative Candidate 3 (SigLIP + ViSoBERT + Cross-Attention + Log-Cosh).
+- `EXP_060D_efficientnetb3_visobert_crossattention_logcosh`: Alternative Candidate 3 (EfficientNet-B3 + ViSoBERT + Cross-Attention + Log-Cosh).
 - `EXP_060E_convnext_phobert_gatedcrossmodal_autoweight`: Alternative Candidate 4 (ConvNeXt + PhoBERT + Gated Cross-Modal + Auto-Weight).
 
 ## Phase 7: Multi-Seed Stability Validation - 1 Run
