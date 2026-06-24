@@ -12,6 +12,17 @@ import os
 import json
 
 
+class TimmProcessor:
+    def __init__(self, model_name):
+        import timm
+        data_config = timm.data.resolve_model_data_config(model_name)
+        self.transform = timm.data.create_transform(**data_config, is_training=False)
+
+    def __call__(self, images, return_tensors="pt"):
+        import torch
+        pixel_values = torch.stack([self.transform(img.convert('RGB')) for img in images])
+        return {'pixel_values': pixel_values}
+
 def load_ckpt(model, path, device):
     ckpt = torch.load(path, map_location=device)
     state_dict = ckpt['model_state_dict'] if 'model_state_dict' in ckpt else ckpt
@@ -32,7 +43,10 @@ def test():
     try:
         image_processor = AutoImageProcessor.from_pretrained(args.image_model_name)
     except Exception:
-        image_processor = AutoImageProcessor.from_pretrained('google/siglip-base-patch16-256')
+        if "google/siglip" in args.image_model_name:
+            image_processor = AutoImageProcessor.from_pretrained('google/siglip-base-patch16-256')
+        else:
+            image_processor = TimmProcessor(args.image_model_name)
 
     test_dataset = MultimodalDataset(
         args.test_path, tokenizer, image_processor,
